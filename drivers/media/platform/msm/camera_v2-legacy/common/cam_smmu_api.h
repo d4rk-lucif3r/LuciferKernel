@@ -18,9 +18,12 @@
 #include <asm/dma-iommu.h>
 #include <linux/dma-direction.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include <linux/dma-attrs.h>
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 #include <linux/of_platform.h>
 #include <linux/iommu.h>
 #include <linux/random.h>

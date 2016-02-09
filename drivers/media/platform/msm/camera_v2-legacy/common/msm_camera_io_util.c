@@ -437,6 +437,7 @@ int msm_camera_config_vreg(struct device *dev, struct camera_vreg_t *cam_vreg,
 				}
 				if (curr_vreg->op_mode >= 0) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 					rc = regulator_set_load(
 						reg_ptr[j],
 						curr_vreg->op_mode);
@@ -446,6 +447,12 @@ int msm_camera_config_vreg(struct device *dev, struct camera_vreg_t *cam_vreg,
 						reg_ptr[j],
 						curr_vreg->op_mode);
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+					rc = regulator_set_load(
+						reg_ptr[j],
+						curr_vreg->op_mode);
+					//TODO: ??? rc = 0;
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 					if (rc < 0) {
 						pr_err(
 						"%s:%s set optimum mode fail\n",
@@ -469,12 +476,17 @@ int msm_camera_config_vreg(struct device *dev, struct camera_vreg_t *cam_vreg,
 				if (regulator_count_voltages(reg_ptr[j]) > 0) {
 					if (curr_vreg->op_mode >= 0) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 						regulator_set_load(
 								reg_ptr[j], 0);
 =======
 						regulator_set_optimum_mode(
 							reg_ptr[j], 0);
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+						regulator_set_load(
+								reg_ptr[j], 0);
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 					}
 					regulator_set_voltage(
 						reg_ptr[j], 0, curr_vreg->
@@ -490,10 +502,14 @@ int msm_camera_config_vreg(struct device *dev, struct camera_vreg_t *cam_vreg,
 vreg_unconfig:
 if (regulator_count_voltages(reg_ptr[j]) > 0)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	regulator_set_load(reg_ptr[j], 0);
 =======
 	regulator_set_optimum_mode(reg_ptr[j], 0);
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	regulator_set_load(reg_ptr[j], 0);
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 
 vreg_set_opt_mode_fail:
 if (regulator_count_voltages(reg_ptr[j]) > 0)
@@ -697,10 +713,14 @@ int msm_camera_config_single_vreg(struct device *dev,
 			}
 			if (cam_vreg->op_mode >= 0) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 				rc = regulator_set_load(*reg_ptr,
 =======
 				rc = regulator_set_optimum_mode(*reg_ptr,
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+				rc = regulator_set_load(*reg_ptr,
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 					cam_vreg->op_mode);
 				if (rc < 0) {
 					pr_err(
@@ -724,10 +744,14 @@ int msm_camera_config_single_vreg(struct device *dev,
 			if (regulator_count_voltages(*reg_ptr) > 0) {
 				if (cam_vreg->op_mode >= 0)
 <<<<<<< HEAD
+<<<<<<< HEAD
 					regulator_set_load(*reg_ptr, 0);
 =======
 					regulator_set_optimum_mode(*reg_ptr, 0);
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+					regulator_set_load(*reg_ptr, 0);
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 				regulator_set_voltage(
 					*reg_ptr, 0, cam_vreg->max_voltage);
 			}
@@ -742,10 +766,14 @@ int msm_camera_config_single_vreg(struct device *dev,
 vreg_unconfig:
 if (regulator_count_voltages(*reg_ptr) > 0)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	regulator_set_load(*reg_ptr, 0);
 =======
 	regulator_set_optimum_mode(*reg_ptr, 0);
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	regulator_set_load(*reg_ptr, 0);
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 
 vreg_set_opt_mode_fail:
 if (regulator_count_voltages(*reg_ptr) > 0)

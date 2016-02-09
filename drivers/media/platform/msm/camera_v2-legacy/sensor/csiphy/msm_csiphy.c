@@ -1443,11 +1443,15 @@ static int csiphy_probe(struct platform_device *pdev)
 	snprintf(new_csiphy_dev->msm_sd.sd.name,
 		ARRAY_SIZE(new_csiphy_dev->msm_sd.sd.name), "msm_csiphy");
 <<<<<<< HEAD
+<<<<<<< HEAD
 	media_entity_pads_init(&new_csiphy_dev->msm_sd.sd.entity, 0, NULL);
 =======
 	media_entity_init(&new_csiphy_dev->msm_sd.sd.entity, 0, NULL, 0);
 	new_csiphy_dev->msm_sd.sd.entity.type = MEDIA_ENT_T_V4L2_SUBDEV;
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	media_entity_pads_init(&new_csiphy_dev->msm_sd.sd.entity, 0, NULL);
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	new_csiphy_dev->msm_sd.sd.entity.group_id = MSM_CAMERA_SUBDEV_CSIPHY;
 	new_csiphy_dev->msm_sd.close_seq = MSM_SD_CLOSE_2ND_CATEGORY | 0x4;
 	msm_sd_register(&new_csiphy_dev->msm_sd);

@@ -2055,11 +2055,15 @@ static int32_t msm_actuator_i2c_probe(struct i2c_client *client,
 	act_ctrl_t->msm_sd.sd.internal_ops = &msm_actuator_internal_ops;
 	act_ctrl_t->msm_sd.sd.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	media_entity_pads_init(&act_ctrl_t->msm_sd.sd.entity, 0, NULL);
 =======
 	media_entity_init(&act_ctrl_t->msm_sd.sd.entity, 0, NULL, 0);
 	act_ctrl_t->msm_sd.sd.entity.type = MEDIA_ENT_T_V4L2_SUBDEV;
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	media_entity_pads_init(&act_ctrl_t->msm_sd.sd.entity, 0, NULL);
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	act_ctrl_t->msm_sd.sd.entity.group_id = MSM_CAMERA_SUBDEV_ACTUATOR;
 	act_ctrl_t->msm_sd.close_seq = MSM_SD_CLOSE_2ND_CATEGORY | 0x2;
 	msm_sd_register(&act_ctrl_t->msm_sd);
@@ -2193,11 +2197,15 @@ static int32_t msm_actuator_platform_probe(struct platform_device *pdev)
 	snprintf(msm_actuator_t->msm_sd.sd.name,
 		ARRAY_SIZE(msm_actuator_t->msm_sd.sd.name), "msm_actuator");
 <<<<<<< HEAD
+<<<<<<< HEAD
 	media_entity_pads_init(&msm_actuator_t->msm_sd.sd.entity, 0, NULL);
 =======
 	media_entity_init(&msm_actuator_t->msm_sd.sd.entity, 0, NULL, 0);
 	msm_actuator_t->msm_sd.sd.entity.type = MEDIA_ENT_T_V4L2_SUBDEV;
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	media_entity_pads_init(&msm_actuator_t->msm_sd.sd.entity, 0, NULL);
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	msm_actuator_t->msm_sd.sd.entity.group_id = MSM_CAMERA_SUBDEV_ACTUATOR;
 	msm_actuator_t->msm_sd.close_seq = MSM_SD_CLOSE_2ND_CATEGORY | 0x2;
 	msm_sd_register(&msm_actuator_t->msm_sd);

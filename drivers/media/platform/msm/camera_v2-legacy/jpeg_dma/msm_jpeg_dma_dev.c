@@ -278,6 +278,7 @@ static int msm_jpegdma_update_hw_config(struct jpegdma_ctx *ctx)
  */
 static int msm_jpegdma_queue_setup(struct vb2_queue *q,
 <<<<<<< HEAD
+<<<<<<< HEAD
 //	const void *parg,
 	unsigned int *num_buffers, unsigned int *num_planes,
 	unsigned int sizes[], struct device *alloc_ctxs[])
@@ -286,11 +287,18 @@ static int msm_jpegdma_queue_setup(struct vb2_queue *q,
 	struct v4l2_format *fmt = NULL;
 =======
 	const struct v4l2_format *fmt,
+=======
+//	const void *parg,
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	unsigned int *num_buffers, unsigned int *num_planes,
-	unsigned int sizes[], void *alloc_ctxs[])
+	unsigned int sizes[], struct device *alloc_ctxs[])
 {
 	struct jpegdma_ctx *ctx = vb2_get_drv_priv(q);
+<<<<<<< HEAD
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	struct v4l2_format *fmt = NULL;
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 
 	if (NULL == fmt) {
 		switch (q->type) {
@@ -309,10 +317,14 @@ static int msm_jpegdma_queue_setup(struct vb2_queue *q,
 
 	*num_planes = 1;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	alloc_ctxs[0] = (struct device*) ctx->jdma_device;
 =======
 	alloc_ctxs[0] = ctx->jdma_device;
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	alloc_ctxs[0] = (struct device*) ctx->jdma_device;
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 
 	return 0;
 }
@@ -325,6 +337,7 @@ static void msm_jpegdma_buf_queue(struct vb2_buffer *vb)
 {
 	struct jpegdma_ctx *ctx = vb2_get_drv_priv(vb->vb2_queue);
 <<<<<<< HEAD
+<<<<<<< HEAD
 	struct vb2_v4l2_buffer *vb2_v4l2_buf = to_vb2_v4l2_buffer(vb);
 
 	v4l2_m2m_buf_queue(ctx->m2m_ctx, vb2_v4l2_buf);
@@ -332,6 +345,11 @@ static void msm_jpegdma_buf_queue(struct vb2_buffer *vb)
 
 	v4l2_m2m_buf_queue(ctx->m2m_ctx, vb);
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	struct vb2_v4l2_buffer *vb2_v4l2_buf = to_vb2_v4l2_buffer(vb);
+
+	v4l2_m2m_buf_queue(ctx->m2m_ctx, vb2_v4l2_buf);
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 
 	return;
 }
@@ -400,6 +418,7 @@ static struct vb2_ops msm_jpegdma_vb2_q_ops = {
  * @write: True if buffer will be used for writing the data.
  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void *msm_jpegdma_get_userptr(struct device *alloc_ctx,
 		unsigned long vaddr, unsigned long size,
 		enum dma_data_direction dma_dir)
@@ -411,6 +430,13 @@ static void *msm_jpegdma_get_userptr(void *alloc_ctx,
 {
 	struct msm_jpegdma_device *dma = alloc_ctx;
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+static void *msm_jpegdma_get_userptr(struct device *alloc_ctx,
+		unsigned long vaddr, unsigned long size,
+		enum dma_data_direction dma_dir)
+{
+	struct msm_jpegdma_device *dma = (void *) alloc_ctx;
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	struct msm_jpegdma_buf_handle *buf;
 	int ret;
 
@@ -466,10 +492,14 @@ static int msm_jpegdma_queue_init(void *priv, struct vb2_queue *src_vq,
 	src_vq->mem_ops = &msm_jpegdma_vb2_mem_ops;
 	src_vq->ops = &msm_jpegdma_vb2_q_ops;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	src_vq->buf_struct_size = sizeof(struct vb2_v4l2_buffer);
 =======
 	src_vq->buf_struct_size = sizeof(struct v4l2_m2m_buffer);
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	src_vq->buf_struct_size = sizeof(struct vb2_v4l2_buffer);
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	src_vq->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_COPY;
 
 	ret = vb2_queue_init(src_vq);
@@ -484,10 +514,14 @@ static int msm_jpegdma_queue_init(void *priv, struct vb2_queue *src_vq,
 	dst_vq->mem_ops = &msm_jpegdma_vb2_mem_ops;
 	dst_vq->ops = &msm_jpegdma_vb2_q_ops;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	dst_vq->buf_struct_size = sizeof(struct vb2_v4l2_buffer);
 =======
 	dst_vq->buf_struct_size = sizeof(struct v4l2_m2m_buffer);
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	dst_vq->buf_struct_size = sizeof(struct vb2_v4l2_buffer);
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	dst_vq->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_COPY;
 
 	ret = vb2_queue_init(dst_vq);
@@ -1089,16 +1123,21 @@ static const struct v4l2_ioctl_ops fd_ioctl_ops = {
  */
 static void msm_jpegdma_process_buffers(struct jpegdma_ctx *ctx,
 <<<<<<< HEAD
+<<<<<<< HEAD
 	struct vb2_v4l2_buffer *src_buf, struct vb2_v4l2_buffer *dst_buf)
 =======
 	struct vb2_buffer *src_buf, struct vb2_buffer *dst_buf)
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	struct vb2_v4l2_buffer *src_buf, struct vb2_v4l2_buffer *dst_buf)
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 {
 	struct msm_jpegdma_buf_handle *buf_handle;
 	struct msm_jpegdma_addr addr;
 	int plane_idx;
 	int config_idx;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	buf_handle = dst_buf->vb2_buf.planes[0].mem_priv;
 	addr.out_addr = buf_handle->addr;
@@ -1110,6 +1149,12 @@ static void msm_jpegdma_process_buffers(struct jpegdma_ctx *ctx,
 
 	buf_handle = src_buf->planes[0].mem_priv;
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	buf_handle = dst_buf->vb2_buf.planes[0].mem_priv;
+	addr.out_addr = buf_handle->addr;
+
+	buf_handle = src_buf->vb2_buf.planes[0].mem_priv;
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	addr.in_addr = buf_handle->addr;
 
 	plane_idx = ctx->plane_idx;
@@ -1126,12 +1171,17 @@ static void msm_jpegdma_process_buffers(struct jpegdma_ctx *ctx,
 static void msm_jpegdma_device_run(void *priv)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     struct vb2_v4l2_buffer *src_buf;
     struct vb2_v4l2_buffer *dst_buf;
 =======
 	struct vb2_buffer *src_buf;
 	struct vb2_buffer *dst_buf;
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+    struct vb2_v4l2_buffer *src_buf;
+    struct vb2_v4l2_buffer *dst_buf;
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	struct jpegdma_ctx *ctx = priv;
 
 	dev_dbg(ctx->jdma_device->dev, "Jpeg v4l2 dma device run E\n");
@@ -1193,12 +1243,17 @@ static struct v4l2_m2m_ops msm_jpegdma_m2m_ops = {
 void msm_jpegdma_isr_processing_done(struct msm_jpegdma_device *dma)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	struct vb2_v4l2_buffer *src_buf;
 	struct vb2_v4l2_buffer *dst_buf;
 =======
 	struct vb2_buffer *src_buf;
 	struct vb2_buffer *dst_buf;
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	struct vb2_v4l2_buffer *src_buf;
+	struct vb2_v4l2_buffer *dst_buf;
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	struct jpegdma_ctx *ctx;
 
 	mutex_lock(&dma->lock);

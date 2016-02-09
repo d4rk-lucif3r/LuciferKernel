@@ -174,6 +174,7 @@ static int msm_fd_fill_format_from_ctx(struct v4l2_format *f, struct fd_ctx *c)
  */
 static int msm_fd_queue_setup(struct vb2_queue *q,
 <<<<<<< HEAD
+<<<<<<< HEAD
 //	const void *parg,
 	unsigned int *num_buffers, unsigned int *num_planes,
 	unsigned int sizes[], struct device *alloc_ctxs[])
@@ -187,24 +188,37 @@ static int msm_fd_queue_setup(struct vb2_queue *q,
 	if (fmt == NULL)
 =======
 	const struct v4l2_format *fmt,
+=======
+//	const void *parg,
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	unsigned int *num_buffers, unsigned int *num_planes,
-	unsigned int sizes[], void *alloc_ctxs[])
+	unsigned int sizes[], struct device *alloc_ctxs[])
 {
 	struct fd_ctx *ctx = vb2_get_drv_priv(q);
+	//const struct v4l2_format *fmt = parg;
+	const struct v4l2_format *fmt = NULL;
 
 	*num_planes = 1;
 
+<<<<<<< HEAD
 	if (NULL == fmt)
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	if (fmt == NULL)
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 		sizes[0] = ctx->format.sizeimage;
 	else
 		sizes[0] = fmt->fmt.pix.sizeimage;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	alloc_ctxs[0] = (struct device *)&ctx->mem_pool;
 =======
 	alloc_ctxs[0] = &ctx->mem_pool;
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	alloc_ctxs[0] = (struct device *)&ctx->mem_pool;
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 
 	return 0;
 }
@@ -305,6 +319,7 @@ static struct vb2_ops msm_fd_vb2_q_ops = {
  * @write: True if buffer will be used for writing the data.
  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void *msm_fd_get_userptr(struct device *alloc_ctx,
 	unsigned long vaddr, unsigned long size,
 	enum dma_data_direction dma_dir)
@@ -316,6 +331,13 @@ static void *msm_fd_get_userptr(void *alloc_ctx,
 {
 	struct msm_fd_mem_pool *pool = alloc_ctx;
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+static void *msm_fd_get_userptr(struct device *alloc_ctx,
+	unsigned long vaddr, unsigned long size,
+	enum dma_data_direction dma_dir)
+{
+	struct msm_fd_mem_pool *pool = (void *)alloc_ctx;
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	struct msm_fd_buf_handle *buf;
 	int ret;
 
@@ -1279,10 +1301,14 @@ static void msm_fd_wq_handler(struct work_struct *work)
 		return;
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 	ctx = vb2_get_drv_priv(active_buf->vb_v4l2_buf.vb2_buf.vb2_queue);
 =======
 	ctx = vb2_get_drv_priv(active_buf->vb.vb2_queue);
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	ctx = vb2_get_drv_priv(active_buf->vb_v4l2_buf.vb2_buf.vb2_queue);
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 
 	/* Increment sequence number, 0 means sequence is not valid */
 	ctx->sequence++;
@@ -1313,12 +1339,17 @@ static void msm_fd_wq_handler(struct work_struct *work)
 
 	/* Return buffer to vb queue */
 <<<<<<< HEAD
+<<<<<<< HEAD
 	active_buf->vb_v4l2_buf.sequence = ctx->fh.sequence;
 	vb2_buffer_done(&active_buf->vb_v4l2_buf.vb2_buf, VB2_BUF_STATE_DONE);
 =======
 	active_buf->vb.v4l2_buf.sequence = ctx->fh.sequence;
 	vb2_buffer_done(&active_buf->vb, VB2_BUF_STATE_DONE);
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	active_buf->vb_v4l2_buf.sequence = ctx->fh.sequence;
+	vb2_buffer_done(&active_buf->vb_v4l2_buf.vb2_buf, VB2_BUF_STATE_DONE);
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 
 	/* Sent event */
 	memset(&event, 0x00, sizeof(event));
@@ -1326,10 +1357,14 @@ static void msm_fd_wq_handler(struct work_struct *work)
 	fd_event = (struct msm_fd_event *)event.u.data;
 	fd_event->face_cnt = stats->face_cnt;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	fd_event->buf_index = active_buf->vb_v4l2_buf.vb2_buf.index;
 =======
 	fd_event->buf_index = active_buf->vb.v4l2_buf.index;
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	fd_event->buf_index = active_buf->vb_v4l2_buf.vb2_buf.index;
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	fd_event->frame_id = ctx->sequence;
 	v4l2_event_queue_fh(&ctx->fh, &event);
 

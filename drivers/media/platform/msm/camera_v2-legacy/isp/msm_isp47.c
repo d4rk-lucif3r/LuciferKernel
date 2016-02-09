@@ -151,14 +151,20 @@ static struct msm_bus_paths msm_isp_bus_client_config[] = {
 static struct msm_bus_scale_pdata msm_isp_bus_client_pdata = {
 	msm_isp_bus_client_config,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	NULL,
 	ARRAY_SIZE(msm_isp_bus_client_config),
 	.name = "msm_camera_isp",
 	0
+<<<<<<< HEAD
 =======
 	ARRAY_SIZE(msm_isp_bus_client_config),
 	.name = "msm_camera_isp",
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 };
 
 uint32_t msm_vfe47_ub_reg_offset(struct vfe_device *vfe_dev, int wm_idx)

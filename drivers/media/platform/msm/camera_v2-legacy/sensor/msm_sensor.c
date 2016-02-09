@@ -1414,6 +1414,7 @@ static int msm_sensor_power(struct v4l2_subdev *sd, int on)
 	mutex_unlock(s_ctrl->msm_sensor_mutex);
 	return rc;
 }
+<<<<<<< HEAD
 static int msm_sensor_v4l2_enum_fmt(struct v4l2_subdev *sd,
 	unsigned int index, enum v4l2_mbus_pixelcode *code)
 {
@@ -1425,11 +1426,15 @@ static int msm_sensor_v4l2_enum_fmt(struct v4l2_subdev *sd,
 	*code = s_ctrl->sensor_v4l2_subdev_info[index].code;
 	return 0;
 }
+=======
+
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 static struct v4l2_subdev_core_ops msm_sensor_subdev_core_ops = {
 	.ioctl = msm_sensor_subdev_ioctl,
 	.s_power = msm_sensor_power,
 };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static struct v4l2_subdev_ops msm_sensor_subdev_ops = {
 	.core = &msm_sensor_subdev_core_ops,
@@ -1442,6 +1447,10 @@ static struct v4l2_subdev_ops msm_sensor_subdev_ops = {
 	.core = &msm_sensor_subdev_core_ops,
 	.video  = &msm_sensor_subdev_video_ops,
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+static struct v4l2_subdev_ops msm_sensor_subdev_ops = {
+	.core = &msm_sensor_subdev_core_ops,
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 };
 
 static struct msm_sensor_fn_t msm_sensor_func_tbl = {

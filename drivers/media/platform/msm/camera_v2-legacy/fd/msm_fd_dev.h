@@ -118,10 +118,14 @@ struct msm_fd_buf_handle {
  */
 struct msm_fd_buffer {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	struct vb2_v4l2_buffer vb_v4l2_buf;
 =======
 	struct vb2_buffer vb;
 >>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
+=======
+	struct vb2_v4l2_buffer vb_v4l2_buf;
+>>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	atomic_t active;
 	struct completion completion;
 	struct msm_fd_format format;
