@@ -6223,6 +6223,9 @@ static void msm_pcie_fixup_early(struct pci_dev *dev)
 
 	PCIE_DBG(pcie_dev, "hdr_type %d\n", dev->hdr_type);
 	if (pci_is_root_bus(dev->bus))
+	PCIE_DBG((struct msm_pcie_dev_t*)PCIE_BUS_PRIV_DATA(dev->bus), "hdr_type %d\n",
+		dev->hdr_type);
+	if (dev->hdr_type == 1)
 		dev->class = (dev->class & 0xff) | (PCI_CLASS_BRIDGE_PCI << 8);
 }
 DECLARE_PCI_FIXUP_EARLY(PCIE_VENDOR_ID_QCOM, PCI_ANY_ID,
