@@ -539,13 +539,11 @@ static void __init map_kernel(pgd_t *pgd)
 		 * entry instead.
 		 */
 		BUG_ON(!IS_ENABLED(CONFIG_ARM64_16K_PAGES));
-<<<<<<< HEAD
-		set_pud(pud_set_fixmap_offset(pgd, FIXADDR_START),
-			__pud(__pa_symbol(bm_pmd) | PUD_TYPE_TABLE));
-=======
+
+
 		pud_populate(&init_mm, pud_set_fixmap_offset(pgd, FIXADDR_START),
 			     lm_alias(bm_pmd));
->>>>>>> 17c413903026... arm64: don't open code page table entry creation
+
 		pud_clear_fixmap();
 	} else {
 		BUG();
@@ -857,11 +855,17 @@ int pud_set_huge(pud_t *pudp, phys_addr_t phys, pgprot_t prot)
 	pgprot_t sect_prot = __pgprot(PUD_TYPE_SECT |
 					pgprot_val(mk_sect_prot(prot)));
 <<<<<<< HEAD
+<<<<<<< HEAD
 	pud_t new_pud = pfn_pud(__phys_to_pfn(phys), sect_prot);
 
 	/* Only allow permission changes for now */
 	if (!pgattr_change_is_safe(READ_ONCE(pud_val(*pud)),
 				   pud_val(new_pud)))
+=======
+
+	/* ioremap_page_range doesn't honour BBM */
+	if (pud_present(READ_ONCE(*pudp)))
+>>>>>>> 4f45a0a17035... arm64: Enforce BBM for huge IO/VMAP mappings
 		return 0;
 
 	BUG_ON(phys & ~PUD_MASK);
@@ -882,6 +886,7 @@ int pmd_set_huge(pmd_t *pmdp, phys_addr_t phys, pgprot_t prot)
 	pgprot_t sect_prot = __pgprot(PMD_TYPE_SECT |
 					pgprot_val(mk_sect_prot(prot)));
 <<<<<<< HEAD
+<<<<<<< HEAD
 	pmd_t new_pmd = pfn_pmd(__phys_to_pfn(phys), sect_prot);
 
 	/* Only allow permission changes for now */
@@ -892,6 +897,13 @@ int pmd_set_huge(pmd_t *pmdp, phys_addr_t phys, pgprot_t prot)
 	BUG_ON(phys & ~PMD_MASK);
 	set_pmd(pmd, new_pmd);
 =======
+=======
+
+	/* ioremap_page_range doesn't honour BBM */
+	if (pmd_present(READ_ONCE(*pmdp)))
+		return 0;
+
+>>>>>>> 4f45a0a17035... arm64: Enforce BBM for huge IO/VMAP mappings
 	BUG_ON(phys & ~PMD_MASK);
 <<<<<<< HEAD
 	set_pmd(pmd, pfn_pmd(__phys_to_pfn(phys), sect_prot));
