@@ -513,11 +513,27 @@ xfs_iget_cache_miss(
 
 
 	/*
-	 * Check the inode free state is valid. This also detects lookup
-	 * racing with unlinks.
+	 * If we are allocating a new inode, then check what was returned is
+	 * actually a free, empty inode. If we are not allocating an inode,
+	 * the check we didn't find a free inode.
 	 */
-	error = xfs_iget_check_free_state(ip, flags);
-	if (error)
+	if (flags & XFS_IGET_CREATE) {
+		if (VFS_I(ip)->i_mode != 0) {
+			xfs_warn(mp,
+"Corruption detected! Free inode 0x%llx not marked free on disk",
+				ino);
+			error = -EFSCORRUPTED;
+			goto out_destroy;
+		}
+		if (ip->i_d.di_nblocks != 0) {
+			xfs_warn(mp,
+"Corruption detected! Free inode 0x%llx has blocks allocated!",
+				ino);
+			error = -EFSCORRUPTED;
+			goto out_destroy;
+		}
+	} else if (VFS_I(ip)->i_mode == 0) {
+		error = -ENOENT;
 		goto out_destroy;
 
 	/*
