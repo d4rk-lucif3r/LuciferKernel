@@ -7008,10 +7008,6 @@ static bool perf_addr_filter_match(struct perf_addr_filter *filter,
 				     struct file *file, unsigned long offset,
 				     unsigned long size)
 {
-	/* d_inode(NULL) won't be equal to any mapped user-space file */
-	if (!filter->path.dentry)
-		return false;
-
 	if (d_inode(filter->path.dentry) != file_inode(file))
 		return false;
 
@@ -8479,7 +8475,10 @@ perf_event_parse_addr_filter(struct perf_event *event, char *fstr,
 				ret = kern_path(filename, LOOKUP_FOLLOW,
 						&filter->path);
 				if (ret)
-					goto fail;
+					goto fail_free_name;
+
+				kfree(filename);
+				filename = NULL;
 
 				ret = -EINVAL;
 				if (!filter->path.dentry ||
