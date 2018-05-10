@@ -1428,11 +1428,7 @@ int msm_cam_sensor_handle_reg_gpio(int seq_val,
 	CDBG("%s: %d GPIO offset: %d, seq_val: %d\n", __func__, __LINE__,
 		gpio_offset, seq_val);
 
-<<<<<<< HEAD
 	if (gconf->gpio_num_info->valid[gpio_offset] == 1) {
-=======
-	if ((gconf->gpio_num_info->valid[gpio_offset] == 1)) {
->>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 		gpio_set_value_cansleep(
 			gconf->gpio_num_info->gpio_num
 			[gpio_offset], val);
