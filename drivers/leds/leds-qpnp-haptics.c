@@ -2703,8 +2703,6 @@ static int qpnp_haptics_remove(struct platform_device *pdev)
 		pwm_put(chip->pwm_data.pwm_dev);
 	dev_set_drvdata(&pdev->dev, NULL);
 
-	gchip = chip;
-
 	return 0;
 }
 
