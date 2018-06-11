@@ -33,10 +33,6 @@
 #include <linux/wakeup_reason.h>
 #include "power.h"
 
-#include <linux/gpio.h>
-extern int slst_gpio_base_id;
-#define PROC_AWAKE_ID 12 /* 12th bit */
-
 const char *pm_states[PM_SUSPEND_MAX] = {
 	[PM_SUSPEND_FREEZE] = "freeze",
 	[PM_SUSPEND_MEM] = "mem",
@@ -50,8 +46,6 @@ const char *mem_sleep_states[PM_SUSPEND_MAX];
 
 suspend_state_t mem_sleep_current = PM_SUSPEND_FREEZE;
 static suspend_state_t mem_sleep_default = PM_SUSPEND_MEM;
-suspend_state_t pm_suspend_target_state;
-EXPORT_SYMBOL_GPL(pm_suspend_target_state);
 
 unsigned int pm_suspend_global_flags;
 EXPORT_SYMBOL_GPL(pm_suspend_global_flags);
