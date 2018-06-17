@@ -26,7 +26,7 @@ struct target_nrg schedtune_target_nrg;
 #ifdef CONFIG_DYNAMIC_STUNE_BOOST
 static DEFINE_MUTEX(stune_boost_mutex);
 static struct schedtune *getSchedtune(char *st_name);
-static int dynamic_boost_write(struct schedtune *st, int boost);
+static int dynamic_boost(struct schedtune *st, int boost);
 #endif /* CONFIG_DYNAMIC_STUNE_BOOST */
 
 /* Performance Boost region (B) threshold params */
@@ -231,22 +231,6 @@ struct schedtune {
 	 * the value when Dynamic SchedTune Boost is reset.
 	 */
 	int boost_default;
-<<<<<<< HEAD
-
-	/* Sched Boost value for tasks on that SchedTune CGroup */
-	int sched_boost;
-
-	/* Number of ongoing boosts for this SchedTune CGroup */
-	int boost_count;
-
-	/* Lists of active and available boost slots */
-	struct boost_slot active_boost_slots;
-	struct boost_slot available_boost_slots;
-
-	/* Array of tracked boost values of each slot */
-	int slot_boost[DYNAMIC_BOOST_SLOTS_COUNT];
-=======
->>>>>>> c1dbddf9effc (sched/tune: Add initial support for Dynamic SchedTune Boost)
 #endif /* CONFIG_DYNAMIC_STUNE_BOOST */
 };
 
@@ -290,20 +274,6 @@ root_schedtune = {
 	.prefer_idle = 0,
 #ifdef CONFIG_DYNAMIC_STUNE_BOOST
 	.boost_default = 0,
-<<<<<<< HEAD
-	.sched_boost = 0,
-	.boost_count = 0,
-	.active_boost_slots = {
-		.list = LIST_HEAD_INIT(root_schedtune.active_boost_slots.list),
-		.idx = 0,
-	},
-	.available_boost_slots = {
-		.list = LIST_HEAD_INIT(root_schedtune.available_boost_slots.list),
-		.idx = 0,
-	},
-	.slot_boost = {0},
-=======
->>>>>>> c1dbddf9effc (sched/tune: Add initial support for Dynamic SchedTune Boost)
 #endif /* CONFIG_DYNAMIC_STUNE_BOOST */
 };
 
@@ -902,10 +872,7 @@ boost_write(struct cgroup_subsys_state *css, struct cftype *cft,
 #ifdef CONFIG_DYNAMIC_STUNE_BOOST
 	st->boost_default = boost;
 #endif /* CONFIG_DYNAMIC_STUNE_BOOST */
-<<<<<<< HEAD
 
-=======
->>>>>>> c1dbddf9effc (sched/tune: Add initial support for Dynamic SchedTune Boost)
 	if (css == &root_schedtune.css) {
 		sysctl_sched_cfs_boost = boost;
 		perf_boost_idx  = threshold_idx;
@@ -1137,31 +1104,17 @@ schedtune_init_cgroups(void)
 	schedtune_initialized = true;
 }
 
-<<<<<<< HEAD
-
-#ifdef CONFIG_DYNAMIC_STUNE_BOOST
-static struct schedtune *stune_get_by_name(char *st_name)
-{
-	int idx;
-
-	for (idx = 0; idx < BOOSTGROUPS_COUNT; ++idx) {
-=======
 #ifdef CONFIG_DYNAMIC_STUNE_BOOST
 static struct schedtune *getSchedtune(char *st_name)
 {
 	int idx;
 
 	for (idx = 1; idx < BOOSTGROUPS_COUNT; ++idx) {
->>>>>>> c1dbddf9effc (sched/tune: Add initial support for Dynamic SchedTune Boost)
 		char name_buf[NAME_MAX + 1];
 		struct schedtune *st = allocated_group[idx];
 
 		if (!st) {
-<<<<<<< HEAD
-			pr_warn("schedtune: could not find %s\n", st_name);
-=======
 			pr_warn("SCHEDTUNE: Could not find %s\n", st_name);
->>>>>>> c1dbddf9effc (sched/tune: Add initial support for Dynamic SchedTune Boost)
 			break;
 		}
 
@@ -1173,11 +1126,7 @@ static struct schedtune *getSchedtune(char *st_name)
 	return NULL;
 }
 
-<<<<<<< HEAD
 static int dynamic_boost(struct schedtune *st, int boost)
-=======
-static int dynamic_boost_write(struct schedtune *st, int boost)
->>>>>>> c1dbddf9effc (sched/tune: Add initial support for Dynamic SchedTune Boost)
 {
 	int ret;
 	/* Backup boost_default */
@@ -1191,137 +1140,6 @@ static int dynamic_boost_write(struct schedtune *st, int boost)
 	return ret;
 }
 
-<<<<<<< HEAD
-static inline bool is_valid_boost_slot(int slot)
-{
-	return slot >= 0 && slot < DYNAMIC_BOOST_SLOTS_COUNT;
-}
-
-static int activate_boost_slot(struct schedtune *st, int boost, int *slot)
-{
-	int ret = 0;
-	struct boost_slot *curr_slot;
-	struct list_head *head;
-	*slot = -1;
-
-	mutex_lock(&boost_slot_mutex);
-
-	/* Check for slots in available_boost_slots */
-	if (list_empty(&st->available_boost_slots.list)) {
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	/*
-	 * Move one slot from available_boost_slots to active_boost_slots
-	 */
-
-	/* Get first slot from available_boost_slots */
-	head = &st->available_boost_slots.list;
-	curr_slot = list_first_entry(head, struct boost_slot, list);
-
-	/* Store slot value and boost value*/
-	*slot = curr_slot->idx;
-	st->slot_boost[*slot] = boost;
-
-	/* Delete slot from available_boost_slots */
-	list_del(&curr_slot->list);
-	kfree(curr_slot);
-
-	/* Create new slot with same value at tail of active_boost_slots */
-	curr_slot = kmalloc(sizeof(*curr_slot), GFP_KERNEL);
-	curr_slot->idx = *slot;
-	list_add_tail(&curr_slot->list, &st->active_boost_slots.list);
-
-exit:
-	mutex_unlock(&boost_slot_mutex);
-	return ret;
-}
-
-static int deactivate_boost_slot(struct schedtune *st, int slot)
-{
-	int ret = 0;
-	struct boost_slot *curr_slot, *next_slot;
-
-	mutex_lock(&boost_slot_mutex);
-
-	if (!is_valid_boost_slot(slot)) {
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	/* Delete slot from active_boost_slots */
-	list_for_each_entry_safe(curr_slot, next_slot,
-				 &st->active_boost_slots.list, list) {
-		if (curr_slot->idx == slot) {
-			st->slot_boost[slot] = 0;
-			list_del(&curr_slot->list);
-			kfree(curr_slot);
-
-			/* Create same slot at tail of available_boost_slots */
-			curr_slot = kmalloc(sizeof(*curr_slot), GFP_KERNEL);
-			curr_slot->idx = slot;
-			list_add_tail(&curr_slot->list,
-				      &st->available_boost_slots.list);
-
-			goto exit;
-		}
-	}
-
-	/* Reaching here means that we did not find the slot to delete */
-	ret = -EINVAL;
-
-exit:
-	mutex_unlock(&boost_slot_mutex);
-	return ret;
-}
-
-static int max_active_boost(struct schedtune *st)
-{
-	struct boost_slot *slot;
-	int max_boost;
-
-	mutex_lock(&boost_slot_mutex);
-	mutex_lock(&stune_boost_mutex);
-
-	/* Set initial value to default boost */
-	max_boost = st->boost_default;
-
-	/* Check for active boosts */
-	if (list_empty(&st->active_boost_slots.list)) {
-		goto exit;
-	}
-
-	/* Get largest boost value */
-	list_for_each_entry(slot, &st->active_boost_slots.list, list) {
-		int boost = st->slot_boost[slot->idx];
-		if (boost > max_boost)
-			max_boost = boost;
-	}
-
-exit:
-	mutex_unlock(&stune_boost_mutex);
-	mutex_unlock(&boost_slot_mutex);
-
-	return max_boost;
-}
-
-static int _do_stune_boost(struct schedtune *st, int boost, int *slot)
-{
-	int ret = 0;
-
-	/* Try to obtain boost slot */
-	ret = activate_boost_slot(st, boost, slot);
-
-	/* Check if boost slot obtained successfully */
-	if (ret)
-		return -EINVAL;
-
-	/* Boost if new value is greater than current */
-	mutex_lock(&stune_boost_mutex);
-	if (boost > st->boost)
-		ret = dynamic_boost(st, boost);
-=======
 int do_stune_boost(char *st_name, int boost)
 {
 	int ret = 0;
@@ -1334,101 +1152,26 @@ int do_stune_boost(char *st_name, int boost)
 
 	/* Boost if new value is greater than current */
 	if (boost > st->boost)
-		ret = dynamic_boost_write(st, boost);
+		ret = dynamic_boost(st, boost);
 
->>>>>>> c1dbddf9effc (sched/tune: Add initial support for Dynamic SchedTune Boost)
 	mutex_unlock(&stune_boost_mutex);
 
 	return ret;
 }
 
-<<<<<<< HEAD
-int reset_stune_boost(char *st_name, int slot)
-{
-	int ret = 0;
-	int boost = 0;
-	struct schedtune *st = stune_get_by_name(st_name);
-=======
 int reset_stune_boost(char *st_name)
 {
 	int ret = 0;
 	struct schedtune *st = getSchedtune(st_name);
->>>>>>> c1dbddf9effc (sched/tune: Add initial support for Dynamic SchedTune Boost)
 
 	if (!st)
 		return -EINVAL;
-
-<<<<<<< HEAD
-	ret = deactivate_boost_slot(st, slot);
-	if (ret)
-		return -EINVAL;
-
-	/* Find next largest active boost or reset to default */
-	boost = max_active_boost(st);
-
 	mutex_lock(&stune_boost_mutex);
-	/* Boost only if value changed */
-	if (boost != st->boost)
-		ret = dynamic_boost(st, boost);
-=======
-	mutex_lock(&stune_boost_mutex);
-	ret = dynamic_boost_write(st, st->boost_default);
->>>>>>> c1dbddf9effc (sched/tune: Add initial support for Dynamic SchedTune Boost)
+	ret = dynamic_boost(st, st->boost_default);
 	mutex_unlock(&stune_boost_mutex);
 
 	return ret;
 }
-<<<<<<< HEAD
-
-int do_stune_sched_boost(char *st_name, int *slot)
-{
-	struct schedtune *st = stune_get_by_name(st_name);
-
-	if (!st)
-		return -EINVAL;
-
-	return _do_stune_boost(st, st->sched_boost, slot);
-}
-
-int do_stune_boost(char *st_name, int boost, int *slot)
-{
-	struct schedtune *st = stune_get_by_name(st_name);
-
-	if (!st)
-		return -EINVAL;
-
-	return _do_stune_boost(st, boost, slot);
-}
-
-int do_prefer_idle(char *st_name, u64 prefer_idle)
-{
-	struct schedtune *st = stune_get_by_name(st_name);
-
-	if (!st)
-		return -EINVAL;
-
-	return prefer_idle_write(&st->css, NULL, prefer_idle);
-}
-
-int set_stune_boost(char *st_name, int boost, int *boost_default)
-{
-	struct schedtune *st = stune_get_by_name(st_name);
-	int ret;
-
- 	if (!st)
-		return -EINVAL;
-
- 	mutex_lock(&stune_boost_mutex);
-	if (boost_default)
-		*boost_default = st->boost_default;
-	ret = boost_write(&st->css, NULL, boost);
-	mutex_unlock(&stune_boost_mutex);
-
- 	return ret;
-}
-
-=======
->>>>>>> c1dbddf9effc (sched/tune: Add initial support for Dynamic SchedTune Boost)
 #endif /* CONFIG_DYNAMIC_STUNE_BOOST */
 
 #else /* CONFIG_CGROUP_SCHEDTUNE */
