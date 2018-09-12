@@ -26,6 +26,7 @@
 #include <linux/input.h>
 #include <linux/kthread.h>
 
+static int touchboost = 0;
 
 /* To handle cpufreq min/max request */
 struct cpu_status {
