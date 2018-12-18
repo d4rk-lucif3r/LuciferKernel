@@ -119,7 +119,10 @@ static void _sched_set_boost(int old_val, int type)
 	case NO_BOOST:
 		if (old_val == FULL_THROTTLE_BOOST)
 			core_ctl_set_boost(false);
-		else if (old_val == CONSERVATIVE_BOOST)
+			walt_enable_frequency_aggregation(false);
+			boost_refcount[FULL_THROTTLE_BOOST] = 0;
+		}
+		if (boost_refcount[CONSERVATIVE_BOOST] > 0) {
 			restore_cgroup_boost_settings();
 		else
 			update_freq_aggregate_threshold(
@@ -127,8 +130,14 @@ static void _sched_set_boost(int old_val, int type)
 		break;
 
 	case FULL_THROTTLE_BOOST:
-		core_ctl_set_boost(true);
-		boost_kick_cpus();
+	    boost_refcount[FULL_THROTTLE_BOOST]++;
+		if (boost_refcount[FULL_THROTTLE_BOOST] == 1) {
+			core_ctl_set_boost(true);
+			restore_cgroup_boost_settings();
+			boost_kick_cpus();
+			if (!boost_refcount[RESTRAINED_BOOST])
+				walt_enable_frequency_aggregation(true);
+		}
 		break;
 
 	case CONSERVATIVE_BOOST:
@@ -137,8 +146,41 @@ static void _sched_set_boost(int old_val, int type)
 		break;
 
 	case RESTRAINED_BOOST:
-		freq_aggr_threshold_backup =
-			update_freq_aggregate_threshold(1);
+	    boost_refcount[RESTRAINED_BOOST]++;
+		if (boost_refcount[RESTRAINED_BOOST] == 1 &&
+		    !boost_refcount[FULL_THROTTLE_BOOST])
+			walt_enable_frequency_aggregation(true);
+		break;
+
+	case FULL_THROTTLE_BOOST_DISABLE:
+		if (boost_refcount[FULL_THROTTLE_BOOST] >= 1) {
+			boost_refcount[FULL_THROTTLE_BOOST]--;
+			if (!boost_refcount[FULL_THROTTLE_BOOST]) {
+				core_ctl_set_boost(false);
+				if (boost_refcount[CONSERVATIVE_BOOST] >= 1)
+					update_cgroup_boost_settings();
+				if (!boost_refcount[RESTRAINED_BOOST])
+					walt_enable_frequency_aggregation(
+								false);
+			}
+		}
+		break;
+
+	case CONSERVATIVE_BOOST_DISABLE:
+		if (boost_refcount[CONSERVATIVE_BOOST] >= 1) {
+			boost_refcount[CONSERVATIVE_BOOST]--;
+			if (!boost_refcount[CONSERVATIVE_BOOST])
+				restore_cgroup_boost_settings();
+		}
+		break;
+
+	case RESTRAINED_BOOST_DISABLE:
+		if (boost_refcount[RESTRAINED_BOOST] >= 1) {
+			boost_refcount[RESTRAINED_BOOST]--;
+			if (!boost_refcount[RESTRAINED_BOOST] &&
+			    !boost_refcount[FULL_THROTTLE_BOOST])
+				walt_enable_frequency_aggregation(false);
+		}
 		break;
 
 	default:
