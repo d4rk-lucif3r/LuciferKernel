@@ -13,12 +13,35 @@
 #include <linux/kthread.h>
 #include <linux/delay.h>
 #include <linux/freezer.h>
+#include <linux/fb.h>
+#include <linux/power_supply.h>
 
 #include "f2fs.h"
 #include "node.h"
 #include "segment.h"
 #include "gc.h"
 #include <trace/events/f2fs.h>
+
+#define TRIGGER_SOFF (!screen_on && power_supply_is_system_supplied())
+static bool screen_on = true;
+// Use 1 instead of 0 to allow thread interrupts
+#define SOFF_WAIT_MS 1
+
+static inline void gc_set_wakelock(struct f2fs_sb_info *sbi,
+		struct f2fs_gc_kthread *gc_th, bool val)
+{
+	if (val) {
+		if (!gc_th->gc_wakelock.active) {
+			f2fs_info(sbi, "Catching wakelock for GC");
+			__pm_stay_awake(&gc_th->gc_wakelock);
+		}
+	} else {
+		if (gc_th->gc_wakelock.active) {
+			f2fs_info(sbi, "Unlocking wakelock for GC");
+			__pm_relax(&gc_th->gc_wakelock);
+		}
+	}
+}
 
 static int gc_thread_func(void *data)
 {
@@ -136,6 +159,10 @@ int f2fs_start_gc_thread(struct f2fs_sb_info *sbi)
 
 	gc_th->gc_wake= 0;
 
+	snprintf(buf, sizeof(buf), "f2fs_gc-%u:%u", MAJOR(dev), MINOR(dev));
+
+	wakeup_source_init(&gc_th->gc_wakelock, buf);
+
 	sbi->gc_thread = gc_th;
 	init_waitqueue_head(&sbi->gc_thread->gc_wait_queue_head);
 	sbi->gc_thread->f2fs_gc_task = kthread_run(gc_thread_func, sbi,
@@ -155,6 +182,7 @@ void f2fs_stop_gc_thread(struct f2fs_sb_info *sbi)
 	if (!gc_th)
 		return;
 	kthread_stop(gc_th->f2fs_gc_task);
+	wakeup_source_trash(&gc_th->gc_wakelock);
 	kvfree(gc_th);
 	sbi->gc_thread = NULL;
 }
