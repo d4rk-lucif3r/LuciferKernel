@@ -318,23 +318,9 @@ static int f2fs_link(struct dentry *old_dentry, struct inode *dir,
 	struct f2fs_sb_info *sbi = F2FS_I_SB(dir);
 	int err;
 
-	if (unlikely(f2fs_cp_error(sbi)))
-		return -EIO;
-	if (!f2fs_is_checkpoint_ready(sbi))
-		return -ENOSPC;
-
-	err = fscrypt_prepare_link(old_dentry, dir, dentry);
-	if (err)
-		return err;
-
-	if (is_inode_flag_set(dir, FI_PROJ_INHERIT) &&
-			(!projid_eq(F2FS_I(dir)->i_projid,
-			F2FS_I(old_dentry->d_inode)->i_projid)))
+	if (f2fs_encrypted_inode(dir) &&
+			!fscrypt_has_permitted_context(dir, inode))
 		return -EXDEV;
-
-	err = dquot_initialize(dir);
-	if (err)
-		return err;
 
 	f2fs_balance_fs(sbi, true);
 
@@ -841,37 +827,9 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
 	if (!f2fs_is_checkpoint_ready(sbi))
 		return -ENOSPC;
 
-	if (is_inode_flag_set(new_dir, FI_PROJ_INHERIT) &&
-			(!projid_eq(F2FS_I(new_dir)->i_projid,
-			F2FS_I(old_dentry->d_inode)->i_projid)))
-		return -EXDEV;
-
-	/*
-	 * If new_inode is null, the below renaming flow will
-	 * add a link in old_dir which can conver inline_dir.
-	 * After then, if we failed to get the entry due to other
-	 * reasons like ENOMEM, we had to remove the new entry.
-	 * Instead of adding such the error handling routine, let's
-	 * simply convert first here.
-	 */
-	if (old_dir == new_dir && !new_inode) {
-		err = f2fs_try_convert_inline_dir(old_dir, new_dentry);
-		if (err)
-			return err;
-	}
-
-	if (flags & RENAME_WHITEOUT) {
-		err = f2fs_create_whiteout(old_dir, &whiteout);
-		if (err)
-			return err;
-	}
-
-	err = dquot_initialize(old_dir);
-	if (err)
-		goto out;
-
-	err = dquot_initialize(new_dir);
-	if (err)
+	if ((old_dir != new_dir) && f2fs_encrypted_inode(new_dir) &&
+			!fscrypt_has_permitted_context(new_dir, old_inode)) {
+		err = -EXDEV;
 		goto out;
 
 	if (new_inode) {
@@ -1039,9 +997,11 @@ static int f2fs_cross_rename(struct inode *old_dir, struct dentry *old_dentry,
 	if (err)
 		goto out;
 
-	err = dquot_initialize(new_dir);
-	if (err)
-		goto out;
+	if ((f2fs_encrypted_inode(old_dir) || f2fs_encrypted_inode(new_dir)) &&
+			(old_dir != new_dir) &&
+			(!fscrypt_has_permitted_context(new_dir, old_inode) ||
+			 !fscrypt_has_permitted_context(old_dir, new_inode)))
+		return -EXDEV;
 
 	err = -ENOENT;
 	old_entry = f2fs_find_entry(old_dir, &old_dentry->d_name, &old_page);
