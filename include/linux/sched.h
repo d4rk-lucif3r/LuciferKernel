@@ -4025,6 +4025,7 @@ extern DEFINE_PER_CPU_READ_MOSTLY(int, sched_load_boost);
 int do_stune_boost(char *st_name, int boost, int *slot);
 int do_stune_sched_boost(char *st_name, int *slot);
 int reset_stune_boost(char *st_name, int slot);
+int do_prefer_idle(char *st_name, u64 prefer_idle);
 #else /* !CONFIG_DYNAMIC_STUNE_BOOST */
 static inline int do_stune_boost(char *st_name, int boost, int *slot)
 {
@@ -4037,6 +4038,11 @@ static inline int do_stune_sched_boost(char *st_name, int *slot)
 }
 
 static inline int reset_stune_boost(char *st_name, int slot)
+{
+	return 0;
+}
+
+static inline int do_prefer_idle(char *st_name, u64 prefer_idle)
 {
 	return 0;
 }
