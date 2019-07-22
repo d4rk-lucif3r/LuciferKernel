@@ -782,10 +782,21 @@ static int snd_compr_drain(struct snd_compr_stream *stream)
 {
 	int retval;
 
-<<<<<<< HEAD
+
 	
-=======
-	
+
+	switch (stream->runtime->state) {
+	case SNDRV_PCM_STATE_OPEN:
+	case SNDRV_PCM_STATE_SETUP:
+	case SNDRV_PCM_STATE_PREPARED:
+	case SNDRV_PCM_STATE_PAUSED:
+		return -EPERM;
+	case SNDRV_PCM_STATE_XRUN:
+		return -EPIPE;
+	default:
+		break;
+	}
+>>>>>>> 13810c478b57... ALSA: compress: Be more restrictive about when a drain is allowed
 
 >>>>>>> 8d25080f4d84... ALSA: compress: Prevent bypasses of set_params
 	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_DRAIN);
@@ -831,7 +842,6 @@ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
 {
 	int retval;
 
-<<<<<<< HEAD
 	mutex_lock(&stream->device->lock);
 	if (stream->runtime->state == SNDRV_PCM_STATE_PREPARED ||
 			stream->runtime->state == SNDRV_PCM_STATE_SETUP) {
@@ -839,24 +849,21 @@ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
 		return -EPERM;
 	}
 	mutex_unlock(&stream->device->lock);
-=======
+
 	switch (stream->runtime->state) {
 	case SNDRV_PCM_STATE_OPEN:
 	case SNDRV_PCM_STATE_SETUP:
 	case SNDRV_PCM_STATE_PREPARED:
+	case SNDRV_PCM_STATE_PAUSED:
 		return -EPERM;
+	case SNDRV_PCM_STATE_XRUN:
+		return -EPIPE;
 	default:
 		break;
 	}
-
-<<<<<<< HEAD
->>>>>>> 8d25080f4d84... ALSA: compress: Prevent bypasses of set_params
-=======
 	/* partial drain doesn't have any meaning for capture streams */
 	if (stream->direction == SND_COMPRESS_CAPTURE)
 		return -EPERM;
-
->>>>>>> cbc76c3b9d42... ALSA: compress: Don't allow paritial drain operations on capture streams
 	/* stream can be drained only when next track has been signalled */
 	if (stream->next_track == false)
 		return -EPERM;
