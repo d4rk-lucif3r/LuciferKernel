@@ -373,18 +373,8 @@ static inline int __msm_sd_register_subdev(struct v4l2_subdev *sd)
 	}
 
 #if defined(CONFIG_MEDIA_CONTROLLER)
-<<<<<<< HEAD
-<<<<<<< HEAD
 	sd->entity.info.dev.major = VIDEO_MAJOR;
 	sd->entity.info.dev.minor = vdev->minor;
-=======
-	sd->entity.info.v4l.major = VIDEO_MAJOR;
-	sd->entity.info.v4l.minor = vdev->minor;
->>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
-=======
-	sd->entity.info.dev.major = VIDEO_MAJOR;
-	sd->entity.info.dev.minor = vdev->minor;
->>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	sd->entity.name = video_device_node_name(vdev);
 #endif
 	sd->devnode = vdev;
@@ -622,12 +612,6 @@ static inline int __msm_remove_session_cmd_ack_q(void *d1, void *d2)
 {
 	struct msm_command_ack *cmd_ack = d1;
 
-<<<<<<< HEAD
-=======
-	if (!(&cmd_ack->command_q))
-		return 0;
-
->>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 	msm_queue_drain(&cmd_ack->command_q, struct msm_command, list);
 
 	return 0;
@@ -635,11 +619,7 @@ static inline int __msm_remove_session_cmd_ack_q(void *d1, void *d2)
 
 static void msm_remove_session_cmd_ack_q(struct msm_session *session)
 {
-<<<<<<< HEAD
 	if (!session)
-=======
-	if ((!session) || !(&session->command_ack_q))
->>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 		return;
 
 	mutex_lock(&session->lock);
@@ -1111,15 +1091,7 @@ static struct v4l2_file_operations msm_fops = {
 	.open   = msm_open,
 	.poll   = msm_poll,
 	.release = msm_close,
-<<<<<<< HEAD
-<<<<<<< HEAD
 	.unlocked_ioctl   = video_ioctl2,
-=======
-	.ioctl   = video_ioctl2,
->>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
-=======
-	.unlocked_ioctl   = video_ioctl2,
->>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 #ifdef CONFIG_COMPAT
 	.compat_ioctl32 = video_ioctl2,
 #endif
@@ -1360,25 +1332,10 @@ static int msm_probe(struct platform_device *pdev)
 	if (WARN_ON(rc < 0))
 		goto media_fail;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 	if (WARN_ON((rc == media_entity_pads_init(&pvdev->vdev->entity,
 					0, NULL)) < 0))
 		goto entity_fail;
 
-=======
-	if (WARN_ON((rc == media_entity_init(&pvdev->vdev->entity,
-			0, NULL, 0)) < 0))
-		goto entity_fail;
-
-	pvdev->vdev->entity.type = MEDIA_ENT_T_DEVNODE_V4L;
->>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
-=======
-	if (WARN_ON((rc == media_entity_pads_init(&pvdev->vdev->entity,
-					0, NULL)) < 0))
-		goto entity_fail;
-
->>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	pvdev->vdev->entity.group_id = QCAMERA_VNODE_GROUP_ID;
 #endif
 
@@ -1390,14 +1347,7 @@ static int msm_probe(struct platform_device *pdev)
 	if (WARN_ON(rc < 0))
 		goto register_fail;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 	media_device_init(msm_v4l2_dev->mdev);
-=======
->>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
-=======
-	media_device_init(msm_v4l2_dev->mdev);
->>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	strlcpy(pvdev->vdev->name, "msm-config", sizeof(pvdev->vdev->name));
 	pvdev->vdev->release  = video_device_release;
 	pvdev->vdev->fops     = &msm_fops;
