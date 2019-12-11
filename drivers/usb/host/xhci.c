@@ -802,10 +802,14 @@ void xhci_shutdown(struct usb_hcd *hcd)
 			"xhci_shutdown completed - status = %x",
 			readl(&xhci->op_regs->status));
 
-	/* Yet another workaround for spurious wakeups at shutdown with HSW */
-	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
-		pci_set_power_state(to_pci_dev(hcd->self.sysdev), PCI_D3hot);
+
+
+
+
+
+
 }
+EXPORT_SYMBOL_GPL(xhci_shutdown);
 
 #ifdef CONFIG_PM
 static void xhci_save_registers(struct xhci_hcd *xhci)
