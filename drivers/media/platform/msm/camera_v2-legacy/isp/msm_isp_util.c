@@ -2319,7 +2319,11 @@ int msm_isp_open_node(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 #ifdef CONFIG_MSM_AVTIMER
 void msm_isp_end_avtimer(void)
 {
+<<<<<<< HEAD
 	msm_isp_stop_avtimer();
+=======
+	avcs_core_disable_power_collapse(0);
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 }
 #else
 void msm_isp_end_avtimer(void)

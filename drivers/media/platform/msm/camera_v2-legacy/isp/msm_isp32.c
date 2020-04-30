@@ -89,6 +89,11 @@ static int32_t msm_vfe32_init_qos_parms(struct vfe_device *vfe_dev,
 			qos_regs, qos_entries);
 		if (rc < 0) {
 			pr_err("%s: NO QOS BUS BDG info\n", __func__);
+<<<<<<< HEAD
+=======
+			kfree(qos_settings);
+			kfree(qos_regs);
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 		} else {
 			if (qos_parms->settings) {
 				rc = of_property_read_u32_array(of_node,
@@ -97,15 +102,31 @@ static int32_t msm_vfe32_init_qos_parms(struct vfe_device *vfe_dev,
 				if (rc < 0) {
 					pr_err("%s: NO QOS settings\n",
 						__func__);
+<<<<<<< HEAD
+=======
+					kfree(qos_settings);
+					kfree(qos_regs);
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 				} else {
 					for (i = 0; i < qos_entries; i++)
 						msm_camera_io_w(qos_settings[i],
 							vfebase + qos_regs[i]);
+<<<<<<< HEAD
 				}
 			}
 		}
 		kfree(qos_settings);
 		kfree(qos_regs);
+=======
+					kfree(qos_settings);
+					kfree(qos_regs);
+				}
+			} else {
+				kfree(qos_settings);
+				kfree(qos_regs);
+			}
+		}
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 	}
 	rc = of_property_read_u32(of_node, ds_parms->entries,
 		&ds_entries);
@@ -129,6 +150,11 @@ static int32_t msm_vfe32_init_qos_parms(struct vfe_device *vfe_dev,
 			ds_regs, ds_entries);
 		if (rc < 0) {
 			pr_err("%s: NO D/S register info\n", __func__);
+<<<<<<< HEAD
+=======
+			kfree(ds_settings);
+			kfree(ds_regs);
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 		} else {
 			if (ds_parms->settings) {
 				rc = of_property_read_u32_array(of_node,
@@ -137,6 +163,7 @@ static int32_t msm_vfe32_init_qos_parms(struct vfe_device *vfe_dev,
 				if (rc < 0) {
 					pr_err("%s: NO D/S settings\n",
 						__func__);
+<<<<<<< HEAD
 				} else {
 					for (i = 0; i < ds_entries; i++)
 						msm_camera_io_w(ds_settings[i],
@@ -146,6 +173,22 @@ static int32_t msm_vfe32_init_qos_parms(struct vfe_device *vfe_dev,
 		}
 		kfree(ds_settings);
 		kfree(ds_regs);
+=======
+					kfree(ds_settings);
+					kfree(ds_regs);
+	} else {
+					for (i = 0; i < ds_entries; i++)
+						msm_camera_io_w(ds_settings[i],
+							vfebase + ds_regs[i]);
+						kfree(ds_regs);
+						kfree(ds_settings);
+				}
+			} else {
+				kfree(ds_regs);
+				kfree(ds_settings);
+			}
+		}
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 	}
 	return 0;
 }

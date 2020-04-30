@@ -19,6 +19,10 @@
 #include <linux/io.h>
 #include <linux/list.h>
 #include <linux/delay.h>
+<<<<<<< HEAD
+=======
+#include <linux/avtimer_kernel.h>
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 #include <media/v4l2-subdev.h>
 #include <media/msmb_isp-legacy.h>
 #include <linux/msm-bus.h>

@@ -69,6 +69,7 @@ struct msm_sd_req_sd {
 };
 
 struct msm_sd_req_vb2_q {
+<<<<<<< HEAD
 	struct vb2_v4l2_buffer * (*get_buf)(int session_id, unsigned int stream_id);
 	struct vb2_queue * (*get_vb2_queue)(int session_id,
 		unsigned int stream_id);
@@ -77,6 +78,16 @@ struct msm_sd_req_vb2_q {
 	int (*put_buf)(struct vb2_v4l2_buffer *vb2_buf, int session_id,
 		unsigned int stream_id);
 	int (*buf_done)(struct vb2_v4l2_buffer *vb2_buf, int session_id,
+=======
+	struct vb2_buffer * (*get_buf)(int session_id, unsigned int stream_id);
+	struct vb2_queue * (*get_vb2_queue)(int session_id,
+		unsigned int stream_id);
+	struct vb2_buffer * (*get_buf_by_idx)(int session_id,
+		unsigned int stream_id, uint32_t index);
+	int (*put_buf)(struct vb2_buffer *vb2_buf, int session_id,
+		unsigned int stream_id);
+	int (*buf_done)(struct vb2_buffer *vb2_buf, int session_id,
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 		unsigned int stream_id, uint32_t sequence, struct timeval *ts,
 		uint32_t reserved);
 	int (*flush_buf)(int session_id, unsigned int stream_id);

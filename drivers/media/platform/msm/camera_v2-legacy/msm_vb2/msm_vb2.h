@@ -17,6 +17,10 @@
 #include <linux/i2c.h>
 #include <linux/videodev2.h>
 #include <linux/pm_qos.h>
+<<<<<<< HEAD
+=======
+#include <linux/wakelock.h>
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 #include <linux/msm_ion.h>
 #include <linux/iommu.h>
 #include <media/v4l2-dev.h>
@@ -37,7 +41,11 @@ struct msm_vb2_buffer {
 	 * because both v4l2 frameworks and driver directly
 	 * cast msm_vb2_buffer to a vb2_buf.
 	 */
+<<<<<<< HEAD
 	struct vb2_v4l2_buffer vb2_v4l2_buf;
+=======
+	struct vb2_buffer vb2_buf;
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 	struct list_head list;
 	int in_freeq;
 };

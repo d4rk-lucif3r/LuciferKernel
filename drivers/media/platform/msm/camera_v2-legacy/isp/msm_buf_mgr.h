@@ -106,7 +106,11 @@ struct msm_isp_buffer {
 	struct msm_isp_buffer_debug_t buf_debug;
 
 	/*Vb2 buffer data*/
+<<<<<<< HEAD
 	struct vb2_v4l2_buffer *vb2_v4l2_buf;
+=======
+	struct vb2_buffer *vb2_buf;
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 };
 
 struct msm_isp_bufq {

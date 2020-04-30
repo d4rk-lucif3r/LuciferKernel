@@ -150,10 +150,15 @@ static struct msm_bus_paths msm_isp_bus_client_config[] = {
 
 static struct msm_bus_scale_pdata msm_isp_bus_client_pdata = {
 	msm_isp_bus_client_config,
+<<<<<<< HEAD
 	NULL,
 	ARRAY_SIZE(msm_isp_bus_client_config),
 	.name = "msm_camera_isp",
 	0
+=======
+	ARRAY_SIZE(msm_isp_bus_client_config),
+	.name = "msm_camera_isp",
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 };
 
 uint32_t msm_vfe47_ub_reg_offset(struct vfe_device *vfe_dev, int wm_idx)
@@ -1714,6 +1719,7 @@ void msm_vfe47_cfg_axi_ub_equal_default(
 	uint32_t prop_size = 0;
 	uint32_t wm_ub_size;
 	uint64_t delta;
+<<<<<<< HEAD
 	uint32_t rdi_ub_offset;
 
 	if (frame_src == VFE_PIX_0) {
@@ -1734,6 +1740,23 @@ void msm_vfe47_cfg_axi_ub_equal_default(
 			axi_data->hw_info->min_wm_ub * (num_used_wms +
 			axi_data->hw_info->num_rdi * 2);
 	}
+=======
+
+	for (i = 0; i < axi_data->hw_info->num_wm; i++) {
+		if (axi_data->free_wm[i]) {
+			num_used_wms++;
+			total_image_size +=
+				axi_data->wm_image_size[i];
+		}
+	}
+	if (!total_image_size) {
+		pr_err("%s: Error total_image_size is 0\n", __func__);
+		return;
+	}
+	prop_size = vfe_dev->hw_info->vfe_ops.axi_ops.
+		get_ub_size(vfe_dev) -
+		axi_data->hw_info->min_wm_ub * num_used_wms;
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 	for (i = 0; i < axi_data->hw_info->num_wm; i++) {
 		if (!axi_data->free_wm[i]) {
 			msm_camera_io_w(0,
@@ -1741,6 +1764,7 @@ void msm_vfe47_cfg_axi_ub_equal_default(
 				vfe_dev->hw_info->vfe_ops.axi_ops.
 					ub_reg_offset(vfe_dev, i));
 		}
+<<<<<<< HEAD
 		if (!axi_data->free_wm[i] || frame_src != SRC_TO_INTF(
 				HANDLE_TO_IDX(axi_data->free_wm[i])))
 			continue;
@@ -1769,6 +1793,25 @@ void msm_vfe47_cfg_axi_ub_equal_default(
 				vfe_dev->hw_info->vfe_ops.axi_ops.
 						ub_reg_offset(vfe_dev, i));
 		}
+=======
+		if (!axi_data->free_wm[i])
+			continue;
+
+		delta = (uint64_t)axi_data->wm_image_size[i] *
+			(uint64_t)prop_size;
+			do_div(delta, total_image_size);
+		if (frame_src != VFE_PIX_0) {
+			if (delta <= axi_data->hw_info->min_wm_ub)
+				delta = axi_data->hw_info->min_wm_ub;
+		}
+		wm_ub_size = axi_data->hw_info->min_wm_ub +
+			(uint32_t)delta;
+		msm_camera_io_w(ub_offset << 16 | (wm_ub_size - 1),
+			vfe_dev->vfe_base +
+			vfe_dev->hw_info->vfe_ops.axi_ops.
+				ub_reg_offset(vfe_dev, i));
+		ub_offset += wm_ub_size;
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 	}
 }
 

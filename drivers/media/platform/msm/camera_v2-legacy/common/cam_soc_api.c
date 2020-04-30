@@ -204,7 +204,11 @@ int msm_camera_get_clk_info(struct platform_device *pdev,
 {
 	int rc = 0;
 
+<<<<<<< HEAD
 	if (!pdev || !clk_info || !clk_ptr || !num_clk)
+=======
+	if (!pdev || !&pdev->dev || !clk_info || !clk_ptr || !num_clk)
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 		return -EINVAL;
 
 	rc = msm_camera_get_clk_info_internal(&pdev->dev,
@@ -496,7 +500,11 @@ int msm_camera_put_clk_info(struct platform_device *pdev,
 {
 	int rc = 0;
 
+<<<<<<< HEAD
 	if (!pdev || !clk_info || !clk_ptr)
+=======
+	if (!pdev || !&pdev->dev || !clk_info || !clk_ptr)
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 		return -EINVAL;
 
 	rc = msm_camera_put_clk_info_internal(&pdev->dev,

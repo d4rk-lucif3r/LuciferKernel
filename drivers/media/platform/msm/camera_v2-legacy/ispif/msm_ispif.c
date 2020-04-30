@@ -2083,7 +2083,12 @@ static int ispif_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, &ispif->msm_sd.sd);
 
+<<<<<<< HEAD
 	media_entity_pads_init(&ispif->msm_sd.sd.entity, 0, NULL);
+=======
+	media_entity_init(&ispif->msm_sd.sd.entity, 0, NULL, 0);
+	ispif->msm_sd.sd.entity.type = MEDIA_ENT_T_V4L2_SUBDEV;
+>>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
 	ispif->msm_sd.sd.entity.group_id = MSM_CAMERA_SUBDEV_ISPIF;
 	ispif->msm_sd.sd.entity.name = pdev->name;
 	ispif->msm_sd.close_seq = MSM_SD_CLOSE_1ST_CATEGORY | 0x1;
