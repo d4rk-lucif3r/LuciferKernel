@@ -1,2 +1,6 @@
+<<<<<<< HEAD
 # UAPI Header export list
 no-export-headers += cifs_mount.h
+=======
+header-y += cifs_mount.h
+>>>>>>> d472b7e2f632... install several missing uapi headers
