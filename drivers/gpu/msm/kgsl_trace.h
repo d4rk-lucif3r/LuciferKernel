@@ -17,7 +17,7 @@
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM kgsl
 #undef TRACE_INCLUDE_PATH
-#define TRACE_INCLUDE_PATH .
+#define TRACE_INCLUDE_PATH /home/lucifer/Android/kernel/android_kernel_xiaomi_msm8953-lineage-17.1/drivers/gpu/msm
 #undef TRACE_INCLUDE_FILE
 #define TRACE_INCLUDE_FILE kgsl_trace
 

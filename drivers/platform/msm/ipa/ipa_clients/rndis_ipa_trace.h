@@ -77,5 +77,5 @@ TRACE_EVENT(
 
 /* This part must be outside protection */
 #undef TRACE_INCLUDE_PATH
-#define TRACE_INCLUDE_PATH .
+#define TRACE_INCLUDE_PATH /home/lucifer/Android/kernel/android_kernel_xiaomi_msm8953-lineage-17.1/drivers/platform/msm/ipa/ipa_clients/
 #include <trace/define_trace.h>
