@@ -16,7 +16,7 @@
 #if !defined(_TRACE_MSM_VFE_H) || defined(TRACE_HEADER_MULTI_READ)
 #define _TRACE_MSM_VFE_H
 
-#include "/home/lucifer/Android/kernel/android_kernel_xiaomi_msm8953-lineage-17.1/drivers/media/platform/msm/camera_v2/isp/msm_isp.h"
+#include "/home/lucifer/Android/kernel/Tissot-4.9-Q_kernel/drivers/media/platform/msm/camera_v2/isp/msm_isp.h"
 #include <linux/types.h>
 #include <linux/tracepoint.h>
 
