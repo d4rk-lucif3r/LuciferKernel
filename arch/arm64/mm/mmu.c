@@ -1,4 +1,3 @@
-
 /*
  * Based on arch/arm/mm/mmu.c
  *
@@ -29,8 +28,9 @@
 #include <linux/memblock.h>
 #include <linux/fs.h>
 #include <linux/io.h>
-
-
+#include <linux/dma-contiguous.h>
+#include <linux/cma.h>
+#include <linux/mm.h>
 
 #include <asm/barrier.h>
 #include <asm/cputype.h>
@@ -210,9 +210,8 @@ static void alloc_init_pmd(pud_t *pud, unsigned long addr, unsigned long end,
 
 		/* try section mapping first */
 		if (((addr | next | phys) & ~SECTION_MASK) == 0 &&
-
-		      allow_block_mappings) {
-
+		      allow_block_mappings &&
+		      !dma_overlap(phys, phys + next - addr)) {
 			pmd_set_huge(pmd, phys, prot);
 
 			/*
@@ -271,9 +270,7 @@ static void alloc_init_pud(pgd_t *pgd, unsigned long addr, unsigned long end,
 		/*
 		 * For 4K granule only, attempt to put down a 1GB block
 		 */
-
-		if (use_1G_block(addr, next, phys) && allow_block_mappings) {
-
+		if (use_1G_block(addr, next, phys) && allow_block_mappings && !dma_overlap(phys, phys + next - addr)){
 			pud_set_huge(pud, phys, prot);
 
 			/*
@@ -539,11 +536,8 @@ static void __init map_kernel(pgd_t *pgd)
 		 * entry instead.
 		 */
 		BUG_ON(!IS_ENABLED(CONFIG_ARM64_16K_PAGES));
-
-
 		pud_populate(&init_mm, pud_set_fixmap_offset(pgd, FIXADDR_START),
 			     lm_alias(bm_pmd));
-
 		pud_clear_fixmap();
 	} else {
 		BUG();
@@ -854,8 +848,6 @@ int pud_set_huge(pud_t *pudp, phys_addr_t phys, pgprot_t prot)
 {
 	pgprot_t sect_prot = __pgprot(PUD_TYPE_SECT |
 					pgprot_val(mk_sect_prot(prot)));
-
-
 	pud_t new_pud = pfn_pud(__phys_to_pfn(phys), sect_prot);
 
 	/* Only allow permission changes for now */
@@ -865,7 +857,6 @@ int pud_set_huge(pud_t *pudp, phys_addr_t phys, pgprot_t prot)
 
 	BUG_ON(phys & ~PUD_MASK);
 	set_pud(pudp, new_pud);
->>>>>>> 246eee7b5748... arm64: Make sure permission updates happen for pmd/pud
 	return 1;
 }
 
@@ -873,41 +864,15 @@ int pmd_set_huge(pmd_t *pmdp, phys_addr_t phys, pgprot_t prot)
 {
 	pgprot_t sect_prot = __pgprot(PMD_TYPE_SECT |
 					pgprot_val(mk_sect_prot(prot)));
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 	pmd_t new_pmd = pfn_pmd(__phys_to_pfn(phys), sect_prot);
-
-	/* Only allow permission changes for now */
-	if (!pgattr_change_is_safe(READ_ONCE(pmd_val(*pmd)),
-				   pmd_val(new_pmd)))
-		return 0;
-
-	BUG_ON(phys & ~PMD_MASK);
-	set_pmd(pmd, new_pmd);
-=======
-=======
-=======
-	pmd_t new_pmd = pfn_pmd(__phys_to_pfn(phys), sect_prot);
->>>>>>> 246eee7b5748... arm64: Make sure permission updates happen for pmd/pud
 
 	/* Only allow permission changes for now */
 	if (!pgattr_change_is_safe(READ_ONCE(pmd_val(*pmdp)),
 				   pmd_val(new_pmd)))
 		return 0;
 
->>>>>>> 4f45a0a17035... arm64: Enforce BBM for huge IO/VMAP mappings
 	BUG_ON(phys & ~PMD_MASK);
-<<<<<<< HEAD
-<<<<<<< HEAD
-	set_pmd(pmd, pfn_pmd(__phys_to_pfn(phys), sect_prot));
->>>>>>> 17c413903026... arm64: don't open code page table entry creation
-=======
-	set_pmd(pmdp, pfn_pmd(__phys_to_pfn(phys), sect_prot));
->>>>>>> 3103206a65f9... arm64: mm: Change page table pointer name in p[md]_set_huge()
-=======
 	set_pmd(pmdp, new_pmd);
->>>>>>> 246eee7b5748... arm64: Make sure permission updates happen for pmd/pud
 	return 1;
 }
 

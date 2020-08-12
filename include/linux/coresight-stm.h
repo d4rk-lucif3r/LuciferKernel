@@ -109,3 +109,4 @@ static inline void stm_send(void *addr, const void *data, u32 size,
 			    u8 write_bytes) {}
 #endif
 #endif
+

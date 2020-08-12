@@ -1,3 +1,4 @@
+  
 /*
  *  linux/kernel/hrtimer.c
  *
@@ -842,12 +843,8 @@ static int enqueue_hrtimer(struct hrtimer *timer,
 
 	base->cpu_base->active_bases |= 1 << base->index;
 
-
-
-
 	/* Pairs with the lockless read in hrtimer_is_queued() */
 	WRITE_ONCE(timer->state, HRTIMER_STATE_ENQUEUED);
-
 
 	return timerqueue_add(&base->active, &timer->node);
 }
@@ -868,15 +865,8 @@ static void __remove_hrtimer(struct hrtimer *timer,
 {
 	struct hrtimer_cpu_base *cpu_base = base->cpu_base;
 
-<<<<<<< HEAD
-	if (!(timer->state & HRTIMER_STATE_ENQUEUED))
+        if (!(timer->state & HRTIMER_STATE_ENQUEUED))
 		goto out;
-=======
-	/* Pairs with the lockless read in hrtimer_is_queued() */
-	WRITE_ONCE(timer->state, newstate);
-	if (!(state & HRTIMER_STATE_ENQUEUED))
-		return;
->>>>>>> 190d14f3ddc6... hrtimer: Annotate lockless access to timer->state
 
 	if (!timerqueue_del(&base->active, &timer->node))
 		cpu_base->active_bases &= ~(1 << base->index);
@@ -1823,3 +1813,4 @@ int __sched schedule_hrtimeout(ktime_t *expires,
 	return schedule_hrtimeout_range(expires, 0, mode);
 }
 EXPORT_SYMBOL_GPL(schedule_hrtimeout);
+

@@ -1,4 +1,3 @@
-
 #ifndef _LINUX_KERNEL_TRACE_H
 #define _LINUX_KERNEL_TRACE_H
 
@@ -1700,3 +1699,4 @@ static __always_inline void trace_iterator_reset(struct trace_iterator *iter)
 }
 
 #endif /* _LINUX_KERNEL_TRACE_H */
+
