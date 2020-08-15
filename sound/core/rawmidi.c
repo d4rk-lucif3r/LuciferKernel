@@ -1017,15 +1017,9 @@ static long snd_rawmidi_kernel_read1(struct snd_rawmidi_substream *substream,
 		if (userbuf) {
 			spin_unlock_irqrestore(&runtime->lock, flags);
 			if (copy_to_user(userbuf + result,
-<<<<<<< HEAD
-					 runtime->buffer + appl_ptr, count1)) {
-				mutex_unlock(&runtime->realloc_mutex);
-				return result > 0 ? result : -EFAULT;
-			}
-=======
 					 runtime->buffer + appl_ptr, count1))
 				err = -EFAULT;
->>>>>>> c13f1463d84b... ALSA: rawmidi: Fix racy buffer resize under concurrent accesses
+
 			spin_lock_irqsave(&runtime->lock, flags);
 			if (err)
 				goto out;
@@ -1036,13 +1030,8 @@ static long snd_rawmidi_kernel_read1(struct snd_rawmidi_substream *substream,
  out:
 	snd_rawmidi_buffer_unref(runtime);
 	spin_unlock_irqrestore(&runtime->lock, flags);
-<<<<<<< HEAD
-	if (userbuf)
-		mutex_unlock(&runtime->realloc_mutex);
-	return result;
-=======
 	return result > 0 ? result : err;
->>>>>>> c13f1463d84b... ALSA: rawmidi: Fix racy buffer resize under concurrent accesses
+
 }
 
 long snd_rawmidi_kernel_read(struct snd_rawmidi_substream *substream,

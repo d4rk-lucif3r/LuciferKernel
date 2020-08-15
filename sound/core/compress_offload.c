@@ -727,8 +727,6 @@ static int snd_compr_stop(struct snd_compr_stream *stream)
 
 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_STOP);
 	if (!retval) {
-
-=======
 		/* clear flags and stop any drain wait */
 		stream->partial_drain = false;
 		stream->metadata_set = false;
@@ -801,9 +799,6 @@ static int snd_compr_drain(struct snd_compr_stream *stream)
 	default:
 		break;
 	}
->>>>>>> 13810c478b57... ALSA: compress: Be more restrictive about when a drain is allowed
-
->>>>>>> 8d25080f4d84... ALSA: compress: Prevent bypasses of set_params
 	retval = stream->ops->trigger(stream, SND_COMPR_TRIGGER_DRAIN);
 	mutex_lock(&stream->device->lock);
 	if (!retval) {

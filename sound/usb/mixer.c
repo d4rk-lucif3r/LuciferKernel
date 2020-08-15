@@ -772,7 +772,7 @@ static int __check_input_term(struct mixer_build *state, int id,
 			} else { /* UAC_VERSION_3 */
 				struct uac3_input_terminal_descriptor *d = p1;
 
-				err = check_input_term(state,
+				err = __check_input_term(state,
 							d->bCSourceID, term);
 				if (err < 0)
 					return err;
@@ -804,21 +804,43 @@ static int __check_input_term(struct mixer_build *state, int id,
 			return 0;
 		}
 		case UAC_SELECTOR_UNIT:
+		/* UAC3_MIXER_UNIT_V3 */
+		case UAC2_CLOCK_SELECTOR:
+		/* UAC3_CLOCK_SOURCE */ {
+			if (state->mixer->protocol == UAC_VERSION_3
+				&& hdr[2] == UAC3_CLOCK_SOURCE) {
+				struct uac3_clock_source_descriptor *d = p1;
 
-		
-		case UAC2_CLOCK_SELECTOR: {
-			struct uac_selector_unit_descriptor *d = p1;
-			/* call recursively to retrieve the channel info */
-			err = __check_input_term(state, d->baSourceID[0], term);
-			if (err < 0)
-				return err;
-			term->type = d->bDescriptorSubtype << 16; /* virtual type */
-			term->id = id;
-			term->name = uac_selector_unit_iSelector(d);
+				term->type = d->bDescriptorSubtype << 16;
+				term->id = id;
+				term->name = d->wClockSourceStr;
+			} else if (state->mixer->protocol == UAC_VERSION_3
+					&& hdr[2] == UAC3_MIXER_UNIT_V3) {
+				struct uac3_mixer_unit_descriptor *d = p1;
 
+				term->type = d->bDescriptorSubtype << 16;
+				if (d->wClusterDescrID == CLUSTER_ID_MONO) {
+					term->channels = NUM_CHANNELS_MONO;
+					term->chconfig = BADD_CH_CONFIG_MONO;
+				} else {
+					term->channels = NUM_CHANNELS_STEREO;
+					term->chconfig = BADD_CH_CONFIG_STEREO;
+				}
+				term->name = d->wMixerDescrStr;
+			} else {
+				struct uac_selector_unit_descriptor *d = p1;
+				/* call recursively to retrieve channel info */
+				err = __check_input_term(state,
+							d->baSourceID[0], term);
+				if (err < 0)
+					return err;
+				/* virtual type */
+				term->type = d->bDescriptorSubtype << 16;
+				term->id = id;
+				term->name = uac_selector_unit_iSelector(d);
+			}
 			return 0;
-		}
-		case UAC1_PROCESSING_UNIT:
+		}		case UAC1_PROCESSING_UNIT:
 		case UAC1_EXTENSION_UNIT:
 		/* UAC2_PROCESSING_UNIT_V2 */
 		/* UAC2_EFFECT_UNIT */
@@ -1029,7 +1051,6 @@ static void volume_control_quirks(struct usb_mixer_elem_info *cval,
 			cval->res = 384;
 		}
 		break;
-
 	case USB_ID(0x0495, 0x3042): /* ESS Technology Asus USB DAC */
 		if ((strstr(kctl->id.name, "Playback Volume") != NULL) ||
 			strstr(kctl->id.name, "Capture Volume") != NULL) {
@@ -1038,7 +1059,6 @@ static void volume_control_quirks(struct usb_mixer_elem_info *cval,
 			cval->res = 1;
 		}
 		break;
-
 	}
 }
 
@@ -1944,7 +1964,20 @@ static int parse_audio_mixer_unit(struct mixer_build *state, int unitid,
 	int input_pins, num_ins, num_outs;
 	int pin, ich, err;
 
-
+	if (state->mixer->protocol == UAC_VERSION_3) {
+		input_pins = badd_baiof_mu_desc.bNrInPins;
+		num_outs =
+		   (badd_baiof_mu_desc.wClusterDescrID == CLUSTER_ID_MONO) ?
+		    NUM_CHANNELS_MONO : NUM_CHANNELS_STEREO;
+	} else {
+		input_pins = desc->bNrInPins;
+		num_outs = uac_mixer_unit_bNrChannels(desc);
+		if (desc->bLength < 11 || !input_pins || !num_outs) {
+			usb_audio_err(state->chip,
+				      "invalid MIXER UNIT descriptor %d\n",
+				      unitid);
+			return -EINVAL;
+		}
 	if (desc->bLength < 11 || !(input_pins = desc->bNrInPins) ||
 	    desc->bLength < sizeof(*desc) + desc->bNrInPins ||
 	    !(num_outs = uac_mixer_unit_bNrChannels(desc))) {
@@ -1952,9 +1985,8 @@ static int parse_audio_mixer_unit(struct mixer_build *state, int unitid,
 			      "invalid MIXER UNIT descriptor %d\n",
 			      unitid);
 		return -EINVAL;
-
 	}
-
+}
 	num_ins = 0;
 	ich = 0;
 	for (pin = 0; pin < input_pins; pin++) {
