@@ -695,7 +695,6 @@ static inline tANI_S32
 halRoundS32(tANI_S32 p)
 {
     tANI_S32  k, i, j;
-
     i = p/10;
     j = p%10;
     if (p > 0)
@@ -705,7 +704,7 @@ halRoundS32(tANI_S32 p)
     else
         k = p;
 
-        return(k);
+    return(k);
 }
 
 // New functions for endianess conversion
