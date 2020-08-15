@@ -92,10 +92,14 @@ struct gadget_info {
 	bool unbinding;
 	char b_vendor_code;
 	char qw_sign[OS_STRING_QW_SIGN_LEN];
-
+#ifdef CONFIG_USB_CONFIGFS_UEVENT
+	bool connected;
+	bool sw_connected;
+	struct work_struct work;
+	struct device *dev;
+#endif
 	spinlock_t spinlock;
 	bool unbind;
-
 };
 
 static inline struct gadget_info *to_gadget_info(struct config_item *item)
@@ -1685,7 +1689,6 @@ static void android_disconnect(struct usb_gadget *gadget)
 static const struct usb_gadget_driver configfs_driver_template = {
 	.bind           = configfs_composite_bind,
 	.unbind         = configfs_composite_unbind,
-<<<<<<< HEAD
 #ifdef CONFIG_USB_CONFIGFS_UEVENT
 	.setup          = android_setup,
 	.reset          = android_disconnect,
@@ -1697,15 +1700,6 @@ static const struct usb_gadget_driver configfs_driver_template = {
 #endif
 	.suspend	= composite_suspend,
 	.resume		= composite_resume,
-=======
-
-	.setup          = configfs_composite_setup,
-	.reset          = configfs_composite_disconnect,
-	.disconnect     = configfs_composite_disconnect,
-
-	.suspend	= configfs_composite_suspend,
-	.resume		= configfs_composite_resume,
->>>>>>> aa919ef9a34b... usb: gadget: configfs: fix concurrent issue between composite APIs
 
 	.max_speed	= USB_SPEED_SUPER,
 	.driver = {
