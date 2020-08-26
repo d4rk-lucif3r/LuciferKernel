@@ -17,7 +17,7 @@
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM kgsl
 #undef TRACE_INCLUDE_PATH
-#define TRACE_INCLUDE_PATH /home/lucifer/Android/kernel/Tissot-4.9-Q_kernel/drivers/gpu/msm
+#define TRACE_INCLUDE_PATH /home/lucifer/Android/kernel/Nonoc/kernel_xiaomi_msm8953/drivers/gpu/msm/
 #undef TRACE_INCLUDE_FILE
 #define TRACE_INCLUDE_FILE adreno_trace
 

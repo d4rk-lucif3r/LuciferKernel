@@ -801,13 +801,6 @@ void xhci_shutdown(struct usb_hcd *hcd)
 	xhci_dbg_trace(xhci, trace_xhci_dbg_init,
 			"xhci_shutdown completed - status = %x",
 			readl(&xhci->op_regs->status));
-
-
-
-
-
-
-
 }
 EXPORT_SYMBOL_GPL(xhci_shutdown);
 

@@ -77,5 +77,5 @@ TRACE_EVENT(
 
 /* This part must be outside protection */
 #undef TRACE_INCLUDE_PATH
-#define TRACE_INCLUDE_PATH /home/lucifer/Android/kernel/Tissot-4.9-Q_kernel/drivers/platform/msm/ipa/ipa_clients/
+#define TRACE_INCLUDE_PATH /home/lucifer/Android/kernel/Nonoc/kernel_xiaomi_msm8953/drivers/platform/msm/ipa/ipa_clients/
 #include <trace/define_trace.h>

@@ -816,9 +816,9 @@ void __noreturn do_exit(long code)
 	sched_exit(tsk);
 	schedtune_exit_task(tsk);
 
-	if (tsk->flags & PF_SU) {
-		su_exit();
-	}
+	// if (tsk->flags & PF_SU) {
+	// 	su_exit();
+	// }
 
 	/*
 	 * Ensure that all new tsk->pi_lock acquisitions must observe
