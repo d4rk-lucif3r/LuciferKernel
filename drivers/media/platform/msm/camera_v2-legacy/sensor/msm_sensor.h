@@ -31,8 +31,8 @@
 #include <media/msm_cam_sensor-legacy.h>
 #include <media/v4l2-subdev.h>
 #include <media/v4l2-ioctl.h>
-#include "/home/lucifer/Android/kernel/Nonoc/kernel_xiaomi_msm8953/drivers/media/platform/msm/camera_v2-legacy/sensor/io/msm_camera_i2c.h"
-#include "/home/lucifer/Android/kernel/Nonoc/kernel_xiaomi_msm8953/drivers/media/platform/msm/camera_v2-legacy/sensor/io/msm_camera_dt_util.h"
+#include "/home/lucifer/Android/kernel/Tissot-4.9-Q_kernel/drivers/media/platform/msm/camera_v2-legacy/sensor/io/msm_camera_i2c.h"    //Path: to be changed as per use
+#include "/home/lucifer/Android/kernel/Tissot-4.9-Q_kernel/drivers/media/platform/msm/camera_v2-legacy/sensor/io/msm_camera_dt_util.h"  //Path: to be changed as per use
 #include "msm_sd.h"
 
 #define DEFINE_MSM_MUTEX(mutexname) \
