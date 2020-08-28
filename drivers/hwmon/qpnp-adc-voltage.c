@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -107,8 +107,8 @@
 #define QPNP_VADC_CONV_TIMEOUT_ERR				2
 #define QPNP_VADC_CONV_TIME_MIN					1000
 #define QPNP_VADC_CONV_TIME_MAX					1100
-#define QPNP_ADC_COMPLETION_TIMEOUT				HZ
-#define QPNP_VADC_ERR_COUNT					20
+#define QPNP_ADC_COMPLETION_TIMEOUT		msecs_to_jiffies(100)
+#define QPNP_VADC_ERR_COUNT					150
 #define QPNP_OP_MODE_SHIFT					3
 
 #define QPNP_VADC_THR_LSB_MASK(val)				(val & 0xff)
@@ -161,7 +161,8 @@
  */
 #define QPNP_VADC_HC1_CONV_TIME_MIN_US				213
 #define QPNP_VADC_HC1_CONV_TIME_MAX_US				214
-#define QPNP_VADC_HC1_ERR_COUNT					1600
+#define QPNP_VADC_HC1_ERR_COUNT_POLL				705
+#define QPNP_VADC_HC1_ERR_COUNT					235
 
 #define QPNP_VADC_CAL_DELAY_CTL_1					0x3744
 #define QPNP_VADC_CAL_DELAY_MEAS_SLOW					0x73
@@ -341,11 +342,11 @@ static int32_t qpnp_vadc_status_debug(struct qpnp_vadc_chip *vadc)
 		for (i = 0; i < QPNP_VADC_REG_DUMP; i++) {
 			rc = qpnp_vadc_read_reg(vadc, offset, buf, 8);
 			if (rc) {
-				pr_err("debug register dump failed\n");
+				pr_debug("debug register dump failed\n");
 				return rc;
 			}
 			offset += QPNP_VADC_OFFSET_DUMP;
-			pr_err("row%d: 0%x 0%x 0%x 0%x 0%x 0%x 0%x 0%x\n",
+			pr_debug("row%d: 0%x 0%x 0%x 0%x 0%x 0%x 0%x 0%x\n",
 				i, buf[0], buf[1], buf[2], buf[3], buf[4],
 				buf[5], buf[6], buf[7]);
 		}
@@ -363,10 +364,16 @@ static int32_t qpnp_vadc_status_debug(struct qpnp_vadc_chip *vadc)
 	return 0;
 }
 
-static int qpnp_vadc_hc_check_conversion_status(struct qpnp_vadc_chip *vadc)
+static int qpnp_vadc_hc_check_conversion_status(struct qpnp_vadc_chip *vadc,
+		bool poll)
 {
-	int rc = 0, count = 0;
+	int rc = 0, count = 0, retry;
 	u8 status1 = 0;
+
+	if (poll)
+		retry = QPNP_VADC_HC1_ERR_COUNT_POLL;
+	else
+		retry = QPNP_VADC_HC1_ERR_COUNT;
 
 	while (status1 != QPNP_VADC_STATUS1_EOC) {
 		rc = qpnp_vadc_read_reg(vadc, QPNP_VADC_STATUS1, &status1, 1);
@@ -378,8 +385,8 @@ static int qpnp_vadc_hc_check_conversion_status(struct qpnp_vadc_chip *vadc)
 		usleep_range(QPNP_VADC_HC1_CONV_TIME_MIN_US,
 				QPNP_VADC_HC1_CONV_TIME_MAX_US);
 		count++;
-		if (count > QPNP_VADC_HC1_ERR_COUNT) {
-			pr_err("retry error exceeded\n");
+		if (count > retry) {
+			pr_debug("retry error exceeded\n");
 			rc = qpnp_vadc_status_debug(vadc);
 			if (rc < 0)
 				pr_err("VADC disable failed with %d\n", rc);
@@ -429,7 +436,7 @@ static int qpnp_vadc_wait_for_eoc(struct qpnp_vadc_chip *vadc)
 	int ret;
 
 	if (vadc->vadc_poll_eoc) {
-		ret = qpnp_vadc_hc_check_conversion_status(vadc);
+		ret = qpnp_vadc_hc_check_conversion_status(vadc, true);
 		if (ret < 0) {
 			pr_err("polling mode conversion failed\n");
 			return ret;
@@ -439,7 +446,7 @@ static int qpnp_vadc_wait_for_eoc(struct qpnp_vadc_chip *vadc)
 			&vadc->adc->adc_rslt_completion,
 			QPNP_ADC_COMPLETION_TIMEOUT);
 		if (!ret) {
-			ret = qpnp_vadc_hc_check_conversion_status(vadc);
+			ret = qpnp_vadc_hc_check_conversion_status(vadc, false);
 			if (ret < 0) {
 				pr_err("interrupt mode conversion failed\n");
 				return ret;
@@ -521,7 +528,7 @@ static int qpnp_vadc_hc_pre_configure_usb_in(struct qpnp_vadc_chip *vadc,
 
 	/* Setup dig params for USB_IN_V */
 	conv.decimation = DECIMATION_TYPE2;
-	conv.cal_val = ADC_HC_ABS_CAL;
+	conv.cal_val = (enum qpnp_adc_cal_val)ADC_HC_ABS_CAL;
 	conv.calib_type = vadc->adc->adc_channels[dt_index].calib_type;
 
 	qpnp_vadc_hc_update_adc_dig_param(vadc, &conv, &dig_param);
@@ -742,7 +749,7 @@ int32_t qpnp_vadc_hc_read(struct qpnp_vadc_chip *vadc,
 				QPNP_VADC_CAL_DELAY_CTL_1, &val, 1);
 		if (rc < 0) {
 			pr_err("qpnp adc write cal_delay failed with %d\n", rc);
-			return rc;
+			goto fail_unlock;
 		}
 	}
 
@@ -1568,7 +1575,7 @@ int32_t qpnp_vbat_sns_comp_result(struct qpnp_vadc_chip *vadc,
 	rc = qpnp_vadc_conv_seq_request(vadc, ADC_SEQ_NONE,
 			DIE_TEMP, &die_temp_result);
 	if (rc < 0) {
-		pr_err("Error reading die_temp\n");
+		pr_debug("Error reading die_temp\n");
 		return rc;
 	}
 
@@ -1630,7 +1637,7 @@ int32_t qpnp_vadc_calib_vref(struct qpnp_vadc_chip *vadc,
 	conv.mode_sel = ADC_OP_NORMAL_MODE << QPNP_VADC_OP_MODE_SHIFT;
 	conv.hw_settle_time = ADC_CHANNEL_HW_SETTLE_DELAY_0US;
 	conv.fast_avg_setup = ADC_FAST_AVG_SAMPLE_1;
-	conv.cal_val = calib_type;
+	conv.cal_val = (enum qpnp_adc_cal_val)calib_type;
 
 	if (vadc->vadc_hc) {
 		rc = qpnp_vadc_hc_configure(vadc, &conv);
@@ -1703,7 +1710,7 @@ int32_t qpnp_vadc_calib_gnd(struct qpnp_vadc_chip *vadc,
 	conv.mode_sel = ADC_OP_NORMAL_MODE << QPNP_VADC_OP_MODE_SHIFT;
 	conv.hw_settle_time = ADC_CHANNEL_HW_SETTLE_DELAY_0US;
 	conv.fast_avg_setup = ADC_FAST_AVG_SAMPLE_1;
-	conv.cal_val = calib_type;
+	conv.cal_val = (enum qpnp_adc_cal_val)calib_type;
 
 	if (vadc->vadc_hc) {
 		rc = qpnp_vadc_hc_configure(vadc, &conv);
@@ -1821,10 +1828,10 @@ static int32_t qpnp_vadc_calib_device(struct qpnp_vadc_chip *vadc)
 					(calib_read_1 - calib_read_2);
 	vadc->adc->amux_prop->chan_prop->adc_graph[CALIB_RATIOMETRIC].dx =
 					vadc->adc->adc_prop->adc_vdd_reference;
-	vadc->adc->amux_prop->chan_prop->adc_graph[CALIB_RATIOMETRIC].adc_vref
-					= calib_read_1;
-	vadc->adc->amux_prop->chan_prop->adc_graph[CALIB_RATIOMETRIC].adc_gnd
-					= calib_read_2;
+	vadc->adc->amux_prop->chan_prop->adc_graph[CALIB_RATIOMETRIC].adc_vref =
+					calib_read_1;
+	vadc->adc->amux_prop->chan_prop->adc_graph[CALIB_RATIOMETRIC].adc_gnd =
+					calib_read_2;
 
 calib_fail:
 	return rc;
@@ -2128,7 +2135,7 @@ recalibrate:
 					QPNP_VADC_CONV_TIME_MAX);
 			count++;
 			if (count > QPNP_VADC_ERR_COUNT) {
-				pr_err("retry error exceeded\n");
+				pr_debug("retry error exceeded\n");
 				rc = qpnp_vadc_status_debug(vadc);
 				if (rc < 0)
 					pr_err("VADC disable failed\n");
@@ -2299,7 +2306,7 @@ int32_t qpnp_vadc_read(struct qpnp_vadc_chip *vadc,
 		rc = qpnp_vadc_conv_seq_request(vadc, ADC_SEQ_NONE,
 				DIE_TEMP, &die_temp_result);
 		if (rc < 0) {
-			pr_err("Error reading die_temp\n");
+			pr_debug("Error reading die_temp\n");
 			return rc;
 		}
 
@@ -2315,7 +2322,7 @@ int32_t qpnp_vadc_read(struct qpnp_vadc_chip *vadc,
 			vadc->vadc_chg_vote =
 				power_supply_get_by_name("battery");
 			if (!vadc->vadc_chg_vote) {
-				pr_err("no vadc_chg_vote found\n");
+				pr_debug("no vadc_chg_vote found\n");
 				return -EINVAL;
 			}
 		}
@@ -2333,7 +2340,7 @@ int32_t qpnp_vadc_read(struct qpnp_vadc_chip *vadc,
 		rc = qpnp_vadc_conv_seq_request(vadc, ADC_SEQ_NONE,
 				channel, result);
 		if (rc < 0)
-			pr_err("Error reading die_temp\n");
+			pr_debug("Error reading die_temp\n");
 
 		ret.intval = 0;
 		rc = power_supply_set_property(vadc->vadc_chg_vote,
@@ -2661,7 +2668,7 @@ static ssize_t qpnp_adc_show(struct device *dev,
 	rc = qpnp_vadc_read(vadc, attr->index, &result);
 
 	if (rc) {
-		pr_err("VADC read error with %d\n", rc);
+		pr_debug("VADC read error with %d\n", rc);
 		return 0;
 	}
 
@@ -2715,7 +2722,7 @@ static int qpnp_vadc_get_temp(void *data, int *temp)
 				vadc_therm->vadc_channel, &result);
 	if (rc) {
 		if (rc != -EPROBE_DEFER)
-			pr_err("VADC read error with %d\n", rc);
+			pr_debug("VADC read error with %d\n", rc);
 		return rc;
 	}
 
