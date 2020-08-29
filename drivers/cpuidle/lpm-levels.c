@@ -1148,7 +1148,7 @@ static void cluster_unprepare(struct lpm_cluster *cluster,
 	if (level->notify_rpm)
 		if (sys_pm_ops && sys_pm_ops->exit) {
 			spin_lock(&bc_timer_lock);
-			sys_pm_ops->exit(success);
+			sys_pm_ops->exit();
 			spin_unlock(&bc_timer_lock);
 		}
 
