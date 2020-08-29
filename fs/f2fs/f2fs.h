@@ -3755,5 +3755,9 @@ static inline bool f2fs_may_encrypt_bio(struct inode *inode,
 	return (f2fs_encrypted_file(inode) &&
 			fscrypt_using_hardware_encryption(inode));
 }
+static inline bool f2fs_encrypted_inode(struct inode *inode)
+{
+	return file_is_encrypt(inode);
+}
 
 #endif /* _LINUX_F2FS_H */
