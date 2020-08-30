@@ -50,16 +50,8 @@ void msm_isp_reset_framedrop(struct vfe_device *vfe_dev,
 	struct msm_vfe_axi_stream *stream_info);
 
 int msm_isp_request_axi_stream(struct vfe_device *vfe_dev, void *arg);
-<<<<<<< HEAD
-<<<<<<< HEAD
 void msm_isp_start_avtimer(void);
 void msm_isp_stop_avtimer(void);
-=======
->>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
-=======
-void msm_isp_start_avtimer(void);
-void msm_isp_stop_avtimer(void);
->>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 void msm_isp_get_avtimer_ts(struct msm_isp_timestamp *time_stamp);
 int msm_isp_cfg_axi_stream(struct vfe_device *vfe_dev, void *arg);
 int msm_isp_update_stream_bandwidth(struct vfe_device *vfe_dev,

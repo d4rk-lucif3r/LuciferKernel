@@ -521,26 +521,11 @@ static void msm_vfe44_process_epoch_irq(struct vfe_device *vfe_dev,
 			pix_stream_count == 0) {
 			ISP_DBG("%s: SOF IRQ\n", __func__);
 			msm_isp_notify(vfe_dev, ISP_EVENT_SOF, VFE_PIX_0, ts);
-<<<<<<< HEAD
-<<<<<<< HEAD
 			if (vfe_dev->axi_data.stream_update[VFE_PIX_0]) {
 				msm_isp_axi_stream_update(vfe_dev, VFE_PIX_0);
 				vfe_dev->hw_info->vfe_ops.core_ops.reg_update(
 				   vfe_dev, VFE_PIX_0);
 			}
-=======
-			if (vfe_dev->axi_data.stream_update[VFE_PIX_0])
-				msm_isp_axi_stream_update(vfe_dev, VFE_PIX_0);
-				vfe_dev->hw_info->vfe_ops.core_ops.reg_update(
-				   vfe_dev, VFE_PIX_0);
->>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
-=======
-			if (vfe_dev->axi_data.stream_update[VFE_PIX_0]) {
-				msm_isp_axi_stream_update(vfe_dev, VFE_PIX_0);
-				vfe_dev->hw_info->vfe_ops.core_ops.reg_update(
-				   vfe_dev, VFE_PIX_0);
-			}
->>>>>>> 88f4d6a97d4d... msm/camera_v2-legacy: Update indentations to fix compiler warnings
 		}
 	}
 }

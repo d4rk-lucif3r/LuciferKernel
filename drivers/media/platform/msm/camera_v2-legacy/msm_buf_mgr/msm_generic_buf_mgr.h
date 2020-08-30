@@ -26,15 +26,7 @@
 
 struct msm_get_bufs {
 	struct list_head entry;
-<<<<<<< HEAD
-<<<<<<< HEAD
 	struct vb2_v4l2_buffer *vb2_v4l2_buf;
-=======
-	struct vb2_buffer *vb2_buf;
->>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
-=======
-	struct vb2_v4l2_buffer *vb2_v4l2_buf;
->>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	uint32_t session_id;
 	uint32_t stream_id;
 	uint32_t index;

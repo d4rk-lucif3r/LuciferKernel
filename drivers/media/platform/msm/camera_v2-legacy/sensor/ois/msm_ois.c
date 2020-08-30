@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2014-2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -933,16 +932,7 @@ static int32_t msm_ois_platform_probe(struct platform_device *pdev)
 	msm_ois_t->msm_sd.sd.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
 	snprintf(msm_ois_t->msm_sd.sd.name,
 		ARRAY_SIZE(msm_ois_t->msm_sd.sd.name), "msm_ois");
-<<<<<<< HEAD
-<<<<<<< HEAD
 	media_entity_pads_init(&msm_ois_t->msm_sd.sd.entity, 0, NULL);
-=======
-	media_entity_init(&msm_ois_t->msm_sd.sd.entity, 0, NULL, 0);
-	msm_ois_t->msm_sd.sd.entity.type = MEDIA_ENT_T_V4L2_SUBDEV;
->>>>>>> 63550d6aabf9... camera_v2: Import legacy camera stack from LA.UM.8.6.r1-04200-89xx.0
-=======
-	media_entity_pads_init(&msm_ois_t->msm_sd.sd.entity, 0, NULL);
->>>>>>> 5478fef12261... msm: camera-legacy: Update camera drivers
 	msm_ois_t->msm_sd.sd.entity.group_id = MSM_CAMERA_SUBDEV_OIS;
 	msm_ois_t->msm_sd.close_seq = MSM_SD_CLOSE_2ND_CATEGORY | 0x2;
 	msm_sd_register(&msm_ois_t->msm_sd);
