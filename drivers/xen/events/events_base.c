@@ -634,7 +634,6 @@ static int __must_check xen_allocate_irq_gsi(unsigned gsi)
 static void xen_free_irq(unsigned irq)
 {
 	struct irq_info *info = info_for_irq(irq);
-	unsigned long flags;
 
 	if (WARN_ON(!info))
 		return;
