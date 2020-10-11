@@ -64,7 +64,11 @@
 #include <linux/page_owner.h>
 #include <linux/kthread.h>
 #include <linux/memcontrol.h>
+<<<<<<< HEAD
 #include <linux/show_mem_notifier.h>
+=======
+#include <linux/khugepaged.h>
+>>>>>>> 189394cf5e24... mm: khugepaged: recalculate min_free_kbytes after memory hotplug as expected by khugepaged
 
 #include <asm/sections.h>
 #include <asm/tlbflush.h>
@@ -6932,6 +6936,8 @@ int __meminit init_per_zone_wmark_min(void)
 	setup_min_unmapped_ratio();
 	setup_min_slab_ratio();
 #endif
+
+	khugepaged_min_free_kbytes_update();
 
 	return 0;
 }
