@@ -64,11 +64,9 @@
 #include <linux/page_owner.h>
 #include <linux/kthread.h>
 #include <linux/memcontrol.h>
-<<<<<<< HEAD
-#include <linux/show_mem_notifier.h>
-=======
+
 #include <linux/khugepaged.h>
->>>>>>> 189394cf5e24... mm: khugepaged: recalculate min_free_kbytes after memory hotplug as expected by khugepaged
+
 
 #include <asm/sections.h>
 #include <asm/tlbflush.h>
