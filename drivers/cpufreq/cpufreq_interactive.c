@@ -1538,7 +1538,7 @@ static struct attribute *interactive_attributes_gov_sys[] = {
 
 static struct attribute_group interactive_attr_group_gov_sys = {
 	.attrs = interactive_attributes_gov_sys,
-	.name = "interactive",
+	.name = "interactivex",
 };
 
 /* Per policy governor instance */
@@ -1566,7 +1566,7 @@ static struct attribute *interactive_attributes_gov_pol[] = {
 
 static struct attribute_group interactive_attr_group_gov_pol = {
 	.attrs = interactive_attributes_gov_pol,
-	.name = "interactive",
+	.name = "interactivex",
 };
 
 static struct attribute_group *get_sysfs_attr(void)
@@ -1895,7 +1895,7 @@ void cpufreq_interactive_limits(struct cpufreq_policy *policy)
 
 static struct interactive_governor interactive_gov = {
 	.gov = {
-		.name			= "interactive",
+		.name			= "interactivex",
 		.max_transition_latency	= 10000000,
 		.owner			= THIS_MODULE,
 		.init			= cpufreq_interactive_init,

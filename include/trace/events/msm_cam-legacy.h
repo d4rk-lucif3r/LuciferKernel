@@ -17,7 +17,8 @@
 #define _TRACE_MSM_VFE_H
 
 
-#include "/home/lucifer/Android/kernel/LuciferKernel/drivers/media/platform/msm/camera_v2-legacy/isp/msm_isp.h"  //Path: to be changed as per need
+#include "/home/lucifer/Android/kernel/OC/LuciferKernel/drivers/media/platform/msm/camera_v2-legacy/isp/msm_isp.h"  //Path: to be changed as per need
+
 #include <linux/types.h>
 #include <linux/tracepoint.h>
 

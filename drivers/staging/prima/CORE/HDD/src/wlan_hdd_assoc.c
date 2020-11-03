@@ -497,7 +497,6 @@ void hdd_copy_ht_caps(struct ieee80211_ht_cap *hdd_ht_cap,
     for (i = 0; i < IEEE80211_HT_MCS_MASK_LEN; ++i)
         hdd_ht_cap->mcs.rx_mask[i] =
             roam_ht_cap->supportedMCSSet[i];
-
         hdd_ht_cap->mcs.rx_highest =
             ((short) (roam_ht_cap->supportedMCSSet[11]) << 8) |
             ((short) (roam_ht_cap->supportedMCSSet[10]));
