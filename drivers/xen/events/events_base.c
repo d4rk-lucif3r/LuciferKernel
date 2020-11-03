@@ -33,9 +33,6 @@
 #include <linux/irqnr.h>
 #include <linux/pci.h>
 #include <linux/spinlock.h>
-#include <linux/cpuhotplug.h>
-#include <linux/atomic.h>
-#include <linux/ktime.h>
 
 #ifdef CONFIG_X86
 #include <asm/desc.h>
@@ -98,7 +95,6 @@ static DEFINE_RWLOCK(evtchn_rwlock);
  * irq_mapping_update_lock
  *   evtchn_rwlock
  *     IRQ-desc lock
- *       percpu eoi_list_lock
  */
 
 static LIST_HEAD(xen_irq_list_head);
@@ -634,14 +630,12 @@ static int __must_check xen_allocate_irq_gsi(unsigned gsi)
 static void xen_free_irq(unsigned irq)
 {
 	struct irq_info *info = info_for_irq(irq);
+	unsigned long flags;
 
 	if (WARN_ON(!info))
 		return;
 
 	write_lock_irqsave(&evtchn_rwlock, flags);
-
-	if (!list_empty(&info->eoi_list))
-		lateeoi_list_del(info);
 
 	list_del(&info->list);
 
@@ -1561,6 +1555,8 @@ static void __xen_evtchn_do_upcall(void)
 
 	read_lock(&evtchn_rwlock);
 
+	read_lock(&evtchn_rwlock);
+
 	do {
 		vcpu_info->evtchn_upcall_pending = 0;
 
@@ -1577,13 +1573,6 @@ static void __xen_evtchn_do_upcall(void)
 
 out:
 	read_unlock(&evtchn_rwlock);
-
-	/*
-	 * Increment irq_epoch only now to defer EOIs only for
-	 * xen_irq_lateeoi() invocations occurring from inside the loop
-	 * above.
-	 */
-	__this_cpu_inc(irq_epoch);
 
 	put_cpu();
 }
