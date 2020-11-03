@@ -33,6 +33,7 @@
 #include <linux/irqnr.h>
 #include <linux/pci.h>
 #include <linux/spinlock.h>
+#include <linux/cpuhotplug.h>
 
 #ifdef CONFIG_X86
 #include <asm/desc.h>
@@ -1898,8 +1899,6 @@ static int xen_evtchn_cpu_prepare(unsigned int cpu)
 {
 	int ret = 0;
 
-	xen_cpu_init_eoi(cpu);
-
 	if (evtchn_ops->percpu_init)
 		ret = evtchn_ops->percpu_init(cpu);
 
@@ -1924,8 +1923,6 @@ void __init xen_init_IRQ(void)
 		ret = xen_evtchn_fifo_init();
 	if (ret < 0)
 		xen_evtchn_2l_init();
-
-	xen_cpu_init_eoi(smp_processor_id());
 
 	cpuhp_setup_state_nocalls(CPUHP_XEN_EVTCHN_PREPARE,
 				  "CPUHP_XEN_EVTCHN_PREPARE",
