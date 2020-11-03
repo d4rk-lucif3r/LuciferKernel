@@ -224,7 +224,7 @@ struct schedtune {
 	/* Hint to bias scheduling of tasks on that SchedTune CGroup
 	 * towards idle CPUs */
 	int prefer_idle;
-};
+
 #ifdef CONFIG_DYNAMIC_STUNE_BOOST
 	/*
 	 * This tracks the default boost value and is used to restore
@@ -232,7 +232,7 @@ struct schedtune {
 	 */
 	int boost_default;
 #endif /* CONFIG_DYNAMIC_STUNE_BOOST */
-
+};
 static inline struct schedtune *css_st(struct cgroup_subsys_state *css)
 {
 	return container_of(css, struct schedtune, css);
