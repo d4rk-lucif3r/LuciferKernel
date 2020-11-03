@@ -3652,10 +3652,14 @@ static int __init init_f2fs_fs(void)
 
 
 	return 0;
+free_bio_enrty_cache:
+	f2fs_destroy_bio_entry_cache();
 
 free_root_stats:
 	f2fs_destroy_root_stats();
 	unregister_filesystem(&f2fs_fs_type);
+free_post_read:
+	f2fs_destroy_post_read_processing();
 free_shrinker:
 	unregister_shrinker(&f2fs_shrinker_info);
 free_sysfs:
@@ -3676,12 +3680,9 @@ fail:
 
 static void __exit exit_f2fs_fs(void)
 {
-<<<<<<< HEAD
-=======
 	f2fs_destroy_rapid_gc();
 	f2fs_destroy_bioset();
 	f2fs_destroy_bio_entry_cache();
->>>>>>> 3c27749a86cd... f2fs: catch a global wakelock instead of per gc_kthread
 	f2fs_destroy_post_read_processing();
 	f2fs_destroy_root_stats();
 	unregister_filesystem(&f2fs_fs_type);
