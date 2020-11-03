@@ -210,6 +210,22 @@ void f2fs_msg(struct super_block *sb, const char *level, const char *fmt, ...)
 	printk("%sF2FS-fs (%s): %pV\n", level, sb->s_id, &vaf);
 	va_end(args);
 }
+void f2fs_printk(struct f2fs_sb_info *sbi, const char *fmt, ...)
+{
+	struct va_format vaf;
+	va_list args;
+	int level;
+
+	va_start(args, fmt);
+
+	level = printk_get_level(fmt);
+	vaf.fmt = printk_skip_level(fmt);
+	vaf.va = &args;
+	printk("%c%cF2FS-fs (%s): %pV\n",
+	       KERN_SOH_ASCII, level, sbi->sb->s_id, &vaf);
+
+	va_end(args);
+}
 
 static inline void limit_reserve_root(struct f2fs_sb_info *sbi)
 {
