@@ -47,6 +47,10 @@ int __init f2fs_init_bioset(void)
 		return -ENOMEM;
 	return 0;
 }
+void f2fs_destroy_bioset(void)
+{
+	bioset_free(f2fs_bioset);
+}
 
 static bool __is_cp_guaranteed(struct page *page)
 {
