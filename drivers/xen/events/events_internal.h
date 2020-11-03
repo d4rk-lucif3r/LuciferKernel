@@ -33,12 +33,8 @@ enum xen_irq_type {
 struct irq_info {
 	struct list_head list;
 	struct list_head eoi_list;
-<<<<<<< HEAD
 	short refcnt;
 	short spurious_cnt;
-=======
-	int refcnt;
->>>>>>> 0c56aa8589d7 (xen/events: defer eoi in case of excessive number of events)
 	enum xen_irq_type type;	/* type */
 	unsigned irq;
 	unsigned int evtchn;	/* event channel */
