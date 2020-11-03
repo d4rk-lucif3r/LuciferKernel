@@ -121,7 +121,6 @@ static int gc_thread_func(void *data)
 			if (!sbi->rapid_gc)
 				wait_ms = gc_th->urgent_sleep_time;
 			down_write(&sbi->gc_lock);
->>>>>>> 9760346c2e77... f2fs: implement rapid GC for Android
 			goto do_gc;
 		}
 

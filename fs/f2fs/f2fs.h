@@ -1065,6 +1065,10 @@ struct f2fs_bio_info {
 	spinlock_t io_lock;		/* serialize DATA/NODE IOs */
 	struct list_head io_list;	/* track fios */
 };
+struct bio_entry {
+	struct bio *bio;
+	struct list_head list;
+};
 
 #define FDEV(i)				(sbi->devs[i])
 #define RDEV(i)				(raw_super->devs[i])
@@ -1260,6 +1264,10 @@ struct f2fs_sb_info {
 	struct percpu_counter total_valid_inode_count;
 
 	struct f2fs_mount_info mount_opt;	/* mount options */
+	struct rw_semaphore gc_lock;		/*
+						 * semaphore for GC, avoid
+						 * race between GC and GC or CP
+						 */
 
 	/* for cleaning operations */
 	struct mutex gc_mutex;			/* mutex for GC */
@@ -1800,6 +1808,9 @@ enospc:
 }
 
 void f2fs_msg(struct super_block *sb, const char *level, const char *fmt, ...);
+void f2fs_printk(struct f2fs_sb_info *sbi, const char *fmt, ...);
+#define f2fs_info(sbi, fmt, ...)					\
+	f2fs_printk(sbi, KERN_INFO fmt, ##__VA_ARGS__)
 static inline void dec_valid_block_count(struct f2fs_sb_info *sbi,
 						struct inode *inode,
 						block_t count)
@@ -3180,6 +3191,10 @@ bool f2fs_is_dirty_device(struct f2fs_sb_info *sbi, nid_t ino,
 int f2fs_sync_inode_meta(struct f2fs_sb_info *sbi);
 int f2fs_acquire_orphan_inode(struct f2fs_sb_info *sbi);
 void f2fs_release_orphan_inode(struct f2fs_sb_info *sbi);
+int __init f2fs_init_bioset(void);
+void f2fs_destroy_bioset(void);
+void f2fs_destroy_bio_entry_cache(void);
+int f2fs_init_bio_entry_cache(void);
 void f2fs_add_orphan_inode(struct inode *inode);
 void f2fs_remove_orphan_inode(struct f2fs_sb_info *sbi, nid_t ino);
 int f2fs_recover_orphan_inodes(struct f2fs_sb_info *sbi);
