@@ -21,7 +21,6 @@
 
 #include "zcomp.h"
 
-
 /*-- Configurable parameters */
 
 /*

@@ -18,6 +18,7 @@
 
 
 #include "/home/lucifer/Android/kernel/OC/LuciferKernel/drivers/media/platform/msm/camera_v2-legacy/isp/msm_isp.h"  //Path: to be changed as per need
+
 #include <linux/types.h>
 #include <linux/tracepoint.h>
 
