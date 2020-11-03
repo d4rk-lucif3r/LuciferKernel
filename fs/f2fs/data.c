@@ -26,9 +26,27 @@
 #include <trace/events/android_fs.h>
 
 #define NUM_PREALLOC_POST_READ_CTXS	128
-
+static struct kmem_cache *bio_entry_slab;
 static struct kmem_cache *bio_post_read_ctx_cache;
+static struct bio_set *f2fs_bioset;
 static mempool_t *bio_post_read_ctx_pool;
+
+int __init f2fs_init_bio_entry_cache(void)
+{
+	bio_entry_slab = f2fs_kmem_cache_create("bio_entry_slab",
+			sizeof(struct bio_entry));
+	if (!bio_entry_slab)
+		return -ENOMEM;
+	return 0;
+}
+#define	F2FS_BIO_POOL_SIZE	NR_CURSEG_TYPE
+int __init f2fs_init_bioset(void)
+{
+	f2fs_bioset = bioset_create(F2FS_BIO_POOL_SIZE, 0);
+	if (!f2fs_bioset)
+		return -ENOMEM;
+	return 0;
+}
 
 static bool __is_cp_guaranteed(struct page *page)
 {
@@ -3010,4 +3028,8 @@ void __exit f2fs_destroy_post_read_processing(void)
 {
 	mempool_destroy(bio_post_read_ctx_pool);
 	kmem_cache_destroy(bio_post_read_ctx_cache);
+}
+void f2fs_destroy_bio_entry_cache(void)
+{
+	kmem_cache_destroy(bio_entry_slab);
 }
