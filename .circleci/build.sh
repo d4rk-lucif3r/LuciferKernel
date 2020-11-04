@@ -14,7 +14,7 @@ BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 export PATH="$(pwd)/clang/bin:$PATH"
 export KBUILD_COMPILER_STRING="$($kernel/clang/bin/clang --version | head -n 1 | perl -pe 's/\((?:http|git).*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//' -e 's/^.*clang/clang/')"
 export ARCH=arm64
-export KBUILD_BUILD_USER=mtpiplod
+export KBUILD_BUILD_USER=d4rklucif3r
 export KBUILD_BUILD_HOST=circleci
 # Compile plox
 function compile() {
