@@ -7,9 +7,9 @@ git clone https://github.com/d4rk-lucif3r/Anykernel3-Tissot.git  --depth=1 AnyKe
 echo "Done"
 KERNEL_DIR=$(pwd)
 REPACK_DIR="${KERNEL_DIR}/AnyKernel"
-IMAGE="${KERNEL_DIR}/out/arch/arm64/boot/Image.gz"
-DTB_T="${KERNEL_DIR}/out/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-treble.dtb"
-DTB="${KERNEL_DIR}/out/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-nontreble.dtb"
+IMAGE="${KERNEL_DIR}/arch/arm64/boot/Image.gz"
+DTB_T="${KERNEL_DIR}/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-treble.dtb"
+DTB="${KERNEL_DIR}/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-nontreble.dtb"
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 export PATH="$(pwd)/clang/bin:$PATH"
 export KBUILD_COMPILER_STRING="$($kernel/clang/bin/clang --version | head -n 1 | perl -pe 's/\((?:http|git).*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//' -e 's/^.*clang/clang/')"
@@ -18,8 +18,8 @@ export KBUILD_BUILD_USER=mtpiplod
 export KBUILD_BUILD_HOST=circleci
 # Compile plox
 function compile() {
-    make -j$(nproc) O=out ARCH=arm64 tissot_defconfig
-    make -j$(nproc) O=out \
+    make -j$(nproc)  ARCH=arm64 tissot_defconfig
+    make -j$(nproc)  \
                     ARCH=arm64 \
                       CC=clang \
                       CROSS_COMPILE=aarch64-linux-gnu- \
