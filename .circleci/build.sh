@@ -1,6 +1,7 @@
 #!/bin/bash
 echo "Cloning dependencies"
 git clone --depth=1  https://github.com/d4rk-lucif3r/LuciferKernel.git -b circleci-nonoc
+git branch
 cd LuciferKernel
 git clone --depth=1 -b master https://github.com/kdrag0n/proton-clang clang
 git clone https://github.com/d4rk-lucif3r/Anykernel3-Tissot.git  --depth=1 AnyKernel
@@ -14,7 +15,7 @@ BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 export PATH="$(pwd)/clang/bin:$PATH"
 export KBUILD_COMPILER_STRING="$($kernel/clang/bin/clang --version | head -n 1 | perl -pe 's/\((?:http|git).*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//' -e 's/^.*clang/clang/')"
 export ARCH=arm64
-export KBUILD_BUILD_USER=mtpiplod
+export KBUILD_BUILD_USER=d4rklucif3r
 export KBUILD_BUILD_HOST=circleci
 # Compile plox
 function compile() {
