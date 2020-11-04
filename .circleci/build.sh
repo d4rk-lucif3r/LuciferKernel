@@ -1,13 +1,9 @@
 #!/bin/bash
 echo "Cloning dependencies"
 git clone --depth=1  https://github.com/d4rk-lucif3r/LuciferKernel.git -b NonOC
-echo "LuciferKernel Cloning Done"
-git branch
 cd LuciferKernel
 git clone --depth=1 -b master https://github.com/kdrag0n/proton-clang clang
-echo "Clang Cloning Done"
 git clone https://github.com/d4rk-lucif3r/Anykernel3-Tissot.git  --depth=1 AnyKernel
-echo "Anykernel Cloning Done"
 KERNEL_DIR=$(pwd)
 REPACK_DIR="${KERNEL_DIR}/AnyKernel"
 IMAGE="${KERNEL_DIR}/out/arch/arm64/boot/Image.gz"
