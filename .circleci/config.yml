@@ -13,9 +13,12 @@ jobs:
            git clone https://github.com/akhilnarang/scripts && cd scripts && bash setup/android_build_env.sh && cd ..
            cd /home
            mkdir lucifer
+           cd lucifer
            mkdir Android
+           cd Android
            mkdir kernel
-           cd /home/lucifer/Android/kernel/
+           cd kernel
+          
            wget https://raw.githubusercontent.com/d4rk-lucif3r/LuciferKernel/NonOC/.circleci/build.sh
            source build.sh
 workflows:
