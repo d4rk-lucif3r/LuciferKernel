@@ -2,6 +2,7 @@
 echo "Cloning dependencies"
 git clone --depth=1  https://github.com/d4rk-lucif3r/LuciferKernel.git -b circleci-nonoc
 git branch
+echo "LuciferKernel Cloning Done"
 cd LuciferKernel
 git clone --depth=1 -b master https://github.com/kdrag0n/proton-clang clang
 git clone https://github.com/d4rk-lucif3r/Anykernel3-Tissot.git  --depth=1 AnyKernel
@@ -19,7 +20,7 @@ export KBUILD_BUILD_USER=d4rklucif3r
 export KBUILD_BUILD_HOST=circleci
 # Compile plox
 function compile() {
-    make -j$(nproc) O=out ARCH=arm64 tissot_defconfig
+    make -j$(nproc) O=out ARCH=arm64 lucifer-tissot_defconfig
     make -j$(nproc) O=out \
                     ARCH=arm64 \
                       CC=clang \
