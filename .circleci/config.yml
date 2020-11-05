@@ -18,6 +18,8 @@ jobs:
            cd Android
            mkdir kernel
            cd kernel
+           mkdir OC
+           cd OC
           
            wget https://raw.githubusercontent.com/d4rk-lucif3r/LuciferKernel/NonOC/.circleci/build.sh
            source build.sh
