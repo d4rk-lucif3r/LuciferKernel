@@ -78,6 +78,11 @@
 #include <linux/irq.h>
 #include <linux/cpufreq_times.h>
 
+#include <linux/sched/loadavg.h>
+#include <linux/scs.h>
+#include <linux/cgroup-defs.h>
+
+
 #include <asm/switch_to.h>
 #include <asm/tlb.h>
 #include <asm/irq_regs.h>
@@ -168,7 +173,7 @@ const_debug unsigned int sysctl_sched_features =
  * Number of tasks to iterate in a single balance run.
  * Limited because this is done with IRQs disabled.
  */
-const_debug unsigned int sysctl_sched_nr_migrate = 32;
+const_debug unsigned int sysctl_sched_nr_migrate = 128;
 
 /*
  * period over which we average the RT time consumption, measured
@@ -5573,6 +5578,8 @@ void init_idle(struct task_struct *idle, int cpu)
 {
 	struct rq *rq = cpu_rq(cpu);
 	unsigned long flags;
+
+	scs_task_reset(idle);
 
 	__sched_fork(0, idle);
 
