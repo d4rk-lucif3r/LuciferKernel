@@ -325,6 +325,7 @@ static int fb_notifier_callback(struct notifier_block *self,
 		break;
 	}
 
+out:
 	return NOTIFY_OK;
 }
 
