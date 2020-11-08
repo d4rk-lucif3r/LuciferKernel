@@ -122,9 +122,10 @@ endmenu
 endif # BLOCK
 
 if BLOCK
-menu "DOS/FAT/NT Filesystems"
+menu "DOS/FAT/EXFAT/NT Filesystems"
 
 source "fs/fat/Kconfig"
+source "fs/exfat/Kconfig"
 source "fs/sdfat/Kconfig"
 source "fs/ntfs/Kconfig"
 
@@ -312,7 +313,3 @@ source "fs/nls/Kconfig"
 source "fs/dlm/Kconfig"
 
 endmenu
-config BLOCK_UNWANTED_FILES
-	bool "Allow blocking files from executing from kernel"
-	help
-	  This option allows you to make files from certain folders un-openable.

@@ -515,7 +515,6 @@ xfs_iget_cache_miss(
 	/*
 	 * Check the inode free state is valid. This also detects lookup
 	 * racing with unlinks.
-
 	 */
 	error = xfs_iget_check_free_state(ip, flags);
 	if (error)

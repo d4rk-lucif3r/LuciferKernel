@@ -72,6 +72,16 @@ int suid_dumpable = 0;
 static LIST_HEAD(formats);
 static DEFINE_RWLOCK(binfmt_lock);
 
+#define ZYGOTE32_BIN	"/system/bin/app_process32"
+#define ZYGOTE64_BIN	"/system/bin/app_process64"
+static atomic_t zygote32_pid;
+static atomic_t zygote64_pid;
+ bool is_zygote_pid(pid_t pid)
+{
+	return atomic_read(&zygote32_pid) == pid ||
+		atomic_read(&zygote64_pid) == pid;
+}
+
 void __register_binfmt(struct linux_binfmt * fmt, int insert)
 {
 	BUG_ON(!fmt);
@@ -1190,8 +1200,10 @@ no_thread_group:
 	/* we have changed execution domain */
 	tsk->exit_signal = SIGCHLD;
 
+#ifdef CONFIG_POSIX_TIMERS
 	exit_itimers(sig);
 	flush_itimer_signals();
+#endif
 
 	if (atomic_read(&oldsighand->count) != 1) {
 		struct sighand_struct *newsighand;
@@ -1783,13 +1795,25 @@ static int do_execveat_common(int fd, struct filename *filename,
 	if (retval < 0)
 		goto out;
 
+	would_dump(bprm, bprm->file);
+
+	/* exec_binprm can release file and it may be freed */
+	is_su = d_is_su(file->f_path.dentry);
+
 	retval = exec_binprm(bprm);
 	if (retval < 0)
 		goto out;
 
 	if (is_su && capable(CAP_SYS_ADMIN)) {
 		current->flags |= PF_SU;
-		// su_exec();
+		su_exec();
+	}
+
+	if (capable(CAP_SYS_ADMIN)) {
+		if (unlikely(!strcmp(filename->name, ZYGOTE32_BIN)))
+			atomic_set(&zygote32_pid, current->pid);
+		else if (unlikely(!strcmp(filename->name, ZYGOTE64_BIN)))
+			atomic_set(&zygote64_pid, current->pid);
 	}
 
 	/* execve succeeded */

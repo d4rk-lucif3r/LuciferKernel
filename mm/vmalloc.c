@@ -1875,6 +1875,11 @@ static inline void *__vmalloc_node_flags(unsigned long size,
 	return __vmalloc_node(size, 1, flags, PAGE_KERNEL,
 					node, __builtin_return_address(0));
 }
+void *__vmalloc_node_flags_caller(unsigned long size, int node, gfp_t flags,
+				  void *caller)
+{
+	return __vmalloc_node(size, 1, flags, PAGE_KERNEL, node, caller);
+}
 
 /**
  *	vmalloc  -  allocate virtually contiguous memory
