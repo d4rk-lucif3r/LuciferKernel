@@ -695,14 +695,15 @@ static inline tANI_S32
 halRoundS32(tANI_S32 p)
 {
     tANI_S32  k, i, j;
+
     i = p/10;
     j = p%10;
-    if (p > 0)
-        k = i + (j > 4 ? 1 : 0);
-    else if (p < 0)
-        k = i + (j < -5 ? -1 : 0);
-    else
-        k = p;
+    if (p > 0){
+        k = i + (j > 4 ? 1 : 0);}
+    else if (p < 0){
+        k = i + (j < -5 ? -1 : 0);}
+    else{
+        k = p;}
 
     return(k);
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -27,6 +27,7 @@
 #include "mdss_mdp.h"
 #include "mdss_mdp_trace.h"
 #include "mdss_debug.h"
+#include "mdss_dsi.h"
 
 #define MDSS_MDP_QSEED3_VER_DOWNSCALE_LIM 2
 #define NUM_MIXERCFG_REGS 3
@@ -2452,6 +2453,7 @@ struct mdss_mdp_ctl *mdss_mdp_ctl_alloc(struct mdss_data_type *mdata,
 			mutex_init(&ctl->offlock);
 			mutex_init(&ctl->flush_lock);
 			mutex_init(&ctl->rsrc_lock);
+			mutex_init(&ctl->vsync_handler_lock);
 			spin_lock_init(&ctl->spin_lock);
 			BLOCKING_INIT_NOTIFIER_HEAD(&ctl->notifier_head);
 			pr_debug("alloc ctl_num=%d\n", ctl->num);
@@ -4067,6 +4069,14 @@ int mdss_mdp_ctl_destroy(struct mdss_mdp_ctl *ctl)
 	return 0;
 }
 
+static void mdss_mdp_wait_for_panel_on(struct mdss_panel_data *pdata)
+{
+	struct mdss_dsi_ctrl_pdata *ctrl_pdata =
+		container_of(pdata, typeof(*ctrl_pdata), panel_data);
+
+	wait_for_completion(&ctrl_pdata->wake_comp);
+}
+
 int mdss_mdp_ctl_intf_event(struct mdss_mdp_ctl *ctl, int event, void *arg,
 	u32 flags)
 {
@@ -4090,8 +4100,11 @@ int mdss_mdp_ctl_intf_event(struct mdss_mdp_ctl *ctl, int event, void *arg,
 	pr_debug("sending ctl=%d event=%d flag=0x%x\n", ctl->num, event, flags);
 
 	do {
-		if (pdata->event_handler)
+		if (pdata->event_handler) {
 			rc = pdata->event_handler(pdata, event, arg);
+			if (event == MDSS_EVENT_LINK_READY)
+				mdss_mdp_wait_for_panel_on(pdata);
+		}
 		pdata = pdata->next;
 	} while (rc == 0 && pdata && pdata->active &&
 		!(flags & CTL_INTF_EVENT_FLAG_SKIP_BROADCAST));

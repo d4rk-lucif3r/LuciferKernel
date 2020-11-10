@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1016,7 +1016,7 @@ static ssize_t mdss_dsi_cmd_write(struct file *file, const char __user *p,
 {
 	struct buf_data *pcmds = file->private_data;
 	ssize_t ret = 0;
-	int blen = 0;
+	unsigned int blen = 0;
 	char *string_buf;
 
 	mutex_lock(&pcmds->dbg_mutex);
@@ -1028,6 +1028,11 @@ static ssize_t mdss_dsi_cmd_write(struct file *file, const char __user *p,
 
 	/* Allocate memory for the received string */
 	blen = count + (pcmds->sblen);
+	if (blen > U32_MAX - 1) {
+		mutex_unlock(&pcmds->dbg_mutex);
+		return -EINVAL;
+	}
+
 	string_buf = krealloc(pcmds->string_buf, blen + 1, GFP_KERNEL);
 	if (!string_buf) {
 		pr_err("%s: Failed to allocate memory\n", __func__);
@@ -1035,6 +1040,7 @@ static ssize_t mdss_dsi_cmd_write(struct file *file, const char __user *p,
 		return -ENOMEM;
 	}
 
+	pcmds->string_buf = string_buf;
 	/* Writing in batches is possible */
 	ret = simple_write_to_buffer(string_buf, blen, ppos, p, count);
 	if (ret < 0) {
@@ -1044,7 +1050,6 @@ static ssize_t mdss_dsi_cmd_write(struct file *file, const char __user *p,
 	}
 
 	string_buf[ret] = '\0';
-	pcmds->string_buf = string_buf;
 	pcmds->sblen = count;
 	mutex_unlock(&pcmds->dbg_mutex);
 	return ret;
@@ -1053,7 +1058,8 @@ static ssize_t mdss_dsi_cmd_write(struct file *file, const char __user *p,
 static int mdss_dsi_cmd_flush(struct file *file, fl_owner_t id)
 {
 	struct buf_data *pcmds = file->private_data;
-	int blen, len, i;
+	unsigned int len;
+	int blen, i;
 	char *buf, *bufp, *bp;
 	struct dsi_ctrl_hdr *dchdr;
 
@@ -1097,7 +1103,7 @@ static int mdss_dsi_cmd_flush(struct file *file, fl_owner_t id)
 	while (len >= sizeof(*dchdr)) {
 		dchdr = (struct dsi_ctrl_hdr *)bp;
 		dchdr->dlen = ntohs(dchdr->dlen);
-		if (dchdr->dlen > len || dchdr->dlen < 0) {
+		if (dchdr->dlen > (len - sizeof(*dchdr)) || dchdr->dlen < 0) {
 			pr_err("%s: dtsi cmd=%x error, len=%d\n",
 				__func__, dchdr->dtype, dchdr->dlen);
 			kfree(buf);
@@ -1896,6 +1902,68 @@ static int mdss_dsi_post_panel_on(struct mdss_panel_data *pdata)
 	return 0;
 }
 
+static int mdss_dsi_disp_wake_thread(void *data)
+{
+	static const struct sched_param max_rt_param = {
+		.sched_priority = MAX_RT_PRIO - 1
+	};
+	struct mdss_dsi_ctrl_pdata *ctrl_pdata = data;
+	struct mdss_panel_data *pdata = &ctrl_pdata->panel_data;
+
+	sched_setscheduler_nocheck(current, SCHED_FIFO, &max_rt_param);
+
+	while (1) {
+		bool should_stop;
+
+		wait_event(ctrl_pdata->wake_waitq,
+			(should_stop = kthread_should_stop()) ||
+			atomic_cmpxchg(&ctrl_pdata->disp_en,
+				       MDSS_DISPLAY_WAKING,
+				       MDSS_DISPLAY_ON) == MDSS_DISPLAY_WAKING);
+
+		if (should_stop)
+			break;
+
+		/* MDSS_EVENT_LINK_READY */
+		if (ctrl_pdata->refresh_clk_rate)
+			mdss_dsi_clk_refresh(pdata,
+					     ctrl_pdata->update_phy_timing);
+		mdss_dsi_on(pdata);
+
+		/* MDSS_EVENT_UNBLANK */
+		mdss_dsi_unblank(pdata);
+
+		/* MDSS_EVENT_PANEL_ON */
+		ctrl_pdata->ctrl_state |= CTRL_STATE_MDP_ACTIVE;
+		pdata->panel_info.esd_rdy = true;
+
+		complete_all(&ctrl_pdata->wake_comp);
+	}
+
+	return 0;
+}
+
+static void mdss_dsi_display_wake(struct mdss_dsi_ctrl_pdata *ctrl_pdata)
+{
+	if (atomic_cmpxchg(&ctrl_pdata->disp_en, MDSS_DISPLAY_OFF,
+			   MDSS_DISPLAY_WAKING) == MDSS_DISPLAY_OFF)
+		wake_up(&ctrl_pdata->wake_waitq);
+}
+
+static int mdss_dsi_fb_unblank_cb(struct notifier_block *nb,
+				  unsigned long action, void *data)
+{
+	struct mdss_dsi_ctrl_pdata *ctrl_pdata =
+		container_of(nb, typeof(*ctrl_pdata), wake_notif);
+	int *blank = ((struct fb_event *)data)->data;
+
+	/* Parse unblank events as soon as they occur */
+	if (action == FB_EARLY_EVENT_BLANK && *blank == FB_BLANK_UNBLANK)
+		mdss_dsi_display_wake(ctrl_pdata);
+
+	return NOTIFY_OK;
+}
+
 static irqreturn_t test_hw_vsync_handler(int irq, void *data)
 {
 	struct mdss_panel_data *pdata = (struct mdss_panel_data *)data;
@@ -1989,6 +2057,9 @@ static void __mdss_dsi_update_video_mode_total(struct mdss_panel_data *pdata,
 		return;
 	}
 
+	if (ctrl_pdata->timing_db_mode)
+		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x1e8, 0x1);
+
 	vsync_period =
 		mdss_panel_get_vtotal(&pdata->panel_info);
 	hsync_period =
@@ -1998,23 +2069,13 @@ static void __mdss_dsi_update_video_mode_total(struct mdss_panel_data *pdata,
 	new_dsi_v_total =
 		((vsync_period - 1) << 16) | (hsync_period - 1);
 
-	MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x2C,
-			(current_dsi_v_total | 0x8000000));
-	if (new_dsi_v_total & 0x8000000) {
-		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x2C,
-				new_dsi_v_total);
-	} else {
-		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x2C,
-				(new_dsi_v_total | 0x8000000));
-		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x2C,
-				(new_dsi_v_total & 0x7ffffff));
-	}
+	MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x2C, new_dsi_v_total);
 
 	if (ctrl_pdata->timing_db_mode)
 		MIPI_OUTP((ctrl_pdata->ctrl_base) + 0x1e4, 0x1);
 
-	pr_debug("%s new_fps:%d vsync:%d hsync:%d frame_rate:%d\n",
-			__func__, new_fps, vsync_period, hsync_period,
+	pr_debug("%s new_fps:%d new_vtotal:0x%X cur_vtotal:0x%X frame_rate:%d\n",
+			__func__, new_fps, new_dsi_v_total, current_dsi_v_total,
 			ctrl_pdata->panel_data.panel_info.mipi.frame_rate);
 
 	ctrl_pdata->panel_data.panel_info.current_fps = new_fps;
@@ -2778,26 +2839,11 @@ static int mdss_dsi_event_handler(struct mdss_panel_data *pdata,
 		ctrl_pdata->refresh_clk_rate = true;
 		break;
 	case MDSS_EVENT_LINK_READY:
-		if (ctrl_pdata->refresh_clk_rate)
-			rc = mdss_dsi_clk_refresh(pdata,
-				ctrl_pdata->update_phy_timing);
-
-		rc = mdss_dsi_on(pdata);
-		mdss_dsi_op_mode_config(pdata->panel_info.mipi.mode,
-							pdata);
-		break;
-	case MDSS_EVENT_UNBLANK:
-		if (ctrl_pdata->on_cmds.link_state == DSI_LP_MODE)
-			rc = mdss_dsi_unblank(pdata);
+		/* The unblank notifier handles waking for unblank events */
+		mdss_dsi_display_wake(ctrl_pdata);
 		break;
 	case MDSS_EVENT_POST_PANEL_ON:
 		rc = mdss_dsi_post_panel_on(pdata);
-		break;
-	case MDSS_EVENT_PANEL_ON:
-		ctrl_pdata->ctrl_state |= CTRL_STATE_MDP_ACTIVE;
-		if (ctrl_pdata->on_cmds.link_state == DSI_HS_MODE)
-			rc = mdss_dsi_unblank(pdata);
-		pdata->panel_info.esd_rdy = true;
 		break;
 	case MDSS_EVENT_BLANK:
 		power_state = (int) (unsigned long) arg;
@@ -2810,6 +2856,8 @@ static int mdss_dsi_event_handler(struct mdss_panel_data *pdata,
 		if (ctrl_pdata->off_cmds.link_state == DSI_LP_MODE)
 			rc = mdss_dsi_blank(pdata, power_state);
 		rc = mdss_dsi_off(pdata, power_state);
+		reinit_completion(&ctrl_pdata->wake_comp);
+		atomic_set(&ctrl_pdata->disp_en, MDSS_DISPLAY_OFF);
 		break;
 	case MDSS_EVENT_CONT_SPLASH_FINISH:
 		if (ctrl_pdata->off_cmds.link_state == DSI_LP_MODE)
@@ -3519,6 +3567,22 @@ static int mdss_dsi_ctrl_probe(struct platform_device *pdev)
 
 	mdss_dsi_debug_bus_init(mdss_dsi_res);
 
+	init_completion(&ctrl_pdata->wake_comp);
+	init_waitqueue_head(&ctrl_pdata->wake_waitq);
+	ctrl_pdata->wake_thread = kthread_run(mdss_dsi_disp_wake_thread,
+					      ctrl_pdata, "mdss_display_wake");
+	if (IS_ERR(ctrl_pdata->wake_thread)) {
+		rc = PTR_ERR(ctrl_pdata->wake_thread);
+		pr_err("%s: Failed to start display wake thread, rc=%d\n",
+		       __func__, rc);
+		goto error_shadow_clk_deinit;
+	}
+
+	/* It's sad but not fatal for the fb client register to fail */
+	ctrl_pdata->wake_notif.notifier_call = mdss_dsi_fb_unblank_cb;
+	ctrl_pdata->wake_notif.priority = INT_MAX;
+	fb_register_client(&ctrl_pdata->wake_notif);
+
 	return 0;
 
 error_shadow_clk_deinit:
@@ -3584,6 +3648,10 @@ static int mdss_dsi_parse_dt_params(struct platform_device *pdev,
 	sdata->cmd_clk_ln_recovery_en =
 		of_property_read_bool(pdev->dev.of_node,
 		"qcom,dsi-clk-ln-recovery");
+
+	sdata->skip_clamp =
+		of_property_read_bool(pdev->dev.of_node,
+		"qcom,mdss-skip-clamp");
 
 	return 0;
 }
@@ -3996,6 +4064,8 @@ static int mdss_dsi_ctrl_remove(struct platform_device *pdev)
 		return -ENODEV;
 	}
 
+	fb_unregister_client(&ctrl_pdata->wake_notif);
+	kthread_stop(ctrl_pdata->wake_thread);
 	mdss_dsi_pm_qos_remove_request(ctrl_pdata->shared_data);
 
 	if (msm_mdss_config_vreg(&pdev->dev,

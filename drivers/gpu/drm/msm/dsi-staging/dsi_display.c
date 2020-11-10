@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1197,6 +1197,9 @@ static ssize_t debugfs_esd_trigger_check(struct file *file,
 		return 0;
 
 	if (user_len > sizeof(u32))
+		return -EINVAL;
+
+	if (!user_len || !user_buf)
 		return -EINVAL;
 
 	buf = kzalloc(user_len, GFP_KERNEL);
@@ -5513,13 +5516,13 @@ static void _dsi_display_populate_bit_clks(struct dsi_display *display,
 	cfg = &(display->panel->host_config);
 	bpp = dsi_pixel_format_to_bpp(cfg->dst_format);
 
-	if (cfg->data_lanes & DSI_LOGICAL_LANE_0)
+	if (cfg->data_lanes & DSI_DATA_LANE_0)
 		lanes++;
-	if (cfg->data_lanes & DSI_LOGICAL_LANE_1)
+	if (cfg->data_lanes & DSI_DATA_LANE_1)
 		lanes++;
-	if (cfg->data_lanes & DSI_LOGICAL_LANE_2)
+	if (cfg->data_lanes & DSI_DATA_LANE_2)
 		lanes++;
-	if (cfg->data_lanes & DSI_LOGICAL_LANE_3)
+	if (cfg->data_lanes & DSI_DATA_LANE_3)
 		lanes++;
 
 	dsi_display_get_mode_count_no_lock(display, &total_modes);

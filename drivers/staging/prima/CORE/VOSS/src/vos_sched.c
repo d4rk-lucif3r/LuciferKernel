@@ -971,8 +971,6 @@ VosWDThread
         else
         {
           pWdContext->isFatalError = false;
-          pHddCtx->isLogpInProgress = FALSE;
-          vos_set_logp_in_progress(VOS_MODULE_ID_VOSS, FALSE);
         }
         atomic_set(&pHddCtx->isRestartInProgress, 0);
         pWdContext->resetInProgress = false;
@@ -2225,4 +2223,14 @@ void vos_dump_thread_stacks(int threadId)
    vos_dump_stack(MC_Thread);
    vos_dump_stack(TX_Thread);
    vos_dump_stack(RX_Thread);
+}
+
+int vos_get_gfp_flags(void)
+{
+   int flags = GFP_KERNEL;
+
+   if (in_interrupt() || in_atomic() || irqs_disabled())
+      flags = GFP_ATOMIC;
+
+   return flags;
 }

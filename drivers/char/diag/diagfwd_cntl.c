@@ -845,6 +845,7 @@ int diag_add_diag_id_to_list(uint8_t diag_id, char *process_name,
 	uint8_t pd_val, uint8_t peripheral)
 {
 	struct diag_id_tbl_t *new_item = NULL;
+	int process_len = 0;
 
 	if (!process_name || diag_id == 0) {
 		DIAG_LOG(DIAG_DEBUG_PERIPHERALS,
@@ -857,7 +858,8 @@ int diag_add_diag_id_to_list(uint8_t diag_id, char *process_name,
 	if (!new_item)
 		return -ENOMEM;
 	kmemleak_not_leak(new_item);
-	new_item->process_name = kzalloc(strlen(process_name) + 1, GFP_KERNEL);
+	process_len = strlen(process_name);
+	new_item->process_name = kzalloc(process_len + 1, GFP_KERNEL);
 	if (!new_item->process_name) {
 		kfree(new_item);
 		new_item = NULL;
@@ -1090,7 +1092,7 @@ static int diag_compute_real_time(int idx)
 		 * connection.
 		 */
 		real_time = MODE_REALTIME;
-	} else if (driver->usb_connected) {
+	} else if (driver->usb_connected || driver->pcie_connected) {
 		/*
 		 * If USB is connected, check individual process. If Memory
 		 * Device Mode is active, set the mode requested by Memory

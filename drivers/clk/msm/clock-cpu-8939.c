@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, 2018, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2014-2016, 2018-2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -68,6 +68,7 @@ static struct mux_div_clk a53ssmux_bc = {
 	},
 	.c = {
 		.dbg_name = "a53ssmux_bc",
+		.flags = CLKFLAG_NO_RATE_CACHE,
 		.ops = &clk_ops_mux_div_clk,
 		CLK_INIT(a53ssmux_bc.c),
 	},
@@ -87,6 +88,7 @@ static struct mux_div_clk a53ssmux_lc = {
 	},
 	.c = {
 		.dbg_name = "a53ssmux_lc",
+		.flags = CLKFLAG_NO_RATE_CACHE,
 		.ops = &clk_ops_mux_div_clk,
 		CLK_INIT(a53ssmux_lc.c),
 	},
@@ -1081,7 +1083,7 @@ static int __init cpu_clock_a53_init_little(void)
 
 	/* Wait for update to take effect */
 	for (count = 500; count > 0; count--) {
-		if (!(readl_relaxed(base)) & BIT(0))
+		if (!(readl_relaxed(base) & BIT(0)))
 			break;
 		udelay(1);
 	}

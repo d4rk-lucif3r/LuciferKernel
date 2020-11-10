@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -252,6 +252,9 @@ struct dsi_shared_data {
 	/* DSI ULPS clamp register offsets */
 	u32 ulps_clamp_ctrl_off;
 	u32 ulps_phyrst_ctrl_off;
+
+	/* DSI phy skip clamp */
+	bool skip_clamp;
 
 	bool cmd_clk_ln_recovery_en;
 	bool dsi0_active;
@@ -568,6 +571,18 @@ struct mdss_dsi_ctrl_pdata {
 	bool update_phy_timing; /* flag to recalculate PHY timings */
 
 	bool phy_power_off;
+
+	struct notifier_block wake_notif;
+	struct task_struct *wake_thread;
+	struct completion wake_comp;
+	wait_queue_head_t wake_waitq;
+	atomic_t disp_en;
+};
+
+enum {
+	MDSS_DISPLAY_OFF,
+	MDSS_DISPLAY_WAKING,
+	MDSS_DISPLAY_ON
 };
 
 struct dsi_status_data {

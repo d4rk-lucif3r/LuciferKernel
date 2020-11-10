@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,6 +16,7 @@
 #include "msm_isp_stats_util.h"
 #include "msm_isp_axi_util.h"
 #include "msm_isp48.h"
+#include "trace/events/msm_cam.h"
 
 #define HANDLE_TO_IDX(handle) (handle & 0xFF)
 #define ISP_SOF_DEBUG_COUNT 0
@@ -538,6 +539,12 @@ static void msm_isp_cfg_framedrop_reg(
 	enum msm_vfe_input_src frame_src = SRC_TO_INTF(stream_info->stream_src);
 	int i;
 
+	if (vfe_dev == NULL) {
+		pr_err("%s %d returning vfe_dev is NULL\n",
+			__func__,  __LINE__);
+		return;
+	}
+
 	if (vfe_dev->axi_data.src_info[frame_src].frame_id >=
 		stream_info->init_frame_drop)
 		runtime_init_frame_drop = 0;
@@ -857,6 +864,9 @@ static void msm_isp_sync_dual_cam_frame_id(
 				ms_res->src_info[i]->dual_hw_ms_info.index);
 		}
 	}
+	/* the number of frames that are dropped */
+	vfe_dev->isp_page->dual_cam_drop =
+				frame_id - (src_info->frame_id + 1);
 	ms_res->active_src_mask |= (1 << src_info->dual_hw_ms_info.index);
 	src_info->frame_id = frame_id;
 	src_info->dual_hw_ms_info.sync_state = MSM_ISP_DUAL_CAM_SYNC;
@@ -894,6 +904,8 @@ void msm_isp_increment_frame_id(struct vfe_device *vfe_dev,
 				src_info->dual_hw_ms_info.index)) {
 				pr_err_ratelimited("Frame out of sync on vfe %d\n",
 					vfe_dev->pdev->id);
+				/* Notify to do reconfig at SW sync drop*/
+				vfe_dev->isp_page->dual_cam_drop_detected = 1;
 				/*
 				 * set this isp as async mode to force
 				 *it sync again at the next sof
@@ -1041,8 +1053,12 @@ void msm_isp_notify(struct vfe_device *vfe_dev, uint32_t event_type,
 			vfe_dev->isp_raw2_debug++;
 		}
 
-		ISP_DBG("%s: vfe %d frame_src %d\n", __func__,
-			vfe_dev->pdev->id, frame_src);
+		ISP_DBG("%s: vfe %d frame_src %d frameid %d\n", __func__,
+			vfe_dev->pdev->id, frame_src,
+			vfe_dev->axi_data.src_info[VFE_PIX_0].frame_id);
+		trace_msm_cam_isp_status_dump("SOFNOTIFY:", vfe_dev->pdev->id,
+			vfe_dev->axi_data.src_info[VFE_PIX_0].frame_id,
+			0, 0);
 
 		/*
 		 * Cannot support dual_cam and framedrop same time in union.
@@ -2232,8 +2248,8 @@ static int msm_isp_process_done_buf(struct vfe_device *vfe_dev,
 			MSM_ISP_BUFFER_STATE_PUT_BUF;
 		buf->buf_debug.put_state_last ^= 1;
 		rc = vfe_dev->buf_mgr->ops->buf_done(vfe_dev->buf_mgr,
-			buf->bufq_handle, buf->buf_idx, time_stamp,
-			frame_id, stream_info->runtime_output_format);
+		 buf->bufq_handle, buf->buf_idx, time_stamp,
+		 frame_id, stream_info->runtime_output_format);
 		if (rc == -EFAULT) {
 			msm_isp_halt_send_error(vfe_dev,
 					ISP_EVENT_BUF_FATAL_ERROR);
@@ -3545,6 +3561,15 @@ static int msm_isp_request_frame(struct vfe_device *vfe_dev,
 	frame_src = SRC_TO_INTF(stream_info->stream_src);
 	pingpong_status = vfe_dev->hw_info->
 		vfe_ops.axi_ops.get_pingpong_status(vfe_dev);
+
+	/* As MCT is still processing it, need to drop the additional requests*/
+	if (vfe_dev->isp_page->drop_reconfig &&
+		frame_src == VFE_PIX_0) {
+		pr_err("%s: MCT has not yet delayed %d drop request %d\n",
+			__func__, vfe_dev->isp_page->drop_reconfig, frame_id);
+		goto error;
+	}
+
 	/*
 	 * If PIX stream is active then RDI path uses SOF frame ID of PIX
 	 * In case of standalone RDI streaming, SOF are used from
@@ -3558,9 +3583,18 @@ static int msm_isp_request_frame(struct vfe_device *vfe_dev,
 		vfe_dev->axi_data.src_info[frame_src].accept_frame == false) {
 		pr_debug("%s:%d invalid time to request frame %d\n",
 			__func__, __LINE__, frame_id);
-		goto error;
-	}
-	if ((vfe_dev->axi_data.src_info[frame_src].active && (frame_id !=
+		vfe_dev->isp_page->drop_reconfig = 1;
+	} else if ((vfe_dev->axi_data.src_info[frame_src].active) &&
+			(frame_id ==
+			vfe_dev->axi_data.src_info[frame_src].frame_id) &&
+			(stream_info->undelivered_request_cnt <=
+				MAX_BUFFERS_IN_HW)) {
+		vfe_dev->isp_page->drop_reconfig = 1;
+		pr_debug("%s: vfe_%d request_frame %d cur frame id %d pix %d\n",
+			__func__, vfe_dev->pdev->id, frame_id,
+			vfe_dev->axi_data.src_info[VFE_PIX_0].frame_id,
+			vfe_dev->axi_data.src_info[VFE_PIX_0].active);
+	} else if ((vfe_dev->axi_data.src_info[frame_src].active && (frame_id !=
 		vfe_dev->axi_data.src_info[frame_src].frame_id + vfe_dev->
 		axi_data.src_info[frame_src].sof_counter_step)) ||
 		((!vfe_dev->axi_data.src_info[frame_src].active))) {

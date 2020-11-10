@@ -173,9 +173,7 @@ static int msm_fd_fill_format_from_ctx(struct v4l2_format *f, struct fd_ctx *c)
  * @alloc_ctxs: Array of allocated contexts for each plane.
  */
 static int msm_fd_queue_setup(struct vb2_queue *q,
-
 //	const void *parg,
-
 	unsigned int *num_buffers, unsigned int *num_planes,
 	unsigned int sizes[], struct device *alloc_ctxs[])
 {
@@ -186,13 +184,11 @@ static int msm_fd_queue_setup(struct vb2_queue *q,
 	*num_planes = 1;
 
 	if (fmt == NULL)
-
 		sizes[0] = ctx->format.sizeimage;
 	else
 		sizes[0] = fmt->fmt.pix.sizeimage;
 
 	alloc_ctxs[0] = (struct device *)&ctx->mem_pool;
-
 
 	return 0;
 }
@@ -292,7 +288,6 @@ static struct vb2_ops msm_fd_vb2_q_ops = {
  * @size: Size of the buffer
  * @write: True if buffer will be used for writing the data.
  */
-
 static void *msm_fd_get_userptr(struct device *alloc_ctx,
 	unsigned long vaddr, unsigned long size,
 	enum dma_data_direction dma_dir)
@@ -1292,7 +1287,6 @@ static void msm_fd_wq_handler(struct work_struct *work)
 	/* Return buffer to vb queue */
 	active_buf->vb_v4l2_buf.sequence = ctx->fh.sequence;
 	vb2_buffer_done(&active_buf->vb_v4l2_buf.vb2_buf, VB2_BUF_STATE_DONE);
-
 
 	/* Sent event */
 	memset(&event, 0x00, sizeof(event));

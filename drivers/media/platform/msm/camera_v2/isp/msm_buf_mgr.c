@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2018, 2020, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -676,6 +676,10 @@ static int msm_isp_put_buf_unsafe(struct msm_isp_buf_mgr *buf_mgr,
 		rc = 0;
 		break;
 	case MSM_ISP_BUFFER_STATE_QUEUED:
+		if (IS_ENABLED(CONFIG_MSM_ISP_V1)) {
+			rc = 0;
+			break;
+		}
 	case MSM_ISP_BUFFER_STATE_DIVERTED:
 	default:
 		WARN(1, "%s: bufq 0x%x, buf idx 0x%x, incorrect state = %d",
@@ -779,7 +783,12 @@ static int msm_isp_buf_done(struct msm_isp_buf_mgr *buf_mgr,
 	state = buf_info->state;
 
 	if (BUF_SRC(bufq->stream_id) == MSM_ISP_BUFFER_SRC_HAL) {
+#ifdef CONFIG_MSM_ISP_V1
+		if (state == MSM_ISP_BUFFER_STATE_DEQUEUED ||
+			state == MSM_ISP_BUFFER_STATE_DIVERTED) {
+#else
 		if (state == MSM_ISP_BUFFER_STATE_DEQUEUED) {
+#endif
 			buf_info->state = MSM_ISP_BUFFER_STATE_DISPATCHED;
 			spin_unlock_irqrestore(&bufq->bufq_lock, flags);
 			buf_mgr->vb2_ops->buf_done(buf_info->vb2_v4l2_buf,

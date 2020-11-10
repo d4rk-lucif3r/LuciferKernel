@@ -440,7 +440,6 @@ int msm_camera_config_vreg(struct device *dev, struct camera_vreg_t *cam_vreg,
 						reg_ptr[j],
 						curr_vreg->op_mode);
 					//TODO: ??? rc = 0;
-
 					if (rc < 0) {
 						pr_err(
 						"%s:%s set optimum mode fail\n",
@@ -706,7 +705,6 @@ int msm_camera_config_single_vreg(struct device *dev,
 			if (regulator_count_voltages(*reg_ptr) > 0) {
 				if (cam_vreg->op_mode >= 0)
 					regulator_set_load(*reg_ptr, 0);
-
 				regulator_set_voltage(
 					*reg_ptr, 0, cam_vreg->max_voltage);
 			}

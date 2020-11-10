@@ -228,6 +228,9 @@ void gic_v3_dist_save(void)
 	void __iomem *base = gic_data.dist_base;
 	int reg, i;
 
+	if (!base)
+		return;
+
 	bitmap_zero(irqs_restore, MAX_IRQ);
 
 	for (reg = SAVED_ICFGR; reg < NUM_SAVED_GICD_REGS; reg++) {
@@ -424,6 +427,9 @@ static void _gic_v3_dist_clear_reg(u32 offset)
  */
 void gic_v3_dist_restore(void)
 {
+	if (!gic_data.dist_base)
+		return;
+
 	_gic_v3_dist_check_icfgr();
 	_gic_v3_dist_check_ipriorityr();
 	_gic_v3_dist_check_isenabler();
@@ -879,6 +885,10 @@ static int gic_populate_rdist(void)
 				u64 offset = ptr - gic_data.redist_regions[i].redist_base;
 				gic_data_rdist_rd_base() = ptr;
 				gic_data_rdist()->phys_base = gic_data.redist_regions[i].phys_base + offset;
+				pr_debug("CPU%d: found redistributor %llx region %d:%pa\n",
+					smp_processor_id(),
+					(unsigned long long)mpidr,
+					i, &gic_data_rdist()->phys_base);
 				return 0;
 			}
 

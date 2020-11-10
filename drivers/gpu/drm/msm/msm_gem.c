@@ -167,7 +167,6 @@ static void put_pages(struct drm_gem_object *obj)
 
 	if (msm_obj->pages) {
 		if (msm_obj->sgt) {
-
 			/* For non-cached buffers, ensure the new
 			 * pages are clean because display controller,
 			 * GPU, etc. are not coherent:

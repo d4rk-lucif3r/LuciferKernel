@@ -25,6 +25,7 @@
 #include <linux/module.h>
 #include <linux/uio.h>
 #include <linux/ipc_logging.h>
+#include <linux/freezer.h>
 #include <asm/unaligned.h>
 
 #include <linux/usb/composite.h>
@@ -1036,7 +1037,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 		 * and wait for next epfile open to happen
 		 */
 		if (!atomic_read(&epfile->error)) {
-			ret = wait_event_interruptible(epfile->wait,
+			ret = wait_event_freezable(epfile->wait,
 					(ep = epfile->ep));
 			if (ret < 0)
 				return -EINTR;
@@ -1188,9 +1189,12 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 			 */
 			if (epfile->ep == ep) {
 				usb_ep_dequeue(ep->ep, req);
+				spin_unlock_irq(&epfile->ffs->eps_lock);
+				wait_for_completion(done);
 				interrupted = ep->status < 0;
+			} else {
+				spin_unlock_irq(&epfile->ffs->eps_lock);
 			}
-			spin_unlock_irq(&epfile->ffs->eps_lock);
 		}
 
 		if (interrupted) {
@@ -2060,6 +2064,9 @@ static void ffs_data_reset(struct ffs_data *ffs)
 	ffs->ms_os_descs_ext_prop_count = 0;
 	ffs->ms_os_descs_ext_prop_name_len = 0;
 	ffs->ms_os_descs_ext_prop_data_len = 0;
+
+	ffs_log("exit: state %d setup_state %d flag %lu", ffs->state,
+		ffs->setup_state, ffs->flags);
 }
 
 

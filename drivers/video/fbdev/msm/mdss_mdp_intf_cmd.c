@@ -82,6 +82,7 @@ struct mdss_mdp_cmd_ctx {
 	struct work_struct gate_clk_work;
 	struct delayed_work delayed_off_clk_work;
 	struct work_struct pp_done_work;
+	struct workqueue_struct *early_wakeup_clk_wq;
 	struct work_struct early_wakeup_clk_work;
 	atomic_t pp_done_cnt;
 	struct completion rdptr_done;
@@ -905,7 +906,7 @@ int mdss_mdp_resource_control(struct mdss_mdp_ctl *ctl, u32 sw_event)
 				schedule_work(&ctx->gate_clk_work);
 
 			/* start work item to shut down after delay */
-			schedule_delayed_work(
+			queue_delayed_work(system_power_efficient_wq,
 					&ctx->delayed_off_clk_work,
 					CMD_MODE_IDLE_TIMEOUT);
 		}
@@ -1069,7 +1070,8 @@ int mdss_mdp_resource_control(struct mdss_mdp_ctl *ctl, u32 sw_event)
 			 * reached. This is to prevent the case where early wake
 			 * up is called but no frame update is sent.
 			 */
-			schedule_delayed_work(&ctx->delayed_off_clk_work,
+			queue_delayed_work(system_power_efficient_wq,
+				&ctx->delayed_off_clk_work,
 				      CMD_MODE_IDLE_TIMEOUT);
 			pr_debug("off work scheduled\n");
 		}
@@ -1966,6 +1968,49 @@ done:
 }
 
 static int mdss_mdp_cmd_remove_vsync_handler(struct mdss_mdp_ctl *ctl,
+		struct mdss_mdp_vsync_handler *handle)
+{
+	struct mdss_mdp_ctl *sctl;
+	struct mdss_mdp_cmd_ctx *ctx, *sctx = NULL;
+	unsigned long flags;
+	bool disable_vsync_irq = false;
+
+	ctx = (struct mdss_mdp_cmd_ctx *) ctl->intf_ctx[MASTER_CTX];
+	if (!ctx) {
+		pr_err("%s: invalid ctx\n", __func__);
+		return -ENODEV;
+	}
+
+	pr_debug("%pS->%s ctl:%d\n",
+		__builtin_return_address(0), __func__, ctl->num);
+
+	mutex_lock(&ctl->vsync_handler_lock);
+
+	MDSS_XLOG(ctl->num, atomic_read(&ctx->koff_cnt), 0x88888);
+	sctl = mdss_mdp_get_split_ctl(ctl);
+	if (sctl)
+		sctx = (struct mdss_mdp_cmd_ctx *) sctl->intf_ctx[MASTER_CTX];
+
+	spin_lock_irqsave(&ctx->clk_lock, flags);
+	if (handle->enabled) {
+		handle->enabled = false;
+		list_del_init(&handle->list);
+		disable_vsync_irq = !handle->cmd_post_flush;
+	}
+	spin_unlock_irqrestore(&ctx->clk_lock, flags);
+
+	if (disable_vsync_irq) {
+		/* disable rd_ptr interrupt and clocks */
+		mdss_mdp_setup_vsync(ctx, false);
+		complete(&ctx->stop_comp);
+	}
+
+	mutex_unlock(&ctl->vsync_handler_lock);
+
+	return 0;
+}
+
+static int mdss_mdp_cmd_remove_vsync_handler_nolock(struct mdss_mdp_ctl *ctl,
 		struct mdss_mdp_vsync_handler *handle)
 {
 	struct mdss_mdp_ctl *sctl;
@@ -3216,8 +3261,12 @@ static int mdss_mdp_cmd_stop_sub(struct mdss_mdp_ctl *ctl,
 		return -ENODEV;
 	}
 
-	list_for_each_entry_safe(handle, tmp, &ctx->vsync_handlers, list)
-		mdss_mdp_cmd_remove_vsync_handler(ctl, handle);
+	mutex_lock(&ctl->vsync_handler_lock);
+	list_for_each_entry_safe(handle, tmp, &ctx->vsync_handlers, list) {
+		mdss_mdp_cmd_remove_vsync_handler_nolock(ctl, handle);
+	}
+	mutex_unlock(&ctl->vsync_handler_lock);
+
 	if (mdss_mdp_is_lineptr_supported(ctl))
 		mdss_mdp_cmd_lineptr_ctrl(ctl, false);
 	MDSS_XLOG(ctl->num, atomic_read(&ctx->koff_cnt), XLOG_FUNC_ENTRY);
@@ -3457,7 +3506,8 @@ static int mdss_mdp_cmd_early_wake_up(struct mdss_mdp_ctl *ctl)
 	 * Only schedule if the interface has not been stopped.
 	 */
 	if (ctx && !ctx->intf_stopped)
-		schedule_work(&ctx->early_wakeup_clk_work);
+		queue_work(ctx->early_wakeup_clk_wq,
+			&ctx->early_wakeup_clk_work);
 	return 0;
 }
 
@@ -3480,6 +3530,8 @@ static int mdss_mdp_cmd_ctx_setup(struct mdss_mdp_ctl *ctl,
 	ctx->aux_pp_num = aux_pp_num;
 	ctx->pingpong_split_slave = pingpong_split_slave;
 	ctx->pp_timeout_report_cnt = 0;
+	ctx->early_wakeup_clk_wq
+		= alloc_workqueue("early_wakeup_clk_wq", WQ_HIGHPRI, 0);
 	init_waitqueue_head(&ctx->pp_waitq);
 	init_waitqueue_head(&ctx->rdptr_waitq);
 	init_completion(&ctx->stop_comp);

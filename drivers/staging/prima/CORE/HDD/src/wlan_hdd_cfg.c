@@ -1109,6 +1109,14 @@ REG_TABLE_ENTRY g_registry_table[] =
                  CFG_LFR_MAWC_FEATURE_ENABLED_MAX,
                  NotifyIsMAWCIniFeatureEnabled, 0 ),
 
+   /* flag to turn ON/OFF Motion assistance for Legacy Fast Roaming */
+   REG_VARIABLE( CFG_PER_BSSID_BLACKLIST_TIMEOUT_NAME, WLAN_PARAM_Integer,
+                 hdd_config_t, bssid_blacklist_timeout,
+                 VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
+                 CFG_PER_BSSID_BLACKLIST_TIMEOUT_DEFAULT,
+                 CFG_PER_BSSID_BLACKLIST_TIMEOUT_MIN,
+                 CFG_PER_BSSID_BLACKLIST_TIMEOUT_MAX ),
+
 #endif // FEATURE_WLAN_LFR
 
 #if  defined (WLAN_FEATURE_VOWIFI_11R) || defined (FEATURE_WLAN_ESE) || defined(FEATURE_WLAN_LFR)
@@ -3592,13 +3600,6 @@ REG_VARIABLE( CFG_EXTSCAN_ENABLE, WLAN_PARAM_Integer,
                  CFG_OPTIMIZE_CA_EVENT_DISABLE,
                  CFG_OPTIMIZE_CA_EVENT_ENABLE ),
 
-   REG_VARIABLE(CFG_FWR_MEM_DUMP_NAME, WLAN_PARAM_Integer,
-                 hdd_config_t,enableFwrMemDump,
-                 VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
-                 CFG_FWR_MEM_DUMP_DEF,
-                 CFG_FWR_MEM_DUMP_MIN,
-                 CFG_FWR_MEM_DUMP_MAX),
-
    REG_VARIABLE( CFG_ACTIVE_PASSIVE_CHAN_CONV_NAME, WLAN_PARAM_Integer,
                  hdd_config_t, gActivePassiveChCon,
                  VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
@@ -4040,6 +4041,14 @@ REG_VARIABLE( CFG_EXTSCAN_ENABLE, WLAN_PARAM_Integer,
                       VAR_FLAGS_NONE,
                       (void *)CFG_ENABLE_DEFAULT_SAP_DEFAULT),
 
+#ifdef WLAN_FEATURE_SAE
+  REG_VARIABLE(CFG_IS_SAE_ENABLED_NAME, WLAN_PARAM_Integer,
+               hdd_config_t, is_sae_enabled,
+               VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
+               CFG_IS_SAE_ENABLED_DEFAULT,
+               CFG_IS_SAE_ENABLED_MIN,
+               CFG_IS_SAE_ENABLED_MAX),
+#endif
 };
 
 /*
@@ -4383,6 +4392,17 @@ config_exit:
    return vos_status;
 }
 
+#ifdef WLAN_FEATURE_SAE
+static void hdd_cfg_print_sae(hdd_context_t *hdd_ctx)
+{
+   hddLog(LOG2, "Name = [%s] value = [%u]", CFG_IS_SAE_ENABLED_NAME,
+          hdd_ctx->cfg_ini->is_sae_enabled);
+}
+#else
+static void hdd_cfg_print_sae(hdd_context_t *hdd_ctx)
+{
+}
+#endif
 
 static void print_hdd_cfg(hdd_context_t *pHddCtx)
 {
@@ -4844,6 +4864,7 @@ static void print_hdd_cfg(hdd_context_t *pHddCtx)
             "Name = [%s] Value = [%s] ",
             CFG_ENABLE_DEFAULT_SAP,
             pHddCtx->cfg_ini->enabledefaultSAP);
+    hdd_cfg_print_sae(pHddCtx);
 }
 
 

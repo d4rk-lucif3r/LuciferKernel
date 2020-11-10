@@ -5875,7 +5875,7 @@ static tANI_BOOLEAN csrScanProcessScanResults( tpAniSirGlobal pMac, tSmeCmd *pCo
         if (eHAL_STATUS_SUCCESS != status)
             smsLog(pMac, LOGE,
                    FL( "failed to update the supported channel list"));
-            pMac->scan.defer_update_channel_list = false;
+        pMac->scan.defer_update_channel_list = false;
     }
 
 #ifdef WLAN_AP_STA_CONCURRENCY
@@ -6667,6 +6667,8 @@ eHalStatus csrProcessMacAddrSpoofCommand( tpAniSirGlobal pMac, tSmeCmd *pCommand
       pMsg->length= pal_cpu_to_be16(msgLen);
       // spoof mac address
       vos_mem_copy((tANI_U8 *)pMsg->macAddr,
+           (tANI_U8 *)pCommand->u.macAddrSpoofCmd.macAddr, sizeof(tSirMacAddr));
+      vos_mem_copy((tANI_U8 *)pMac->roam.spoof_mac_addr,
            (tANI_U8 *)pCommand->u.macAddrSpoofCmd.macAddr, sizeof(tSirMacAddr));
       pMsg->spoof_mac_oui =
        pal_cpu_to_be16(pCommand->u.macAddrSpoofCmd.spoof_mac_oui);

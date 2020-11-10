@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -57,6 +57,7 @@ static bool scm_deassert_ps_hold_supported;
 static void __iomem *msm_ps_hold;
 static phys_addr_t tcsr_boot_misc_detect;
 static void scm_disable_sdi(void);
+static bool force_warm_reboot;
 
 #ifdef CONFIG_QCOM_DLOAD_MODE
 /* Runtime could be only changed value once.
@@ -217,12 +218,10 @@ static void set_dload_mode(int on)
 	return;
 }
 
-#if 0
 static void enable_emergency_dload_mode(void)
 {
 	pr_err("dload mode is not enabled on target\n");
 }
-#endif
 
 static bool get_dload_mode(void)
 {
@@ -282,7 +281,11 @@ static void halt_spmi_pmic_arbiter(void)
 
 static void msm_restart_prepare(const char *cmd)
 {
+#ifdef CONFIG_MSM_PRESERVE_MEM
+	bool need_warm_reset = true;
+#else
 	bool need_warm_reset = false;
+#endif
 #ifdef CONFIG_QCOM_DLOAD_MODE
 	/* Write download mode flags if we're panic'ing
 	 * Write download mode flags if restart_mode says so
@@ -304,9 +307,12 @@ static void msm_restart_prepare(const char *cmd)
 				(cmd != NULL && cmd[0] != '\0'));
 	}
 
-#ifdef CONFIG_MSM_PRESERVE_MEM
+#ifdef CONFIG_QCOM_PRESERVE_MEM
 	need_warm_reset = true;
 #endif
+
+	if (force_warm_reboot)
+		pr_info("Forcing a warm reset of the system\n");
 
 	/* Hard reset the PMIC unless memory contents must be maintained. */
 	if (need_warm_reset)
@@ -364,10 +370,8 @@ static void msm_restart_prepare(const char *cmd)
 				__raw_writel(0x6f656d00 | (code & 0xff),
 					     restart_reason);
 			}
-#ifdef CONFIG_QCOM_DLOAD_MODE
 		} else if (!strncmp(cmd, "edl", 3)) {
 			enable_emergency_dload_mode();
-#endif
 		} else {
 			__raw_writel(0x77665501, restart_reason);
 		}
