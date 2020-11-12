@@ -190,16 +190,46 @@
 				qcom,bus-min = <10>;
 				qcom,bus-max = <10>;
 			};
+<<<<<<< HEAD
 
 			/* NOM+ */
 			qcom,gpu-pwrlevel@1 {
 				reg = <1>;
 				qcom,gpu-freq = <560000000>;
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9eccc20c40d5 (Added OCing)
+			/* TURBO */
+			qcom,gpu-pwrlevel@1 {
+				reg = <1>;
+				qcom,gpu-freq = <760000000>;
+				qcom,bus-freq = <10>;
+				qcom,bus-min = <10>;
+				qcom,bus-max = <10>;
+			};
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9eccc20c40d5 (Added OCing)
+			/* NOM+ */
+			qcom,gpu-pwrlevel@2 {
+				reg = <2>;
+				qcom,gpu-freq = <610000000>;
+>>>>>>> e41440372 (Added OCing)
 				qcom,bus-freq = <10>;
 				qcom,bus-min = <8>;
 				qcom,bus-max = <10>;
 			};
+<<<<<<< HEAD
 
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9eccc20c40d5 (Added OCing)
+>>>>>>> e41440372 (Added OCing)
 			/* NOM */
 			qcom,gpu-pwrlevel@2 {
 				reg = <2>;
