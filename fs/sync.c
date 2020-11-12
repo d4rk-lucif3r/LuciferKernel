@@ -22,6 +22,9 @@
 #include <linux/dyn_sync_cntrl.h>
 #endif
 
+bool fsync_enabled = true;
+module_param(fsync_enabled, bool, 0644);
+
 bool fsync_enabled = false;
 module_param(fsync_enabled, bool, 0755);
 #define VALID_FLAGS (SYNC_FILE_RANGE_WAIT_BEFORE|SYNC_FILE_RANGE_WRITE| \
@@ -212,11 +215,11 @@ SYSCALL_DEFINE1(syncfs, int, fd)
  */
 int vfs_fsync_range(struct file *file, loff_t start, loff_t end, int datasync)
 {
-	struct inode *inode = file->f_mapping->host;
-    #ifdef CONFIG_DYNAMIC_FSYNC
+	struct inode *inode;
+#ifdef CONFIG_DYNAMIC_FSYNC
 	if (dyn_fsync_active && suspend_active)
 		return 0;
-    #endif
+#endif
 	if (!fsync_enabled)
 		return 0;
 	if (!file->f_op->fsync)
@@ -267,8 +270,6 @@ SYSCALL_DEFINE1(fsync, unsigned int, fd)
 	if (dyn_fsync_active && suspend_active)
 		return 0;
 #endif
-    if (!fsync_enabled)
-		return 0;
 	return do_fsync(fd, 0);
 }
 
@@ -278,8 +279,6 @@ SYSCALL_DEFINE1(fdatasync, unsigned int, fd)
 	if (dyn_fsync_active && suspend_active)
 		return 0;
 #endif
-	if (!fsync_enabled)
-		return 0;
 	return do_fsync(fd, 1);
 }
 
@@ -344,6 +343,10 @@ SYSCALL_DEFINE4(sync_file_range, int, fd, loff_t, offset, loff_t, nbytes,
 	if (dyn_fsync_active && suspend_active)
 		return 0;
 #endif
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3f6097694c45 (fs: Added Dynamic Fsync)
 	ret = -EINVAL;
 	if (flags & ~VALID_FLAGS)
 		goto out;
@@ -424,5 +427,9 @@ out:
 SYSCALL_DEFINE4(sync_file_range2, int, fd, unsigned int, flags,
 				 loff_t, offset, loff_t, nbytes)
 {
+#ifdef CONFIG_DYNAMIC_FSYNC
+	if (dyn_fsync_active && suspend_active)
+		return 0;
+#endif
 	return sys_sync_file_range(fd, offset, nbytes, flags);
 }
