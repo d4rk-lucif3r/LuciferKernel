@@ -148,5 +148,5 @@ TRACE_EVENT(
 
 /* This part must be outside protection */
 #undef TRACE_INCLUDE_PATH
-#define TRACE_INCLUDE_PATH /home/lucifer/Android/kernel/LuciferKernel/drivers/platform/msm/ipa/ipa_v2  //Path: to be changed as per need
+#define TRACE_INCLUDE_PATH /home/lucifer/Android/kernel/OC/LuciferKernel/drivers/platform/msm/ipa/ipa_v2  //Path: to be changed as per need
 #include <trace/define_trace.h>
