@@ -184,7 +184,6 @@ typedef enum eLimMlmStates
     eLIM_MLM_WT_FT_REASSOC_RSP_STATE,
 #endif
     eLIM_MLM_P2P_LISTEN_STATE,
-    eLIM_MLM_WT_SAE_AUTH_STATE,
 } tLimMlmStates;
 
 // 11h channel quiet states

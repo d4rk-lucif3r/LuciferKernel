@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2020, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2014-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -728,8 +728,7 @@ static int ipa3_wwan_add_ul_flt_rule_to_ipa(void)
 		retval = -EFAULT;
 	}
 
-	req->install_status = (enum ipa_qmi_result_type_v01)
-							QMI_RESULT_SUCCESS_V01;
+	req->install_status = IPA_QMI_RESULT_SUCCESS_V01;
 	req->rule_id_valid = 1;
 	req->rule_id_len = rmnet_ipa3_ctx->num_q6_rules;
 	for (i = 0; i < rmnet_ipa3_ctx->num_q6_rules; i++) {
@@ -1590,7 +1589,7 @@ static int ipa3_wwan_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 				(RMNET_IOCTL_FEAT_NOTIFY_MUX_CHANNEL |
 				RMNET_IOCTL_FEAT_SET_EGRESS_DATA_FORMAT |
 				RMNET_IOCTL_FEAT_SET_INGRESS_DATA_FORMAT);
-			if (copy_to_user(ifr->ifr_ifru.ifru_data,
+			if (copy_to_user((u8 *)ifr->ifr_ifru.ifru_data,
 				&extend_ioctl_data,
 				sizeof(struct rmnet_ioctl_extended_s)))
 				rc = -EFAULT;
@@ -1604,7 +1603,7 @@ static int ipa3_wwan_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		/*  Get MRU  */
 		case RMNET_IOCTL_GET_MRU:
 			extend_ioctl_data.u.data = mru;
-			if (copy_to_user(ifr->ifr_ifru.ifru_data,
+			if (copy_to_user((u8 *)ifr->ifr_ifru.ifru_data,
 				&extend_ioctl_data,
 				sizeof(struct rmnet_ioctl_extended_s)))
 				rc = -EFAULT;
@@ -1613,7 +1612,7 @@ static int ipa3_wwan_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		case RMNET_IOCTL_GET_SG_SUPPORT:
 			extend_ioctl_data.u.data =
 				ipa3_rmnet_res.ipa_advertise_sg_support;
-			if (copy_to_user(ifr->ifr_ifru.ifru_data,
+			if (copy_to_user((u8 *)ifr->ifr_ifru.ifru_data,
 				&extend_ioctl_data,
 				sizeof(struct rmnet_ioctl_extended_s)))
 				rc = -EFAULT;
@@ -1622,7 +1621,7 @@ static int ipa3_wwan_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 		case RMNET_IOCTL_GET_EPID:
 			IPAWANDBG("get ioctl: RMNET_IOCTL_GET_EPID\n");
 			extend_ioctl_data.u.data = epid;
-			if (copy_to_user(ifr->ifr_ifru.ifru_data,
+			if (copy_to_user((u8 *)ifr->ifr_ifru.ifru_data,
 				&extend_ioctl_data,
 				sizeof(struct rmnet_ioctl_extended_s)))
 				rc = -EFAULT;
@@ -1643,7 +1642,7 @@ static int ipa3_wwan_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 			ipa3_get_ep_mapping(IPA_CLIENT_APPS_WAN_PROD);
 			extend_ioctl_data.u.ipa_ep_pair.producer_pipe_num =
 			ipa3_get_ep_mapping(IPA_CLIENT_APPS_WAN_CONS);
-			if (copy_to_user(ifr->ifr_ifru.ifru_data,
+			if (copy_to_user((u8 *)ifr->ifr_ifru.ifru_data,
 				&extend_ioctl_data,
 				sizeof(struct rmnet_ioctl_extended_s)))
 				rc = -EFAULT;
@@ -1660,19 +1659,13 @@ static int ipa3_wwan_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
 			break;
 		/*  Get driver name  */
 		case RMNET_IOCTL_GET_DRIVER_NAME:
-			if (IPA_NETDEV() != NULL) {
-				memcpy(&extend_ioctl_data.u.if_name,
-					IPA_NETDEV()->name, IFNAMSIZ);
-				extend_ioctl_data.u.if_name[IFNAMSIZ - 1] =
-				'\0';
-				if (copy_to_user(ifr->ifr_ifru.ifru_data,
+			memcpy(&extend_ioctl_data.u.if_name,
+				IPA_NETDEV()->name, IFNAMSIZ);
+			extend_ioctl_data.u.if_name[IFNAMSIZ - 1] = '\0';
+			if (copy_to_user((u8 *)ifr->ifr_ifru.ifru_data,
 					&extend_ioctl_data,
 					sizeof(struct rmnet_ioctl_extended_s)))
-					rc = -EFAULT;
-			} else {
-				IPAWANERR("IPA_NETDEV is NULL\n");
 				rc = -EFAULT;
-			}
 			break;
 		/*  Add MUX ID  */
 		case RMNET_IOCTL_ADD_MUX_CHANNEL:
@@ -2609,9 +2602,6 @@ static int rmnet_ipa_ap_suspend(struct device *dev)
 
 	/* Make sure that there is no Tx operation ongoing */
 	netif_stop_queue(netdev);
-	/* Stoppig Watch dog timer when pipe was in suspend state */
-	if (del_timer(&netdev->watchdog_timer))
-		dev_put(netdev);
 	netif_tx_unlock_bh(netdev);
 	if (ipa3_ctx->use_ipa_pm)
 		ipa_pm_deactivate_sync(rmnet_ipa3_ctx->pm_hdl);
@@ -2638,12 +2628,8 @@ static int rmnet_ipa_ap_resume(struct device *dev)
 	struct net_device *netdev = IPA_NETDEV();
 
 	IPAWANDBG("Enter...\n");
-	if (netdev) {
+	if (netdev)
 		netif_wake_queue(netdev);
-		/* Starting Watch dog timer, pipe was changes to resume state */
-		if (netif_running(netdev) && netdev->watchdog_timeo <= 0)
-			__netdev_watchdog_up(netdev);
-	}
 	IPAWANDBG("Exit\n");
 
 	return 0;
@@ -2736,11 +2722,9 @@ static int ipa3_ssr_notifier_cb(struct notifier_block *this,
 		break;
 	case SUBSYS_BEFORE_POWERUP:
 		IPAWANINFO("IPA received MPSS BEFORE_POWERUP\n");
-		if (atomic_read(&rmnet_ipa3_ctx->is_ssr)) {
+		if (atomic_read(&rmnet_ipa3_ctx->is_ssr))
 			/* clean up cached QMI msg/handlers */
 			ipa3_qmi_service_exit();
-			ipa3_q6_pre_powerup_cleanup();
-		}
 		/*
 		 * hold a proxy vote for the modem.
 		 * for IPA 4.0 offline charge is not needed and proxy vote
@@ -3744,17 +3728,6 @@ static inline int rmnet_ipa3_delete_lan_client_info
 	struct ipa_lan_client *lan_client = NULL;
 	int i;
 
-	IPAWANDBG("Delete lan client info: %d, %d, %d\n",
-		rmnet_ipa3_ctx->tether_device[device_type].num_clients,
-		lan_clnt_idx, device_type);
-	/* Check if Device type is valid. */
-
-	if (device_type >= IPACM_MAX_CLIENT_DEVICE_TYPES ||
-		device_type < 0) {
-		IPAWANERR("Invalid Device type: %d\n", device_type);
-		return -EINVAL;
-	}
-
 	/* Check if the request is to clean up all clients. */
 	if (lan_clnt_idx == 0xffffffff) {
 		/* Reset the complete device info. */
@@ -3771,8 +3744,6 @@ static inline int rmnet_ipa3_delete_lan_client_info
 		/* Reset the client info before sending the message. */
 		memset(lan_client, 0, sizeof(struct ipa_lan_client));
 		lan_client->client_idx = -1;
-		/* Decrement the number of clients. */
-		rmnet_ipa3_ctx->tether_device[device_type].num_clients--;
 
 	}
 	return 0;
@@ -3892,10 +3863,6 @@ int rmnet_ipa3_clear_lan_client_info(
 		IPAWANERR("Invalid Client Index: %d\n", data->client_idx);
 		return -EINVAL;
 	}
-
-	IPAWANDBG("Client : %d:%d:%d\n",
-		data->device_type, data->client_idx,
-		rmnet_ipa3_ctx->tether_device[data->device_type].num_clients);
 
 	mutex_lock(&rmnet_ipa3_ctx->per_client_stats_guard);
 	lan_client =
@@ -4055,21 +4022,6 @@ int rmnet_ipa3_query_per_client_stats(
 
 	mutex_lock(&rmnet_ipa3_ctx->per_client_stats_guard);
 
-	/* Check if Source pipe is valid. */
-	if (rmnet_ipa3_ctx->tether_device
-		[data->device_type].ul_src_pipe == -1) {
-		IPAWANERR("Device not initialized: %d\n", data->device_type);
-		mutex_unlock(&rmnet_ipa3_ctx->per_client_stats_guard);
-		return -EINVAL;
-	}
-
-	/* Check if we have clients connected. */
-	if (rmnet_ipa3_ctx->tether_device[data->device_type].num_clients == 0) {
-		IPAWANERR("No clients connected: %d\n", data->device_type);
-		mutex_unlock(&rmnet_ipa3_ctx->per_client_stats_guard);
-		return -EINVAL;
-	}
-
 	if (data->num_clients == 1) {
 		/* Check if the client info is valid.*/
 		lan_clnt_idx1 = rmnet_ipa3_get_lan_client_info(
@@ -4125,9 +4077,6 @@ int rmnet_ipa3_query_per_client_stats(
 	}
 	memset(req, 0, sizeof(struct ipa_get_stats_per_client_req_msg_v01));
 	memset(resp, 0, sizeof(struct ipa_get_stats_per_client_resp_msg_v01));
-
-	IPAWANDBG("Reset stats: %s",
-		data->reset_stats?"Yes":"No");
 
 	if (data->reset_stats) {
 		req->reset_stats_valid = true;
@@ -4199,9 +4148,6 @@ int rmnet_ipa3_query_per_client_stats(
 				IPA_MAC_ADDR_SIZE);
 		}
 	}
-
-	IPAWANDBG("Disconnect clnt: %s",
-		data->disconnect_clnt?"Yes":"No");
 
 	if (data->disconnect_clnt) {
 		rmnet_ipa3_delete_lan_client_info(data->device_type,

@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -55,9 +55,6 @@
 #define PCIE20_PARF_SLV_ADDR_SPACE_SIZE_HI     0x35C
 #define PCIE20_PARF_ATU_BASE_ADDR      0x634
 #define PCIE20_PARF_ATU_BASE_ADDR_HI   0x638
-#define PCIE20_PARF_BUS_DISCONNECT_CTRL          0x648
-#define PCIE20_PARF_BUS_DISCONNECT_STATUS        0x64c
-
 #define PCIE20_PARF_DEVICE_TYPE        0x1000
 
 #define PCIE20_ELBI_VERSION            0x00
@@ -66,8 +63,6 @@
 #define PCIE20_ELBI_CS2_ENABLE         0xA4
 
 #define PCIE20_DEVICE_ID_VENDOR_ID     0x00
-#define PCIE20_MASK_DEVICE_ID          GENMASK(31, 16)
-#define PCIE20_MASK_VENDOR_ID          GENMASK(15, 0)
 #define PCIE20_COMMAND_STATUS          0x04
 #define PCIE20_CLASS_CODE_REVISION_ID  0x08
 #define PCIE20_BIST_HDR_TYPE           0x0C
@@ -90,8 +85,8 @@
 #define PCIE20_CAP_LINKCTRLSTATUS      0x80
 #define PCIE20_DEVICE_CONTROL2_STATUS2 0x98
 #define PCIE20_LINK_CONTROL2_LINK_STATUS2 0xA0
-#define PCIE20_L1SUB_CAPABILITY        0x1E0
-#define PCIE20_L1SUB_CONTROL1          0x1E4
+#define PCIE20_L1SUB_CAPABILITY        0x154
+#define PCIE20_L1SUB_CONTROL1          0x158
 #define PCIE20_ACK_F_ASPM_CTRL_REG     0x70C
 #define PCIE20_MASK_ACK_N_FTS          0xff00
 #define PCIE20_MISC_CONTROL_1          0x8BC
@@ -234,7 +229,6 @@ enum ep_pcie_res {
 	EP_PCIE_RES_DM_CORE,
 	EP_PCIE_RES_ELBI,
 	EP_PCIE_RES_IATU,
-	EP_PCIE_RES_TCSR_PERST,
 	EP_PCIE_MAX_RES,
 };
 
@@ -326,15 +320,10 @@ struct ep_pcie_dev_t {
 	void __iomem                 *dm_core;
 	void __iomem                 *elbi;
 	void __iomem                 *iatu;
-	void __iomem		     *tcsr_perst_en;
 
 	struct msm_bus_scale_pdata   *bus_scale_table;
 	u32                          bus_client;
-	u16                          vendor_id;
-	u16                          device_id;
-	u32                          subsystem_id;
-	u32                          max_link_speed;
-	u32                          curr_link_speed;
+	u32                          link_speed;
 	bool                         active_config;
 	bool                         aggregated_irq;
 	bool                         mhi_a7_irq;

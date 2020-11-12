@@ -1311,17 +1311,11 @@ eHalStatus sme_RrmMsgProcessor( tpAniSirGlobal pMac,  v_U16_t msg_type,
 void rrmIterMeasTimerHandle( v_PVOID_t userData )
 {
    tpAniSirGlobal pMac = (tpAniSirGlobal) userData;
-   eHalStatus status = eHAL_STATUS_FAILURE;
-
 #if defined WLAN_VOWIFI_DEBUG
    smsLog( pMac, LOGE, "Randomization timer expired...send on next channel ");
 #endif
     //Issue a scan req for next channel.
-    status = sme_AcquireGlobalLock(&pMac->sme);
-    if (HAL_STATUS_SUCCESS(status)) {
-        sme_RrmIssueScanReq(pMac);
-        sme_ReleaseGlobalLock(&pMac->sme);
-    }
+    sme_RrmIssueScanReq( pMac ); 
 }
 
 /* ---------------------------------------------------------------------------

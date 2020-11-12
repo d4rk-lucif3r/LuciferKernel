@@ -32,4 +32,3 @@ obj-$(CONFIG_DA_TTY)		+= metag_da.o
 obj-$(CONFIG_MIPS_EJTAG_FDC_TTY) += mips_ejtag_fdc.o
 
 obj-y += ipwireless/
-obj-$(CONFIG_OKL4_VTTY)		+= okl4_vtty.o

@@ -518,14 +518,10 @@ limRestoreFromAuthState(tpAniSirGlobal pMac, tSirResultCodes resultCode, tANI_U1
      * retry is needed also cancel the auth rety timer
      */
     pMac->authAckStatus = LIM_AUTH_ACK_RCD_SUCCESS;
-    /* Auth retry and AUth failure timers are not started for SAE
-     * Change' timer for future activations
-     */
-    if (tx_timer_running(&pMac->lim.limTimers.gLimPeriodicAuthRetryTimer))
-        limDeactivateAndChangeTimer(pMac, eLIM_AUTH_RETRY_TIMER);
-    /* Change' timer for future activations */
-    if (tx_timer_running(&pMac->lim.limTimers.gLimAuthFailureTimer))
-        limDeactivateAndChangeTimer(pMac, eLIM_AUTH_FAIL_TIMER);
+    // 'Change' timer for future activations
+    limDeactivateAndChangeTimer(pMac, eLIM_AUTH_RETRY_TIMER);
+    // 'Change' timer for future activations
+    limDeactivateAndChangeTimer(pMac, eLIM_AUTH_FAIL_TIMER);
 
     #if 0
     if (wlan_cfgGetStr(pMac, WNI_CFG_BSSID, currentBssId, &cfg) != eSIR_SUCCESS)

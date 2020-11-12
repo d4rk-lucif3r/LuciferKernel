@@ -1,4 +1,4 @@
-/* Copyright (c) 2008-2020, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2008-2019, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -297,8 +297,6 @@ for (i = 0; i <= fwd_info->num_pd - 2; i++)	\
 #define DIAG_ID_UNKNOWN		0
 #define DIAG_ID_APPS		1
 
-#define DIAG_ROUTE_TO_USB 0
-#define DIAG_ROUTE_TO_PCIE 1
 /* List of remote processor supported */
 enum remote_procs {
 	MDM = 1,
@@ -599,11 +597,8 @@ struct diagchar_dev {
 	struct list_head diag_id_list;
 	struct mutex diag_id_mutex;
 	struct mutex cmd_reg_mutex;
-	spinlock_t dci_mempool_lock;
 	uint32_t cmd_reg_count;
 	struct mutex diagfwd_channel_mutex[NUM_PERIPHERALS];
-	int transport_set;
-	int pcie_transport_def;
 	/* Sizes that reflect memory pool sizes */
 	unsigned int poolsize;
 	unsigned int poolsize_hdlc;
@@ -656,8 +651,6 @@ struct diagchar_dev {
 #ifdef CONFIG_DIAG_OVER_USB
 	int usb_connected;
 #endif
-	int pcie_connected;
-	int pcie_switch_pid;
 	struct workqueue_struct *diag_wq;
 	struct work_struct diag_drain_work;
 	struct work_struct update_user_clients;

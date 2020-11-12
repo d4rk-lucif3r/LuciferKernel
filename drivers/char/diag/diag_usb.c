@@ -219,6 +219,13 @@ static void usb_connect_work_fn(struct work_struct *work)
  */
 static void usb_disconnect(struct diag_usb_info *ch)
 {
+	if (!ch)
+		return;
+
+	if (!atomic_read(&ch->connected) &&
+		driver->usb_connected && diag_mask_param())
+		diag_clear_masks(0);
+
 	if (ch && ch->ops && ch->ops->close)
 		ch->ops->close(ch->ctxt, DIAG_USB_MODE);
 }
@@ -227,14 +234,6 @@ static void usb_disconnect_work_fn(struct work_struct *work)
 {
 	struct diag_usb_info *ch = container_of(work, struct diag_usb_info,
 						disconnect_work);
-
-	if (!ch)
-		return;
-
-	if (!atomic_read(&ch->connected) &&
-		driver->usb_connected && diag_mask_param())
-		diag_clear_masks(0);
-
 	usb_disconnect(ch);
 }
 
@@ -636,8 +635,8 @@ int diag_usb_register(int id, int ctxt, struct diag_mux_ops *ops)
 	INIT_WORK(&(ch->read_done_work), usb_read_done_work_fn);
 	INIT_WORK(&(ch->connect_work), usb_connect_work_fn);
 	INIT_WORK(&(ch->disconnect_work), usb_disconnect_work_fn);
-	strlcpy(wq_name, "DIAG_USB_", sizeof(wq_name));
-	strlcat(wq_name, ch->name, sizeof(wq_name));
+	strlcpy(wq_name, "DIAG_USB_", DIAG_USB_STRING_SZ);
+	strlcat(wq_name, ch->name, sizeof(ch->name));
 	ch->usb_wq = create_singlethread_workqueue(wq_name);
 	if (!ch->usb_wq)
 		goto err;

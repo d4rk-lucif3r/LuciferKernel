@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -162,28 +162,6 @@ static int dcc_sram_writel(struct dcc_drvdata *drvdata,
 	return 0;
 }
 
-static void dcc_sram_memset(const struct device *dev, void __iomem *dst,
-			    int c, size_t count)
-{
-	u64 qc = (u8)c;
-
-	qc |= qc << 8;
-	qc |= qc << 16;
-
-	if (!count || !IS_ALIGNED((unsigned long)dst, 4)
-	    || !IS_ALIGNED((unsigned long)count, 4)) {
-		dev_err(dev,
-			"Target address or size not aligned with 4 bytes");
-		return;
-	}
-
-	while (count >= 4) {
-		__raw_writel_no_log(qc, dst);
-		dst += 4;
-		count -= 4;
-	}
-}
-
 static bool dcc_ready(struct dcc_drvdata *drvdata)
 {
 	uint32_t val;
@@ -299,19 +277,19 @@ static int __dcc_ll_cfg(struct dcc_drvdata *drvdata, int curr_list)
 			ret = dcc_sram_writel(drvdata, addr, sram_offset);
 			if (ret)
 				goto overstep;
-			sram_offset += 4;
+				sram_offset += 4;
 
 			ret = dcc_sram_writel(drvdata,
 					entry->mask, sram_offset);
 			if (ret)
 				goto overstep;
-			sram_offset += 4;
+				sram_offset += 4;
 
 			ret = dcc_sram_writel(drvdata,
 					entry->write_val, sram_offset);
 			if (ret)
 				goto overstep;
-			sram_offset += 4;
+				sram_offset += 4;
 			addr = 0;
 			break;
 		}
@@ -394,18 +372,18 @@ static int __dcc_ll_cfg(struct dcc_drvdata *drvdata, int curr_list)
 			ret = dcc_sram_writel(drvdata, addr, sram_offset);
 			if (ret)
 				goto overstep;
-			sram_offset += 4;
+				sram_offset += 4;
 
 			ret = dcc_sram_writel(drvdata, link, sram_offset);
 			if (ret)
 				goto overstep;
-			sram_offset += 4;
+				sram_offset += 4;
 
 			ret = dcc_sram_writel(drvdata,
 				entry->write_val, sram_offset);
 			if (ret)
 				goto overstep;
-			sram_offset += 4;
+				sram_offset += 4;
 			addr = 0x00;
 			link = 0;
 			break;
@@ -551,7 +529,7 @@ static int __dcc_ll_cfg(struct dcc_drvdata *drvdata, int curr_list)
 	return 0;
 overstep:
 	ret = -EINVAL;
-	dcc_sram_memset(drvdata->dev, drvdata->ram_base, 0, drvdata->ram_size);
+	memset_io(drvdata->ram_base, 0, drvdata->ram_size);
 	dev_err(drvdata->dev, "DCC SRAM oversteps, 0x%x (0x%x)\n",
 		sram_offset, drvdata->ram_size);
 err:
@@ -609,8 +587,7 @@ static int dcc_enable(struct dcc_drvdata *drvdata)
 
 	mutex_lock(&drvdata->mutex);
 
-	dcc_sram_memset(drvdata->dev, drvdata->ram_base, 0xDE,
-			drvdata->ram_size);
+	memset_io(drvdata->ram_base, 0xDE, drvdata->ram_size);
 
 	for (list = 0; list < DCC_MAX_LINK_LIST; list++) {
 
@@ -1063,6 +1040,8 @@ static ssize_t dcc_store_config(struct device *dev,
 		apb_bus = 1;
 	}
 
+	if (len == 0)
+		len = 1;
 
 	if (base == 0) {
 		dev_err(drvdata->dev, "DCC: Invalid  Address\n");
@@ -1457,8 +1436,7 @@ static ssize_t dcc_sram_read(struct file *file, char __user *data,
 	if (drvdata->ram_size <= *ppos)
 		return 0;
 
-	if ((*ppos + len) < len
-		|| (*ppos + len) > drvdata->ram_size)
+	if ((*ppos + len) > drvdata->ram_size)
 		len = (drvdata->ram_size - *ppos);
 
 	buf = kzalloc(len, GFP_KERNEL);
@@ -1669,7 +1647,7 @@ static int dcc_probe(struct platform_device *pdev)
 		drvdata->nr_config[i] = 0;
 	}
 
-	dcc_sram_memset(drvdata->dev, drvdata->ram_base, 0, drvdata->ram_size);
+	memset_io(drvdata->ram_base, 0, drvdata->ram_size);
 
 	drvdata->data_sink = DCC_DATA_SINK_SRAM;
 	ret = of_property_read_string(pdev->dev.of_node, "qcom,data-sink",
