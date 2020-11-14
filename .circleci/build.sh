@@ -11,6 +11,7 @@ DTB_T="${KERNEL_DIR}/out/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-treble
 DTB="${KERNEL_DIR}/out/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-nontreble.dtb"
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 export PATH="$(pwd)/clang/bin:$PATH"
+export KBUILD_COMPILER_STRING="$($kernel/clang/bin/clang --version | head -n 1 | perl -pe 's/\((?:http|git).*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//' -e 's/^.*clang/clang/')"
 export ARCH=arm64
 export KBUILD_BUILD_USER=d4rklucif3r
 export KBUILD_BUILD_HOST=circleci
