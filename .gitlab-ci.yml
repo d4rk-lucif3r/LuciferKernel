@@ -13,8 +13,7 @@ before_script:
   - cd Android
   - mkdir kernel
   - cd kernel
-  - wget https://raw.githubusercontent.com/d4rk-lucif3r/LuciferKernel/NonOC/.circleci/build.sh
-  
+  - wget https://gitlab.com/d4rk-lucif3r/LuciferKernel/-/raw/NonOC/.circleci/build.sh
 stages:
   - build
 
