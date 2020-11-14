@@ -1,4 +1,4 @@
-image: ubuntu:20.04
+image: ubuntu:18.04
 
 before_script:
   - apt-get -y update && apt-get -y upgrade && apt-get -y install bc build-essential zip curl libstdc++6      git wget python gcc clang libssl-dev repo rsync flex bison gcc-aarch64-linux-gnu
