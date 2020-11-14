@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Cloning dependencies"
-git clone --depth=1  https://github.com/d4rk-lucif3r/LuciferKernel.git -b NonOC
+git clone --depth=1  https://github.com/d4rk-lucif3r/LuciferKernel.git -b OC
 cd LuciferKernel
 git clone --depth=1 -b master https://github.com/kdrag0n/proton-clang clang
 git clone https://github.com/d4rk-lucif3r/Anykernel3-Tissot.git  --depth=1 AnyKernel
@@ -49,8 +49,8 @@ function compile() {
 # Zipping
 function zipping() {
     cd $REPACK_DIR || exit 1
-    zip -r9 LuciferKernel+V3.zip *
-    curl https://bashupload.com/LuciferKernel+V3.zip --data-binary @LuciferKernel+V3.zip
+    zip -r9 LuciferKernel+V3+OC.zip *
+    curl https://bashupload.com/LuciferKernel+V3+OC.zip --data-binary @LuciferKernel+V3+OC.zip
 }
 compile
 zipping

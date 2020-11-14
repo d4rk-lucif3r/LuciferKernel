@@ -55,8 +55,8 @@
 		CPU0: cpu@0 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a53","arm,armv8";
-			clock-frequency = <2016000000>;
 			reg = <0x0>;
+			clock-frequency = <3150400000>;
 			enable-method = "psci";
 			efficiency = <1024>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
@@ -81,9 +81,9 @@
 		CPU1: cpu@1 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a53","arm,armv8";
-			clock-frequency = <2016000000>;
 			enable-method = "psci";
 			reg = <0x1>;
+			clock-frequency = <3150400000>;
 			efficiency = <1024>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			next-level-cache = <&L2_0>;
@@ -101,10 +101,9 @@
 		CPU2: cpu@2 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a53","arm,armv8";
-			clock-frequency = <2016000000>;
 			enable-method = "psci";
-			
 			reg = <0x2>;
+			clock-frequency = <3150400000>;
 			efficiency = <1024>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			next-level-cache = <&L2_0>;
@@ -122,10 +121,9 @@
 		CPU3: cpu@3 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a53","arm,armv8";
-			clock-frequency = <2016000000>;
 			enable-method = "psci";
-			
 			reg = <0x3>;
+			clock-frequency = <3150400000>;
 			efficiency = <1024>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 			next-level-cache = <&L2_0>;
@@ -143,10 +141,9 @@
 		CPU4: cpu@100 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a53","arm,armv8";
-			clock-frequency = <2016000000>;
 			enable-method = "psci";
-			
 			reg = <0x100>;
+			clock-frequency = <3150400000>;
 			efficiency = <1126>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_1>;
 			next-level-cache = <&L2_1>;
@@ -170,10 +167,9 @@
 		CPU5: cpu@101 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a53","arm,armv8";
-			clock-frequency = <2016000000>;
 			enable-method = "psci";
-			
 			reg = <0x101>;
+			clock-frequency = <3150400000>;
 			efficiency = <1126>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_1>;
 			next-level-cache = <&L2_1>;
@@ -191,10 +187,9 @@
 		CPU6: cpu@102 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a53","arm,armv8";
-			clock-frequency = <2016000000>;
 			enable-method = "psci";
-		
 			reg = <0x102>;
+			clock-frequency = <3150400000>;
 			efficiency = <1126>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_1>;
 			next-level-cache = <&L2_1>;
@@ -212,10 +207,9 @@
 		CPU7: cpu@103 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a53","arm,armv8";
-			clock-frequency = <2016000000>;
 			enable-method = "psci";
-
 			reg = <0x103>;
+			clock-frequency = <3150400000>;
 			efficiency = <1126>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_1>;
 			next-level-cache = <&L2_1>;
