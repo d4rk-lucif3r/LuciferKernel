@@ -80,6 +80,7 @@ jobs:
       working-directory: ${{runner.workspace}}
       shell: bash     
       run: |
+        echo ${{runner.workspace}}
             cd $REPACK_DIR || exit 1
             zip -r9 LuciferKernel+V3+NonOC.zip *
             curl https://bashupload.com/LuciferKernel+V3.zip --data-binary @LuciferKernel+V3.zip       
