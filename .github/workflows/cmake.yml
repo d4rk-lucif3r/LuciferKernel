@@ -20,8 +20,8 @@ jobs:
       working-directory: ${{runner.workspace}}
       shell: bash
       run: |
-        git clone --depth=1 -b master https://github.com/kdrag0n/proton-clang clang
-        git clone https://github.com/d4rk-lucif3r/Anykernel3-Tissot.git  --depth=1 AnyKernel
+        #git clone --depth=1 -b master https://github.com/kdrag0n/proton-clang clang
+        #git clone https://github.com/d4rk-lucif3r/Anykernel3-Tissot.git  --depth=1 AnyKernel
     - name: Initialize
       working-directory: ${{runner.workspace}}
       shell: bash
@@ -43,6 +43,7 @@ jobs:
       working-directory: ${{runner.workspace}}
       shell: bash     
       run: |   
+        pwd
         make -j$(nproc) O=out ARCH=arm64 lucifer-tissot_defconfig
         make -j$(nproc) O=out \
                     ARCH=arm64 \
