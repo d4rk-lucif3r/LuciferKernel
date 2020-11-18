@@ -16,11 +16,70 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build
+    - name: Initialize
       working-directory: ${{runner.workspace}}
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: | 
-          cd /home/runner/work/LuciferKernel/Build/
-          source build.sh
-          pwd  
+          #cd /home/runner/work/LuciferKernel/Build/
+          #source build.sh
+          #pwd  
+          KERNEL_DIR=$(pwd)
+          REPACK_DIR="${KERNEL_DIR}/AnyKernel"
+          IMAGE="${KERNEL_DIR}/out/arch/arm64/boot/Image.gz"
+          DTB_T="${KERNEL_DIR}/out/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-treble.dtb"
+          DTB="${KERNEL_DIR}/out/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-nontreble.dtb"
+          SEND_DIR="${KERNEL_DIR}/telegram.sh"
+          BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+          export PATH="$(pwd)/clang/bin:$PATH"
+          export ARCH=arm64
+          export KBUILD_BUILD_USER=d4rklucif3r
+          export KBUILD_BUILD_HOST=circleci
+    - name: Compile
+      working-directory: ${{runner.workspace}}
+      shell: bash     
+      run: |   
+        make -j$(nproc) O=out ARCH=arm64 lucifer-tissot_defconfig
+        make -j$(nproc) O=out \
+                    ARCH=arm64 \
+                      CC=clang \
+                      CROSS_COMPILE=aarch64-linux-gnu- \
+                      CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
+
+        cd $REPACK_DIR
+        mkdir kernel
+        mkdir dtb-treble
+        mkdir dtb-nontreble
+
+        if ! [ -a "$IMAGE" ]; then
+            exit 1
+            echo "There are some issues with image"
+        fi
+        cp $IMAGE $REPACK_DIR/kernel/
+
+        if ! [ -a "$DTB" ]; then
+          exit 1
+        echo "There are some issues dtb "
+        fi
+        cp $DTB $REPACK_DIR/dtb-nontreble/
+
+        if ! [ -a "$DTB_T" ]; then
+          exit 1
+        echo "There are some issues dtb treble"
+        fi
+        cp $DTB_T $REPACK_DIR/dtb-treble/ 
+
+    - name: Zip
+      working-directory: ${{runner.workspace}}
+      shell: bash     
+      run: |
+            cd $REPACK_DIR || exit 1
+            zip -r9 LuciferKernel+V3+NonOC.zip *
+            curl https://bashupload.com/LuciferKernel+V3.zip --data-binary @LuciferKernel+V3.zip       
+
+    
+
+
+
+
+
