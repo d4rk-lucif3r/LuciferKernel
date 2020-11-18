@@ -21,6 +21,6 @@ jobs:
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: | 
-          cd ../LuciferKernel/Build/
+          cd /home/runner/work/LuciferKernel/Build/
           source build.sh
           pwd  
