@@ -30,6 +30,7 @@ jobs:
           #cd /home/runner/work/LuciferKernel/Build/
           #source build.sh
           pwd  
+          ls -la
           KERNEL_DIR=$(pwd)
           REPACK_DIR="${KERNEL_DIR}/AnyKernel"
           IMAGE="${KERNEL_DIR}/out/arch/arm64/boot/Image.gz"
