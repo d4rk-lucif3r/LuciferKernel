@@ -34,9 +34,9 @@ jobs:
           cd LuciferKernel
           KERNEL_DIR=$(pwd)
           REPACK_DIR="${KERNEL_DIR}/AnyKernel"
-          IMAGE="${KERNEL_DIR}/out/arch/arm64/boot/Image.gz"
-          DTB_T="${KERNEL_DIR}/out/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-treble.dtb"
-          DTB="${KERNEL_DIR}/out/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-nontreble.dtb"
+          IMAGE="${KERNEL_DIR}/arch/arm64/boot/Image.gz"
+          DTB_T="${KERNEL_DIR}/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-treble.dtb"
+          DTB="${KERNEL_DIR}/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-nontreble.dtb"
           export PATH="$(pwd)/clang/bin:$PATH"
           export ARCH=arm64
           export KBUILD_BUILD_USER=d4rklucif3r
@@ -46,8 +46,8 @@ jobs:
       shell: bash     
       run: |   
         pwd
-        make -j$(nproc) O=out ARCH=arm64 lucifer-tissot_defconfig
-        make -j$(nproc) O=out \
+        make -j$(nproc)  ARCH=arm64 lucifer-tissot_defconfig
+        make -j$(nproc)  \
                     ARCH=arm64 \
                       CC=clang \
                       CROSS_COMPILE=aarch64-linux-gnu- \
