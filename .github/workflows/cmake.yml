@@ -16,6 +16,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Dependencies
+      working-directory: ${(runner.workspace}
+      shell: bash
+      run: |
+        git clone --depth=1 -b master https://github.com/kdrag0n/proton-clang clang
+        git clone https://github.com/d4rk-lucif3r/Anykernel3-Tissot.git  --depth=1 AnyKernel
     - name: Initialize
       working-directory: ${{runner.workspace}}
       shell: bash
@@ -29,8 +35,6 @@ jobs:
           IMAGE="${KERNEL_DIR}/out/arch/arm64/boot/Image.gz"
           DTB_T="${KERNEL_DIR}/out/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-treble.dtb"
           DTB="${KERNEL_DIR}/out/arch/arm64/boot/dts/qcom/msm8953-qrd-sku3-tissot-nontreble.dtb"
-          SEND_DIR="${KERNEL_DIR}/telegram.sh"
-          BRANCH="$(git rev-parse --abbrev-ref HEAD)"
           export PATH="$(pwd)/clang/bin:$PATH"
           export ARCH=arm64
           export KBUILD_BUILD_USER=d4rklucif3r
