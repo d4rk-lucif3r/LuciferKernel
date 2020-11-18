@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Dependencies
-      working-directory: ${(runner.workspace}
+      working-directory: ${{runner.workspace}}
       shell: bash
       run: |
         git clone --depth=1 -b master https://github.com/kdrag0n/proton-clang clang
