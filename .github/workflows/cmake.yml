@@ -20,5 +20,5 @@ jobs:
       working-directory: ${{runner.workspace}}/Build
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: ./build
+      run: build
             
