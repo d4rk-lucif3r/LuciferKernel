@@ -1207,6 +1207,12 @@ static ssize_t msm_dig_codec_version_read(struct snd_info_entry *entry,
 
 	switch (msm_dig->version) {
 	case DRAX_CDC:
+	case DIANGU:
+	case CAJON_2_0:
+	case CAJON:
+	case CONGA:
+	case TOMBAK_2_0:
+	case TOMBAK_1_0:
 		len = snprintf(buffer, sizeof(buffer), "SDM660-CDC_1_0\n");
 		break;
 	default:
@@ -2615,4 +2621,3 @@ module_platform_driver(msm_digcodec_driver);
 
 MODULE_DESCRIPTION("MSM Audio Digital codec driver");
 MODULE_LICENSE("GPL v2");
-
