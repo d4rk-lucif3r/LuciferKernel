@@ -821,12 +821,6 @@ resizefs_out:
 				 sbi->s_es->s_encrypt_pw_salt, 16))
 			return -EFAULT;
 		return 0;
-<<<<<<< HEAD
-#else
-		return -EOPNOTSUPP;
-#endif
-=======
->>>>>>> 3326d00ca023 (fscrypto: move ioctl processing more fully into common code)
 	}
 	case EXT4_IOC_GET_ENCRYPTION_POLICY:
 		return fscrypt_ioctl_get_policy(filp, (void __user *)arg);
