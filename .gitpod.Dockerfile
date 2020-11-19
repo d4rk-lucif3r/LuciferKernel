@@ -1,9 +1,7 @@
 FROM gitpod/workspace-full
 USER gitpod
 RUN sudo apt-get update && \
-    sudo apt-get install -y \
-     gcc-aarch64-linux-gnu  \
-     g++-aarch64-linux-gnu 
+    sudo apt-get install -y bc build-essential zip curl libstdc++6 git wget python gcc clang libssl-dev repo rsync flex bison gcc-aarch64-linux-gnu 
    
 
 # Install custom tools, runtimes, etc.
