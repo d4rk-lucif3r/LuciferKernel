@@ -1,7 +1,8 @@
 FROM gitpod/workspace-full
-USER root
-RUN sudo apt-get update \
-    && sudo apt-get install -y g++-aarch64-linux-gnu gcc-aarch64-linux-gnu 
+RUN sudo apt-get update && \
+    sudo apt-get install -y gcc-aarch64-linux-gnu && \
+    sudo apt-get install -y g++-aarch64-linux-gnu && \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install custom tools, runtimes, etc.
 # For example "bastet", a command-line tetris clone:
