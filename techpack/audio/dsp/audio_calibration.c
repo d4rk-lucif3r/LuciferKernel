@@ -593,9 +593,6 @@ struct miscdevice audio_cal_misc = {
 	.fops	= &audio_cal_fops,
 };
 
-#ifndef MODULE
-static
-#endif
 int __init audio_cal_init(void)
 {
 	int i = 0;
@@ -612,12 +609,7 @@ int __init audio_cal_init(void)
 	return misc_register(&audio_cal_misc);
 }
 
-#ifdef MODULE
-void
-#else
-static void __exit
-#endif
-audio_cal_exit(void)
+void audio_cal_exit(void)
 {
 	int i = 0;
 	struct list_head *ptr, *next;
@@ -635,15 +627,11 @@ audio_cal_exit(void)
 			client_info_node = NULL;
 		}
 	}
-#ifdef MODULE
 	misc_deregister(&audio_cal_misc);
-#endif
 }
 
-#ifndef MODULE
 subsys_initcall(audio_cal_init);
 module_exit(audio_cal_exit);
-#endif
 
 MODULE_DESCRIPTION("SoC QDSP6v2 Audio Calibration driver");
 MODULE_LICENSE("GPL v2");
