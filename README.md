@@ -1,3 +1,5 @@
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://gitlab.com/d4rk-lucif3r/LuciferKernel)
+
 
         Linux kernel release 4.x <http://kernel.org/>
 
