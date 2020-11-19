@@ -3681,29 +3681,72 @@ static inline bool f2fs_may_encrypt(struct inode *inode)
 #endif
 }
 
-#ifndef CONFIG_F2FS_FS_ENCRYPTION
-#define fscrypt_set_d_op(i)
-#define fscrypt_get_ctx			fscrypt_notsupp_get_ctx
-#define fscrypt_release_ctx		fscrypt_notsupp_release_ctx
-#define fscrypt_encrypt_page		fscrypt_notsupp_encrypt_page
-#define fscrypt_decrypt_page		fscrypt_notsupp_decrypt_page
-#define fscrypt_decrypt_bio_pages	fscrypt_notsupp_decrypt_bio_pages
-#define fscrypt_pullback_bio_page	fscrypt_notsupp_pullback_bio_page
-#define fscrypt_restore_control_page	fscrypt_notsupp_restore_control_page
-#define fscrypt_zeroout_range		fscrypt_notsupp_zeroout_range
-#define fscrypt_ioctl_set_policy	fscrypt_notsupp_ioctl_set_policy
-#define fscrypt_ioctl_get_policy	fscrypt_notsupp_ioctl_get_policy
-#define fscrypt_has_permitted_context	fscrypt_notsupp_has_permitted_context
-#define fscrypt_inherit_context		fscrypt_notsupp_inherit_context
-#define fscrypt_get_encryption_info	fscrypt_notsupp_get_encryption_info
-#define fscrypt_put_encryption_info	fscrypt_notsupp_put_encryption_info
-#define fscrypt_setup_filename		fscrypt_notsupp_setup_filename
-#define fscrypt_free_filename		fscrypt_notsupp_free_filename
-#define fscrypt_fname_encrypted_size	fscrypt_notsupp_fname_encrypted_size
-#define fscrypt_fname_alloc_buffer	fscrypt_notsupp_fname_alloc_buffer
-#define fscrypt_fname_free_buffer	fscrypt_notsupp_fname_free_buffer
-#define fscrypt_fname_disk_to_usr	fscrypt_notsupp_fname_disk_to_usr
-#define fscrypt_fname_usr_to_disk	fscrypt_notsupp_fname_usr_to_disk
+static inline int block_unaligned_IO(struct inode *inode,
+				struct kiocb *iocb, struct iov_iter *iter)
+{
+	unsigned int i_blkbits = READ_ONCE(inode->i_blkbits);
+	unsigned int blocksize_mask = (1 << i_blkbits) - 1;
+	loff_t offset = iocb->ki_pos;
+	unsigned long align = offset | iov_iter_alignment(iter);
+
+	return align & blocksize_mask;
+}
+
+static inline int allow_outplace_dio(struct inode *inode,
+				struct kiocb *iocb, struct iov_iter *iter)
+{
+	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+	int rw = iov_iter_rw(iter);
+
+	return (test_opt(sbi, LFS) && (rw == WRITE) &&
+				!block_unaligned_IO(inode, iocb, iter));
+}
+
+static inline bool f2fs_force_buffered_io(struct inode *inode,
+				struct kiocb *iocb, struct iov_iter *iter)
+{
+	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+	int rw = iov_iter_rw(iter);
+
+	if (f2fs_post_read_required(inode) &&
+		!fscrypt_using_hardware_encryption(inode))
+		return true;
+	if (f2fs_is_multi_device(sbi))
+		return true;
+	/*
+	 * for blkzoned device, fallback direct IO to buffered IO, so
+	 * all IOs can be serialized by log-structured write.
+	 */
+	if (f2fs_sb_has_blkzoned(sbi))
+		return true;
+	if (test_opt(sbi, LFS) && (rw == WRITE)) {
+		if (block_unaligned_IO(inode, iocb, iter))
+			return true;
+		if (F2FS_IO_ALIGNED(sbi))
+			return true;
+	}
+	if (is_sbi_flag_set(F2FS_I_SB(inode), SBI_CP_DISABLED) &&
+					!IS_SWAPFILE(inode))
+		return true;
+
+	return false;
+}
+
+static inline bool f2fs_may_encrypt_bio(struct inode *inode,
+		struct f2fs_io_info *fio)
+{
+	if (fio && (fio->type != DATA || fio->encrypted_page))
+		return false;
+
+	return (f2fs_encrypted_file(inode) &&
+			fscrypt_using_hardware_encryption(inode));
+}
+
+#ifdef CONFIG_F2FS_FAULT_INJECTION
+extern void f2fs_build_fault_attr(struct f2fs_sb_info *sbi, unsigned int rate,
+							unsigned int type);
+#else
+#define f2fs_build_fault_attr(sbi, rate, type)		do { } while (0)
 #endif
 
 static inline bool is_journalled_quota(struct f2fs_sb_info *sbi)
