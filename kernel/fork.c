@@ -80,11 +80,8 @@
 #include <linux/sysctl.h>
 #include <linux/kcov.h>
 #include <linux/cpufreq_times.h>
-<<<<<<< HEAD
-=======
 #include <linux/cpu_boost.h>
 #include <linux/scs.h>
->>>>>>> 7597cb47c780... ANDROID: add support for clang Shadow Call Stack (SCS)
 
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
@@ -365,13 +362,10 @@ void free_task(struct task_struct *tsk)
 	 */
 	WARN_ON_ONCE(atomic_read(&tsk->stack_refcount) != 0);
 #endif
-<<<<<<< HEAD
-=======
 #ifdef CONFIG_CPU_FREQ_STAT
 	scs_release(tsk);
 	cpufreq_task_times_exit(tsk);
 #endif
->>>>>>> 7597cb47c780... ANDROID: add support for clang Shadow Call Stack (SCS)
 	rt_mutex_debug_task_free(tsk);
 	ftrace_graph_exit_task(tsk);
 	put_seccomp_filter(tsk);
