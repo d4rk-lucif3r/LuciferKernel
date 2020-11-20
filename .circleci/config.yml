@@ -19,7 +19,7 @@ jobs:
            mkdir kernel
            cd kernel
           
-           wget https://raw.githubusercontent.com/d4rk-lucif3r/LuciferKernel/NonOC/.circleci/build.sh
+           wget https://raw.githubusercontent.com/d4rk-lucif3r/LuciferKernel/NonOC-reb/.circleci/build.sh
            source build.sh
 workflows:
   version: 2.1
