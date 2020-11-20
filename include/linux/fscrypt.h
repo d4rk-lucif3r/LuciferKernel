@@ -750,4 +750,3 @@ static inline bool fscrypt_mergeable_bio(struct bio *bio,
 #endif
 
 #endif	/* _LINUX_FSCRYPT_H */
-

@@ -29,6 +29,7 @@ static int __bpf_mt_check_bytecode(struct sock_filter *insns, __u16 len,
 
 	if (len > XT_BPF_MAX_NUM_INSTR)
 		return -EINVAL;
+
 	program.len = len;
 	program.filter = insns;
 
@@ -124,6 +125,7 @@ static struct xt_match bpf_mt_reg[] __read_mostly = {
 		.match		= bpf_mt,
 		.destroy	= bpf_mt_destroy,
 		.matchsize	= sizeof(struct xt_bpf_info),
+		.usersize	= offsetof(struct xt_bpf_info, filter),
 		.me		= THIS_MODULE,
 	},
 	{
@@ -134,6 +136,7 @@ static struct xt_match bpf_mt_reg[] __read_mostly = {
 		.match		= bpf_mt_v1,
 		.destroy	= bpf_mt_destroy_v1,
 		.matchsize	= sizeof(struct xt_bpf_info_v1),
+		.usersize	= offsetof(struct xt_bpf_info_v1, filter),
 		.me		= THIS_MODULE,
 	},
 };

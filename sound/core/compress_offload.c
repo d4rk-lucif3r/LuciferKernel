@@ -728,10 +728,10 @@ static int snd_compr_stop(struct snd_compr_stream *stream)
 	retval = stream->ops->trigger(stream, SNDRV_PCM_TRIGGER_STOP);
 	if (!retval) {
 		stream->runtime->state = SNDRV_PCM_STATE_SETUP;
-		wake_up(&stream->runtime->sleep);
 		/* clear flags and stop any drain wait */
 		stream->partial_drain = false;
 		stream->metadata_set = false;
+		wake_up(&stream->runtime->sleep);
 		snd_compr_drain_notify(stream);
 		stream->runtime->total_bytes_available = 0;
 		stream->runtime->total_bytes_transferred = 0;
@@ -859,12 +859,11 @@ static int snd_compr_partial_drain(struct snd_compr_stream *stream)
 	default:
 		break;
 	}
+	mutex_unlock(&stream->device->lock);
 
 	/* partial drain doesn't have any meaning for capture streams */
 	if (stream->direction == SND_COMPRESS_CAPTURE)
 		return -EPERM;
-
-	mutex_unlock(&stream->device->lock);
 
 	/* stream can be drained only when next track has been signalled */
 	if (stream->next_track == false)

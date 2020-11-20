@@ -80,6 +80,9 @@
 };
 
 &i2c_5 { /* BLSP2 QUP1 (NFC) */
+	#address-cells = <1>;
+	#size-cells = <0>;
+
 	status = "ok";
 	nq@28 {
 		compatible = "qcom,nq-nci";
@@ -127,13 +130,13 @@
 };
 
 &soc {
-	gpio_keys {
+	gpio_keys: gpio_keys {
 		compatible = "gpio-keys";
 		label = "gpio-keys";
 		pinctrl-names = "default";
 		pinctrl-0 = <&gpio_key_active>;
 
-		vol_up {
+		vol_up: vol_up {
 			label = "volume_up";
 			gpios = <&tlmm 91 0x1>;
 			linux,input-type = <1>;
@@ -347,6 +350,9 @@
 };
 
 &i2c_2 {
+#address-cells = <1>;
+#size-cells = <0>;
+
 #include "smb1355.dtsi"
 };
 

@@ -951,4 +951,3 @@ static const uint32_t log_code_last_tbl[] = {
 #define EVENT_COUNT_TO_BYTES(count)	((count/8) + 1)
 
 #endif
-

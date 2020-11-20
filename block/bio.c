@@ -865,6 +865,9 @@ int bio_add_page(struct bio *bio, struct page *page,
 	bio->bi_vcnt++;
 done:
 	bio->bi_iter.bi_size += len;
+
+	if (!bio_flagged(bio, BIO_WORKINGSET) && unlikely(PageWorkingset(page)))
+		bio_set_flag(bio, BIO_WORKINGSET);
 	return len;
 }
 EXPORT_SYMBOL(bio_add_page);
@@ -903,24 +906,6 @@ int submit_bio_wait(struct bio *bio)
 	return ret.error;
 }
 EXPORT_SYMBOL(submit_bio_wait);
-static void submit_bio_nowait_endio(struct bio *bio)
-{
-	bio_put(bio);
-}
-
-/**
- * submit_bio_nowait - submit a bio for fire-and-forge for fire-and-forget
- * @bio: The &struct bio which describes the I/O
- *
- * Simple wrapper around submit_bio() that takes care of bio_put() on completion
- */
-void submit_bio_nowait(struct bio *bio)
-{
-	bio->bi_end_io = submit_bio_nowait_endio;
-	bio->bi_opf |= REQ_SYNC;
-	submit_bio(bio);
-}
-EXPORT_SYMBOL(submit_bio_nowait);
 
 /**
  * bio_advance - increment/complete a bio by some number of bytes

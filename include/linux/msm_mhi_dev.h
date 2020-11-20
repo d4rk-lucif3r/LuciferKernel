@@ -275,4 +275,3 @@ static inline int mhi_register_state_cb(void (*mhi_state_cb)
 #endif
 
 #endif /* _MSM_MHI_DEV_H*/
-

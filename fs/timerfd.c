@@ -587,4 +587,3 @@ COMPAT_SYSCALL_DEFINE2(timerfd_gettime, int, ufd,
 	return put_compat_itimerspec(otmr, &kotmr) ? -EFAULT: 0;
 }
 #endif
-

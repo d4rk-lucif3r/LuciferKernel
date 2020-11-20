@@ -45,4 +45,3 @@ static inline void cpufreq_task_times_remove_uids(uid_t uid_start,
 						  uid_t uid_end) {}
 #endif /* CONFIG_CPU_FREQ_TIMES */
 #endif /* _LINUX_CPUFREQ_TIMES_H */
-

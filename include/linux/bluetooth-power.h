@@ -92,4 +92,3 @@ int get_chipset_version(void);
 #define BT_RESET_GPIO_HIGH_VAL	0x1
 
 #endif /* __LINUX_BLUETOOTH_POWER_H */
-

@@ -60,6 +60,7 @@ DECLARE_EVENT_CLASS(android_fs_data_end_template,
 		  (unsigned long) __entry->ino,
 		  __entry->offset, __entry->bytes)
 );
+
 DECLARE_EVENT_CLASS(android_fs_fsync_start_template,
 	TP_PROTO(struct inode *inode,
 		 pid_t pid, char *pathname, char *command),

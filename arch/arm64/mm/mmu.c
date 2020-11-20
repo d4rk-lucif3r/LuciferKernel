@@ -270,7 +270,8 @@ static void alloc_init_pud(pgd_t *pgd, unsigned long addr, unsigned long end,
 		/*
 		 * For 4K granule only, attempt to put down a 1GB block
 		 */
-		if (use_1G_block(addr, next, phys) && allow_block_mappings && !dma_overlap(phys, phys + next - addr)){
+		if (use_1G_block(addr, next, phys) && allow_block_mappings &&
+		    !dma_overlap(phys, phys + next - addr)) {
 			pud_set_huge(pud, phys, prot);
 
 			/*
