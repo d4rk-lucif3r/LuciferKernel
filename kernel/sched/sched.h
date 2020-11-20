@@ -2693,20 +2693,11 @@ static inline int same_freq_domain(int src_cpu, int dst_cpu)
 
 	return cpumask_test_cpu(dst_cpu, &rq->freq_domain_cpumask);
 }
-
+#define	BOOST_KICK	0
 #define	CPU_RESERVED	1
-
-extern enum sched_boost_policy boost_policy;
-static inline enum sched_boost_policy sched_boost_policy(void)
-{
-	return boost_policy;
-}
-
+extern int sched_boost(void);
 extern unsigned int sched_boost_type;
-static inline int sched_boost(void)
-{
-	return sched_boost_type;
-}
+
 
 extern int preferred_cluster(struct sched_cluster *cluster,
 						struct task_struct *p);
@@ -2782,7 +2773,8 @@ extern void update_cpu_cluster_capacity(const cpumask_t *cpus);
 extern unsigned long thermal_cap(int cpu);
 
 extern void clear_walt_request(int cpu);
-
+extern int got_boost_kick(void);
+extern void clear_boost_kick(int cpu);
 extern enum sched_boost_policy sched_boost_policy(void);
 extern void sched_boost_parse_dt(void);
 extern void clear_ed_task(struct task_struct *p, struct rq *rq);
@@ -2840,12 +2832,17 @@ static inline bool task_sched_boost(struct task_struct *p)
 {
 	return true;
 }
+static inline int got_boost_kick(void)
+{
+	return 0;
+}
+
+static inline void clear_boost_kick(int cpu) { }
 static inline enum sched_boost_policy task_boost_policy(struct task_struct *p)
 {
 	return SCHED_BOOST_NONE;
 }
 static inline void check_for_migration(struct rq *rq, struct task_struct *p) { }
-
 static inline int sched_boost(void)
 {
 	return 0;
