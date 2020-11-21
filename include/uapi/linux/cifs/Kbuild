@@ -1,2 +1,8 @@
 # UAPI Header export list
 no-export-headers += cifs_mount.h
+<<<<<<< HEAD
+=======
+
+header-y += cifs_mount.h
+
+>>>>>>> 6d5190297 (Fix syntax errors in Kbuild that were introduced by unclean patching)
