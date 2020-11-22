@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# UAPI Header export list
-=======
 
 header-y += android/
 header-y += byteorder/
@@ -28,7 +25,6 @@ header-y += wimax/
 header-y += mfd/
 header-y += msm_ipa.h
 genhdr-y += version.h
->>>>>>> 6d5190297 (Fix syntax errors in Kbuild that were introduced by unclean patching)
 
 ifeq ($(wildcard $(srctree)/arch/$(SRCARCH)/include/uapi/asm/a.out.h),)
 no-export-headers += a.out.h
@@ -67,8 +63,6 @@ no-export-headers += wil6210_uapi.h
 ifneq ($(VSERVICES_SUPPORT), "")
 include include/linux/Kbuild.vservices
 endif
-<<<<<<< HEAD
-=======
 
 header-y += hw_breakpoint.h
 header-y += l2tp.h
@@ -359,4 +353,3 @@ header-y += wil6210_uapi.h
 header-y += cifs/
 header-y += genwqe/
 
->>>>>>> 6d5190297 (Fix syntax errors in Kbuild that were introduced by unclean patching)

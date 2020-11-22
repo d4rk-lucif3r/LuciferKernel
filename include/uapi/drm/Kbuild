@@ -1,10 +1,4 @@
 # UAPI Header export list
-<<<<<<< HEAD
-no-export-headers += armada_drm.h
-no-export-headers += etnaviv_drm.h
-no-export-headers += omap_drm.h
-no-export-headers += vgem_drm.h
-=======
 header-y += drm.h
 header-y += drm_fourcc.h
 header-y += drm_mode.h
@@ -31,4 +25,3 @@ header-y += etnaviv_drm.h
 header-y += vgem_drm.h
 header-y += sde_drm.h
 
->>>>>>> 18ca736ab (Export more headers so compilation in source tree works)

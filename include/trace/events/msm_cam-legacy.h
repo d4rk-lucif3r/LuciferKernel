@@ -16,12 +16,8 @@
 #if !defined(_TRACE_MSM_VFE_H) || defined(TRACE_HEADER_MULTI_READ)
 #define _TRACE_MSM_VFE_H
 
-<<<<<<< HEAD
-#include "msm_isp.h"
-=======
 
 #include "isp/msm_isp.h"  //Path: Nope
->>>>>>> 50ecb978d (Revert botched header path edits because they keep everyone besides OP from building)
 #include <linux/types.h>
 #include <linux/tracepoint.h>
 
