@@ -420,7 +420,6 @@ void restore_cgroup_boost_settings(void)
 
 bool task_sched_boost(struct task_struct *p)
 {
-	struct schedtune *st = task_schedtune(p);
     struct schedtune *st;
 	bool enabled;
 
@@ -430,7 +429,7 @@ bool task_sched_boost(struct task_struct *p)
 	rcu_read_lock();
 	st = task_schedtune(p);
 	enabled = st->sched_boost_enabled;
-	rcu_read_unlock()
+	rcu_read_unlock();
 	return enabled;
 }
 
