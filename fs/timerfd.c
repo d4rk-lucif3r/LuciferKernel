@@ -44,6 +44,8 @@ struct timerfd_ctx {
 	bool might_cancel;
 };
 
+static atomic_t instance_count = ATOMIC_INIT(0);
+
 static LIST_HEAD(cancel_list);
 static DEFINE_SPINLOCK(cancel_lock);
 
@@ -56,7 +58,7 @@ static inline bool isalarm(struct timerfd_ctx *ctx)
 /*
  * This gets called when the timer event triggers. We set the "expired"
  * flag, but we do not re-arm the timer (in case it's necessary,
- * tintv.tv64 != 0) until the timer is accessed.
+ * tintv != 0) until the timer is accessed.
  */
 static void timerfd_triggered(struct timerfd_ctx *ctx)
 {
@@ -273,7 +275,7 @@ static ssize_t timerfd_read(struct file *file, char __user *buf, size_t count,
 
 		if (ctx->expired && ctx->tintv.tv64) {
 			/*
-			 * If tintv.tv64 != 0, this is a periodic timer that
+			 * If tintv != 0, this is a periodic timer that
 			 * needs to be re-armed. We avoid doing it in the timer
 			 * callback to avoid DoS attacks specifying a very
 			 * short timer period.
@@ -387,6 +389,9 @@ SYSCALL_DEFINE2(timerfd_create, int, clockid, int, flags)
 {
 	int ufd;
 	struct timerfd_ctx *ctx;
+	char task_comm_buf[TASK_COMM_LEN];
+	char file_name_buf[32];
+	int instance;
 
 	/* Check the TFD_* constants for consistency.  */
 	BUILD_BUG_ON(TFD_CLOEXEC != O_CLOEXEC);
@@ -423,7 +428,12 @@ SYSCALL_DEFINE2(timerfd_create, int, clockid, int, flags)
 
 	ctx->moffs = ktime_mono_to_real((ktime_t){ .tv64 = 0 });
 
-	ufd = anon_inode_getfd("[timerfd]", &timerfd_fops, ctx,
+	instance = atomic_inc_return(&instance_count);
+	get_task_comm(task_comm_buf, current);
+	snprintf(file_name_buf, sizeof(file_name_buf), "[timerfd%d_%.*s]",
+		 instance, (int)sizeof(task_comm_buf), task_comm_buf);
+
+	ufd = anon_inode_getfd(file_name_buf, &timerfd_fops, ctx,
 			       O_RDWR | (flags & TFD_SHARED_FCNTL_FLAGS));
 	if (ufd < 0)
 		kfree(ctx);
