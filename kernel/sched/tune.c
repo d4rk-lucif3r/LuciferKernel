@@ -1129,9 +1129,84 @@ static int dynamic_boost(struct schedtune *st, int boost)
 	return ret;
 }
 
-static int _do_stune_boost(struct schedtune *st, int boost)
+static inline bool is_valid_boost_slot(int slot)
+{
+	return slot >= 0 && slot < DYNAMIC_BOOST_SLOTS_COUNT;
+}
+
+static int activate_boost_slot(struct schedtune *st, int boost, int *slot)
 {
 	int ret = 0;
+	struct boost_slot *curr_slot;
+	struct list_head *head;
+	*slot = -1;
+
+	mutex_lock(&boost_slot_mutex);
+
+	/* Check for slots in available_boost_slots */
+	if (list_empty(&st->available_boost_slots.list)) {
+		ret = -EINVAL;
+		goto exit;
+	}
+
+	/*
+	 * Move one slot from available_boost_slots to active_boost_slots
+	 */
+
+	/* Get first slot from available_boost_slots */
+	head = &st->available_boost_slots.list;
+	curr_slot = list_first_entry(head, struct boost_slot, list);
+
+	/* Store slot value and boost value*/
+	*slot = curr_slot->idx;
+	st->slot_boost[*slot] = boost;
+
+	/* Delete slot from available_boost_slots */
+	list_del(&curr_slot->list);
+	kfree(curr_slot);
+
+	/* Create new slot with same value at tail of active_boost_slots */
+	curr_slot = kmalloc(sizeof(*curr_slot), GFP_KERNEL);
+	curr_slot->idx = *slot;
+	list_add_tail(&curr_slot->list, &st->active_boost_slots.list);
+
+exit:
+	mutex_unlock(&boost_slot_mutex);
+	return ret;
+}
+
+static int deactivate_boost_slot(struct schedtune *st, int slot)
+{
+	int ret = 0;
+	struct boost_slot *curr_slot, *next_slot;
+
+	mutex_lock(&boost_slot_mutex);
+
+	if (!is_valid_boost_slot(slot)) {
+		ret = -EINVAL;
+		goto exit;
+	}
+
+	/* Delete slot from active_boost_slots */
+	list_for_each_entry_safe(curr_slot, next_slot,
+				 &st->active_boost_slots.list, list) {
+		if (curr_slot->idx == slot) {
+			st->slot_boost[slot] = 0;
+			list_del(&curr_slot->list);
+			kfree(curr_slot);
+
+			/* Create same slot at tail of available_boost_slots */
+			curr_slot = kmalloc(sizeof(*curr_slot), GFP_KERNEL);
+			curr_slot->idx = slot;
+			list_add_tail(&curr_slot->list,
+				      &st->available_boost_slots.list);
+
+			goto exit;
+		}
+	}
+
+	/* Reaching here means that we did not find the slot to delete */
+	ret = -EINVAL;
 
 exit:
 	mutex_unlock(&boost_slot_mutex);
@@ -1211,14 +1286,51 @@ int reset_stune_boost(char *st_name, int slot)
 	return ret;
 }
 
-int do_stune_boost(char *st_name, int boost)
+int do_stune_sched_boost(char *st_name, int *slot)
 {
-	struct schedtune *st = getSchedtune(st_name);
+	struct schedtune *st = stune_get_by_name(st_name);
 
 	if (!st)
 		return -EINVAL;
 
-	return _do_stune_boost(st, boost);
+	return _do_stune_boost(st, st->sched_boost, slot);
+}
+
+int do_stune_boost(char *st_name, int boost, int *slot)
+{
+	struct schedtune *st = stune_get_by_name(st_name);
+
+	if (!st)
+		return -EINVAL;
+
+	return _do_stune_boost(st, boost, slot);
+}
+
+int do_prefer_idle(char *st_name, u64 prefer_idle)
+{
+	struct schedtune *st = stune_get_by_name(st_name);
+
+	if (!st)
+		return -EINVAL;
+
+	return prefer_idle_write(&st->css, NULL, prefer_idle);
+}
+
+int set_stune_boost(char *st_name, int boost, int *boost_default)
+{
+	struct schedtune *st = stune_get_by_name(st_name);
+	int ret;
+
+ 	if (!st)
+		return -EINVAL;
+
+ 	mutex_lock(&stune_boost_mutex);
+	if (boost_default)
+		*boost_default = st->boost_default;
+	ret = boost_write(&st->css, NULL, boost);
+	mutex_unlock(&stune_boost_mutex);
+
+ 	return ret;
 }
 
 #endif /* CONFIG_DYNAMIC_STUNE_BOOST */
