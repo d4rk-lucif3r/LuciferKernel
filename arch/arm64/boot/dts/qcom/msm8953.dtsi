@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -27,7 +27,7 @@
 	interrupt-parent = <&wakegic>;
 
 	chosen {
-		bootargs = "boot_cpus=0,1,2,3,4,5,6,7 quiet core_ctl_disable_cpumask=0-7 kpti=0 noirqdebug";
+		bootargs = "boot_cpus=0,1,2,3,4,5,6,7 core_ctl_disable_cpumask=0-7 kpti=0";
 	};
 
 	vendor: vendor {
@@ -136,15 +136,6 @@
 			label = "cont_splash_mem";
 		};
 
-		adsp_shmem_device_mem: adsp_shmem_device_region@0xc0100000 {
-			compatible = "shared-dma-pool";
-			label = "adsp_shmem_device_mem";
-			reusable;
-			alloc-ranges = <0x0 0xc0100000 0x0 0x08200000>;
-			alignment = <0 0x400000>;
-			size = <0 0x800000>;
-		};
-
 		gpu_mem: gpu_region@0 {
 			compatible = "shared-dma-pool";
 			reusable;
@@ -157,15 +148,6 @@
 			compatible = "shared-dma-pool";
 			reusable;
 			size = <0x400000>;
-		};
-
-		/* global autoconfigured region for contiguous allocations */
-		linux,cma {
-			compatible = "shared-dma-pool";
-			reusable;
-			alignment = <0 0x400000>;
-			size = <0 0x1400000>;
-			linux,cma-default;
 		};
 	};
 
@@ -895,7 +877,7 @@
 		clocks = <&clock_gcc clk_xo_clk_src>;
 		clock-names = "xo";
 		qcom,gcc_oxili_gfx3d_clk-opp-handle = <&msm_gpu>;
-	qcom,gfxfreq-corner =
+		qcom,gfxfreq-corner =
 			 <         0   0 >,
 			 < 133330000   1 >,  /* Min SVS    */
 			 < 216000000   2 >,  /* Low SVS    */
@@ -943,7 +925,7 @@
 			<  721920000 5>,
 			<  783360000 6>,
 			<  806400000 7>;
-        qcom,speed2-bin-v0-cl =
+		qcom,speed2-bin-v0-cl =
 			<          0 0>,
 			<  652800000 1>,
 			< 1036800000 2>,
@@ -958,7 +940,7 @@
 			< 2616000000 11>,
 			< 2958400000 12>,
 			< 3150400000 13>;
-        qcom,speed2-bin-v0-cci =
+		qcom,speed2-bin-v0-cci =
 			<          0 0>,
 			<  261120000 1>,
 			<  414720000 2>,
@@ -1027,7 +1009,7 @@
 			 <&clock_cpu clk_a53_pwr_clk>,
 			 <&clock_cpu clk_a53_pwr_clk>;
 
-        qcom,cpufreq-table =
+		qcom,cpufreq-table =
 			 <  652800 >,
 			 < 1036800 >,
 			 < 1401600 >,
@@ -1036,7 +1018,7 @@
 			 < 1958400 >,
 			 < 2016000 >,
 			 < 2150400 >,
-             < 2208000 >,
+                         < 2208000 >,
 			 < 2409000 >,
 			 < 2616000 >,
 			 < 2958400 >,
@@ -2028,7 +2010,6 @@
 		qcom,pil-mss-memsetup;
 		qcom,firmware-name = "modem";
 		qcom,pil-self-auth;
-		qcom,sequential-fw-load;
 		qcom,sysmon-id = <0>;
 		qcom,ssctl-instance-id = <0x12>;
 		qcom,qdsp6v56-1-10;
