@@ -27,8 +27,10 @@ struct target_nrg schedtune_target_nrg;
 #define DYNAMIC_BOOST_SLOTS_COUNT 5
 static DEFINE_MUTEX(boost_slot_mutex);
 static DEFINE_MUTEX(stune_boost_mutex);
-static struct schedtune *getSchedtune(char *st_name);
-static int dynamic_boost(struct schedtune *st, int boost);
+struct boost_slot {
+	struct list_head list;
+	int idx;
+};
 #endif /* CONFIG_DYNAMIC_STUNE_BOOST */
 
 /* Performance Boost region (B) threshold params */
@@ -1335,7 +1337,9 @@ int reset_stune_boost(char *st_name, int slot)
 	boost = max_active_boost(st);
 
 	mutex_lock(&stune_boost_mutex);
-	ret = dynamic_boost(st, st->boost_default);
+	/* Boost only if value changed */
+	if (boost != st->boost)
+		ret = dynamic_boost(st, boost);
 	mutex_unlock(&stune_boost_mutex);
 
 	return ret;
