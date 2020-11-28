@@ -638,7 +638,7 @@ config LITTLE_CPU_MASK
 	  This is a bitmask specifying which of the CPUs are LITTLE in a
 	  heterogeneous system. Use 0 if you are unsure, which just results in
 	  this storing the bitmask of all available CPUs.
-	default 0
+	
 
 config BIG_CPU_MASK
 	int "Bitmask of available big CPUs"
@@ -646,7 +646,7 @@ config BIG_CPU_MASK
 	  This is a bitmask specifying which of the CPUs are big in a
 	  heterogeneous system. Use 0 if you are unsure, which just results in
 	  this storing the bitmask of all available CPUs.
-	default 0
+	
 
 config HOTPLUG_CPU
 	bool "Support for hot-pluggable CPUs"
