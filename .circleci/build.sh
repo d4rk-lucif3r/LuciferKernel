@@ -19,7 +19,7 @@ export KBUILD_BUILD_HOST=circleci
 # Compile plox
 function compile() {
     make -j$(nproc) O=out ARCH=arm64 lucifer-tissot_defconfig
-    make -j$(nproc) O=out \
+    make -j7 O=out \
                     ARCH=arm64 \
                       CC=clang \
                       CROSS_COMPILE=aarch64-linux-gnu- \
@@ -51,10 +51,10 @@ function compile() {
 # Zipping
 function zipping() {
     cd $REPACK_DIR || exit 1
-    zip -r9 LuciferKernel+V3+OC.zip *
+    zip -r9 LuciferKernel_V3_OC.zip *
     cd $SEND_DIR   || exit 1
     echo "Changing Dir to Send FIle"
-    ./telegram -t $TELEGRAM_TOKEN -c $TELEGRAM_CHAT -f $REPACK_DIR/LuciferKernel+V3+OC.zip "File Sent through CircleCi"
+    ./telegram -t $TELEGRAM_TOKEN -c $TELEGRAM_CHAT -f $REPACK_DIR/LuciferKernel_V3_OC.zip "File Sent through CircleCi"
    #curl https://bashupload.com/LuciferKernel+V3.zip --data-binary @LuciferKernel+V3.zip
 }
 compile
