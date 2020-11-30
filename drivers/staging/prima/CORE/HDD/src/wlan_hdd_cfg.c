@@ -4056,15 +4056,6 @@ REG_VARIABLE( CFG_EXTSCAN_ENABLE, WLAN_PARAM_Integer,
                CFG_ENABLE_SAE_FOR_SAP_MIN,
                CFG_ENABLE_SAE_FOR_SAP_MAX),
 #endif
-
-#ifdef FEATURE_WLAN_SW_PTA
-  REG_VARIABLE(CFG_SW_PTA_ENABLE_NAME, WLAN_PARAM_Integer,
-               hdd_config_t, is_sw_pta_enabled,
-               VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
-               CFG_SW_PTA_ENABLE_DEFAULT,
-               CFG_SW_PTA_ENABLE_MIN,
-               CFG_SW_PTA_ENABLE_MAX)
-#endif
 };
 
 /*
@@ -4427,19 +4418,6 @@ static void hdd_cfg_print_sae(hdd_context_t *hdd_ctx)
 }
 
 static void hdd_cfg_print_sae_sap(hdd_context_t *hdd_ctx)
-{
-}
-#endif
-
-#ifdef FEATURE_WLAN_SW_PTA
-static void hdd_cfg_print_sw_pta(hdd_context_t* hdd_ctx)
-{
-   hddLog(LOG2, "Name = [%s] value = [%u]",
-          CFG_SW_PTA_ENABLE_NAME,
-          hdd_ctx->cfg_ini->is_sw_pta_enabled);
-}
-#else
-static void hdd_cfg_print_sw_pta(hdd_context_t* hdd_ctx)
 {
 }
 #endif
@@ -4906,7 +4884,6 @@ static void print_hdd_cfg(hdd_context_t *pHddCtx)
             pHddCtx->cfg_ini->enabledefaultSAP);
     hdd_cfg_print_sae(pHddCtx);
     hdd_cfg_print_sae_sap(pHddCtx);
-    hdd_cfg_print_sw_pta(pHddCtx);
 }
 
 

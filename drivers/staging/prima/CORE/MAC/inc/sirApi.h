@@ -6502,19 +6502,6 @@ struct sir_sae_msg {
     tSirMacAddr peer_mac_addr;
 };
 
-#ifdef FEATURE_WLAN_SW_PTA
-/**
- * enum sir_sw_pta_param_type - Type of sw pta coex param
- * @SCO_STATUS: Enable/Disable SCO
- * @NUD_STATUS: Enable/Disable NUD
- * @BT_STATUS: Enable/Disable BT
- */
-enum sir_sw_pta_param_type {
-	SCO_STATUS,
-	NUD_STATUS,
-	BT_STATUS,
-};
-
 #define SW_PTA_COEX_PARAMS_MAX_LEN 32
 /**
  * struct sir_sw_pta_req - sw pta coex params request

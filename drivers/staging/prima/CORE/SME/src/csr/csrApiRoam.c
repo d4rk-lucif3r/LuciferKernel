@@ -112,9 +112,6 @@
 static tANI_BOOLEAN bRoamScanOffloadStarted = VOS_FALSE;
 #endif
 
-#define MAX_PWR_FCC_CHAN_12 8
-#define MAX_PWR_FCC_CHAN_13 2
-
 #define LE_READ_4(p) \
         ((uint32_t)\
         ((((const uint8_t *)(p))[0]) |\
