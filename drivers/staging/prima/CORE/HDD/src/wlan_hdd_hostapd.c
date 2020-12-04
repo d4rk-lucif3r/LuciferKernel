@@ -744,7 +744,6 @@ static int __hdd_hostapd_set_mac_address(struct net_device *dev, void *addr)
    if(vos_is_macaddr_zero(&mac_addr)) {
         hddLog(VOS_TRACE_LEVEL_ERROR, "Zero Mac address");
         return -EINVAL;
-<<<<<<< HEAD
    }
 
    if (vos_is_macaddr_broadcast(&mac_addr)) {
@@ -757,20 +756,6 @@ static int __hdd_hostapd_set_mac_address(struct net_device *dev, void *addr)
         return -EINVAL;
    }
 
-=======
-   }
-
-   if (vos_is_macaddr_broadcast(&mac_addr)) {
-        hddLog(VOS_TRACE_LEVEL_ERROR,"MAC is Broadcast");
-        return -EINVAL;
-   }
-
-   if (vos_is_macaddr_multicast(&mac_addr)) {
-        hddLog(VOS_TRACE_LEVEL_ERROR, "Multicast Mac address");
-        return -EINVAL;
-   }
-
->>>>>>> cd03ecf91b11 (msm8953: update prima drivers from LA.UM.9.6.2.r1-02500-89xx.0)
 
    adapter_temp = hdd_get_adapter_by_macaddr(pHddCtx, mac_addr.bytes);
    if (adapter_temp) {
