@@ -29,12 +29,8 @@
 #define HDD_CONFIG_H__
 
 /**===========================================================================
-
   \file  hdd_Config.h
-
   \brief Android WLAN Adapter Configuration functions
-
-
   ==========================================================================*/
 
 /* $HEADER$ */
@@ -3939,12 +3935,6 @@ typedef struct
 #endif
 #ifdef FEATURE_WLAN_LFR
    uint8_t                     bssid_blacklist_timeout;
-#endif
-#ifdef FEATURE_WLAN_LFR
-   uint8_t                     bssid_blacklist_timeout;
-#endif
-#ifdef FEATURE_WLAN_SW_PTA
-   bool                        is_sw_pta_enabled;
 #endif
 } hdd_config_t;
 
