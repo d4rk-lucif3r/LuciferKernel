@@ -9978,7 +9978,7 @@ int ufshcd_shutdown(struct ufs_hba *hba)
 
 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
 		goto out;
-
+    ufshcd_shutdown_clkscaling(hba);
 	pm_runtime_get_sync(hba->dev);
 	ret = ufshcd_suspend(hba, UFS_SHUTDOWN_PM);
 out:
