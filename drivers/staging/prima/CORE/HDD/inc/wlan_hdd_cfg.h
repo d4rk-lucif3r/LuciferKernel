@@ -29,12 +29,8 @@
 #define HDD_CONFIG_H__
 
 /**===========================================================================
-
   \file  hdd_Config.h
-
   \brief Android WLAN Adapter Configuration functions
-
-
   ==========================================================================*/
 
 /* $HEADER$ */
@@ -3936,9 +3932,6 @@ typedef struct
 #ifdef WLAN_FEATURE_SAE
    bool                        is_sae_enabled;
    bool                        enable_sae_for_sap;
-#endif
-#ifdef FEATURE_WLAN_LFR
-   uint8_t                     bssid_blacklist_timeout;
 #endif
 #ifdef FEATURE_WLAN_LFR
    uint8_t                     bssid_blacklist_timeout;
