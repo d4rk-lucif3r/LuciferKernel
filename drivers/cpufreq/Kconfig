@@ -62,6 +62,15 @@ choice
 	  This option sets which CPUFreq governor shall be loaded at
 	  startup. If in doubt, select 'performance'.
 
+config CPU_FREQ_DEFAULT_GOV_INTERACTIVEX
+	bool "interactivex"
+	select CPU_FREQ_GOV_INTERACTIVEX
+	help
+	  Use the CPU frequency governor 'interactivex' as default.
+	  Note that not all cpu frequency drivers supports interactivex governor.
+	  For more info, take a look at the cpu frequency driver help section.
+	  Performance governor will be the fallback governor.
+
 config CPU_FREQ_DEFAULT_GOV_PERFORMANCE
 	bool "performance"
 	select CPU_FREQ_GOV_PERFORMANCE
@@ -256,6 +265,21 @@ config CPU_FREQ_GOV_BLU_SCHEDUTIL
 
 	  To compile this driver as a module, choose M here: the module will
 	  be called cpufreq_blu_schedutil.
+
+	  If in doubt, say N.
+	  
+config CPU_FREQ_GOV_INTERACTIVEX
+	tristate "'interactivex' cpufreq governor"
+	help
+	  'interactivex' - This driver adds a dynamic cpufreq policy governor
+	  designed for latency-sensitive workloads.
+
+	  This governor attempts to reduce the latency of clock
+	  increases so that the system is more responsive to
+	  interactive workloads.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called cpufreq_interactivex.
 
 	  If in doubt, say N.
 
