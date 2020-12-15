@@ -7,7 +7,7 @@ menuconfig POWER_SUPPLY
 	  (if selected below).
 
 
-
+if POWER_SUPPLY
 config POWER_SUPPLY_DEBUG
 	bool "Power supply debug"
 	help
@@ -646,10 +646,9 @@ config QNS_SYSTEM
 	  This adds sysfs interface which enables QNS daemon to access it.
 
 
-
-
-source "drivers/power/avs/Kconfig"
 source "drivers/power/reset/Kconfig"
+endif # POWER_SUPPLY
+source "drivers/power/avs/Kconfig"
 source "drivers/power/supply/Kconfig"
 source "drivers/power/qcom/Kconfig"
 
