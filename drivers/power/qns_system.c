@@ -97,7 +97,7 @@ union power_supply_propval battery_get_property(int prop)
 		}
 	}
 
-	if(battery_psy->get_property(battery_psy, prop,
+	if(power_supply_get_property(battery_psy, prop,
 			&propVal) != 0) { \
 		pr_info("QNS: ERROR: unable to read charger properties! Does \"battery\" have "
 				"that property?\n");
@@ -185,7 +185,7 @@ static ssize_t qns_param_store(struct class *dev,
 
 			if (val != prev_ibat_for_deblog) {
 				pr_info("QNS: new charge current:%d mA\n", val);
-				if(battery_psy->set_property(battery_psy,
+				if(power_supply_get_property(battery_psy,
 						POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX,
 						&propVal) != 0) {
 					pr_info("QNS: ERROR: unable to set charging current! Does \"battery\" have "
