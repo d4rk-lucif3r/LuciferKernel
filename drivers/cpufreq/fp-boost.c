@@ -138,7 +138,7 @@ static int do_cpu_boost(struct notifier_block *nb,
 				return NOTIFY_OK;
 
 		} else {
-			pr_info("Boost avoided!");
+			pr_info("Boost avoided!\n");
 		}
 	}
 
