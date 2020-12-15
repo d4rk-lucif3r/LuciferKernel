@@ -131,11 +131,11 @@ static int do_cpu_boost(struct notifier_block *nb,
 	/* Boost CPU to max frequency for fingerprint boost */
 	if (state & FINGERPRINT_BOOST) {
 		if (curr_timeval.tv_sec>prev_timeval.tv_sec) {
-			prev_timeval.tv_sec = curr_timeval.tv_sec;
-	                pr_info("Boosting\n");
-        	        policy->cur = policy->max;
-                	policy->min = policy->max;
 	                return NOTIFY_OK;
+				pr_info("Boosting\n");
+				policy->cur = policy->max;
+				policy->min = policy->max;
+				return NOTIFY_OK;
 
 		} else {
 			pr_info("Boost avoided!");
