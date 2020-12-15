@@ -19,7 +19,7 @@ export KBUILD_BUILD_HOST=circleci
 # Compile plox
 function compile() {
     make -j$(nproc) O=out ARCH=arm64 lucifer-tissot_defconfig
-    make -j7 O=out \
+    make -j$(nproc) O=out \
                     ARCH=arm64 \
                       CC=clang \
                       CROSS_COMPILE=aarch64-linux-gnu- \
