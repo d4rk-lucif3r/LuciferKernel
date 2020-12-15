@@ -3864,19 +3864,12 @@ int msm_comm_qbuf(struct msm_vidc_inst *inst, struct vb2_buffer *vb)
 	 * buffer to be batched with future frames.  The batch size (on both
 	 * capabilities) is completely determined by the client.
 	 */
-<<<<<<< HEAD
-	defer = defer ?1: vbuf && vbuf->flags & V4L2_MSM_BUF_FLAG_DEFER;
-
-	/* 3) If we're in batch mode, we must have full batches of both types */
-	defer = defer ?1: batch_mode && (!output_count || !capture_count);
-=======
 	if (!defer)
 		defer = (vbuf && vbuf->flags & V4L2_MSM_BUF_FLAG_DEFER);
 
 	/* 3) If we're in batch mode, we must have full batches of both types */
 	if (!defer)
 		defer = (batch_mode && (!output_count || !capture_count));
->>>>>>> e41112eb0004 (media/msm: vidc_3x: Avoid implicit middle operand)
 
 	if (defer) {
 		dprintk(VIDC_DBG, "Deferring queue of %pK\n", vb);
