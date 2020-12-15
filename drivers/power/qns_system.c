@@ -15,11 +15,7 @@
  * published by the Free Software Foundation.
  */
 
-<<<<<<< HEAD
- // Version 2.0
-=======
  // Version 1.1
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 
 #define pr_fmt(fmt)	"%s: " fmt, __func__
 
@@ -34,10 +30,6 @@
 #include <linux/power_supply.h>
 #include <linux/alarmtimer.h>
 
-<<<<<<< HEAD
-static struct power_supply * battery_psy = NULL;
-
-=======
 #define QNS_USE_PM8941
 #define READ_CURRENT_SIGN	(-1)
 #define CHARGE_CURRENT_PROP	POWER_SUPPLY_PROP_MAX_CHARGE_CURRENT
@@ -53,7 +45,6 @@ static struct power_supply * ibat_psy = NULL;
 static struct power_supply * battery_psy = NULL;
 
 
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 static struct alarm alarm;
 static bool alarm_inited = false;
 static int alarm_value = 0;
@@ -68,8 +59,6 @@ static bool charge_wakelock_held = false;
 
 static int options = -1;
 
-<<<<<<< HEAD
-=======
 static int qns_set_ibat(int ibatmA)
 {
 	union power_supply_propval propVal = {ibatmA*1000,};
@@ -290,7 +279,6 @@ static int qns_get_battery_type(const char **battery_type)
 	return retVal;
 }
 
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 static ssize_t qns_param_show(struct class *dev,
 				struct class_attribute *attr,
 				char *buf);
@@ -329,31 +317,6 @@ static struct class_attribute qns_attrs[] = {
 	__ATTR(options, S_IWUSR | S_IRUGO, qns_param_show, qns_param_store),
 	__ATTR_NULL,
 };
-<<<<<<< HEAD
-	
-union power_supply_propval battery_get_property(int prop)
-{
-	union power_supply_propval propVal = {0, };
-
-	if(battery_psy == NULL) {
-		battery_psy = power_supply_get_by_name("battery");
-		if(battery_psy == NULL) {
-			pr_info("QNS: ERROR: unable to get \"battery\". Can't set the current!\n");
-			return propVal;
-		}
-	}
-
-	if(battery_psy->get_property(battery_psy, prop,
-			&propVal) != 0) { \
-		pr_info("QNS: ERROR: unable to read charger properties! Does \"battery\" have "
-				"that property?\n");
-		return propVal;
-	}
-
-	return propVal;
-}
-
-=======
 
 static enum alarmtimer_restart qns_alarm_handler(struct alarm * alarm, ktime_t now)
 {
@@ -365,56 +328,18 @@ static enum alarmtimer_restart qns_alarm_handler(struct alarm * alarm, ktime_t n
 }
 
 
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 static ssize_t qns_param_show(struct class *dev,
 				struct class_attribute *attr,
 				char *buf)
 {
-<<<<<<< HEAD
-	const ptrdiff_t off = attr - qns_attrs;
-=======
 	ssize_t size = 0;
 	const ptrdiff_t off = attr - qns_attrs;
 	static int t, c, v;
 	const char *battery_type;
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 
 	switch(off)
 	{
 	case IS_CHARGING:
-<<<<<<< HEAD
-		return scnprintf(buf, PAGE_SIZE, "%d\n", battery_get_property(POWER_SUPPLY_PROP_STATUS).intval == POWER_SUPPLY_STATUS_CHARGING ? 1 : 0);
-	case CURRENT:
-		return scnprintf(buf, PAGE_SIZE, "%d\n", battery_get_property(POWER_SUPPLY_PROP_CURRENT_NOW).intval / 1000);
-	case VOLTAGE:
-		return scnprintf(buf, PAGE_SIZE, "%d\n", battery_get_property(POWER_SUPPLY_PROP_VOLTAGE_NOW).intval / 1000);
-	case TEMPERATURE:
-		return scnprintf(buf, PAGE_SIZE, "%d\n", battery_get_property(POWER_SUPPLY_PROP_TEMP).intval);
-	case FCC:
-		return scnprintf(buf, PAGE_SIZE, "%d\n", battery_get_property(POWER_SUPPLY_PROP_CHARGE_FULL).intval / 1000);
-	case DESIGN:
-		return scnprintf(buf, PAGE_SIZE, "%d\n", battery_get_property(POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN).intval / 1000);
-	case SOC:
-		return scnprintf(buf, PAGE_SIZE, "%d\n", battery_get_property(POWER_SUPPLY_PROP_CAPACITY).intval);
-	case BATTERY_TYPE:
-		return scnprintf(buf, PAGE_SIZE, "%s\n", battery_get_property(POWER_SUPPLY_PROP_BATTERY_TYPE).strval);
-	case ALARM:
-		return scnprintf(buf, PAGE_SIZE, "%d\n", alarm_value);
-	case OPTIONS:
-		return scnprintf(buf, PAGE_SIZE, "%d\n", options);
-	}
-
-	return 0;
-}
-
-static enum alarmtimer_restart qns_alarm_handler(struct alarm * alarm, ktime_t now)
-{
-	pr_info("QNS: ALARM! System wakeup!\n");
-	wake_lock(&wakelock);
-	wakelock_held = true;
-	alarm_value = 1;
-	return ALARMTIMER_NORESTART;
-=======
 		size = scnprintf(buf, PAGE_SIZE, "%d\n", qns_is_charging() ? 1 : 0);
 		break;
 	case CURRENT:
@@ -453,7 +378,6 @@ static enum alarmtimer_restart qns_alarm_handler(struct alarm * alarm, ktime_t n
 	}
 
 	return size;
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 }
 
 enum alarm_values
@@ -473,44 +397,14 @@ static ssize_t qns_param_store(struct class *dev,
 	int val, ret = -EINVAL;
 	ktime_t next_alarm;
 	const ptrdiff_t off = attr - qns_attrs;
-<<<<<<< HEAD
-	
-	if(battery_psy == NULL) {
-		battery_psy = power_supply_get_by_name("battery");
-		if(battery_psy == NULL) {
-			pr_info("QNS: ERROR: unable to get \"battery\". Can't set the current!\n");
-			return count;
-		}
-	}
-=======
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 
 	switch(off)
 	{
 	case CHARGE_CURRENT:
 		ret = kstrtoint(buf, 10, &val);
-<<<<<<< HEAD
-		if (!ret && (val > 0)) {
-			static int prev_ibat_for_deblog = -1;
-			union power_supply_propval propVal = {val * 1000,};
-
-			if (val != prev_ibat_for_deblog) {
-				pr_info("QNS: new charge current:%d mA\n", val);
-				if(battery_psy->set_property(battery_psy,
-						POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX,
-						&propVal) != 0) {
-					pr_info("QNS: ERROR: unable to set charging current! Does \"battery\" have "
-							"POWER_SUPPLY_PROP_CONSTANT_CHARGE_CURRENT_MAX property?\n");
-					return count;
-				}
-				prev_ibat_for_deblog = val;
-			}
-		
-=======
 		if (!ret && (val > 0))
 		{
 			qns_set_ibat(val);
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 			return count;
 		}
 		else
@@ -520,71 +414,20 @@ static ssize_t qns_param_store(struct class *dev,
 	case ALARM:
 		ret = kstrtoint(buf, 10, &val);
 
-<<<<<<< HEAD
-		if(!wakelock_inited) {
-=======
 		if(!wakelock_inited)
 		{
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 			wake_lock_init(&wakelock, WAKE_LOCK_SUSPEND, "QnovoQNS");
 			wakelock_inited = true;
 		}
 
-<<<<<<< HEAD
-		if(!charge_wakelock_inited) {
-			wake_lock_init(&charge_wakelock, WAKE_LOCK_SUSPEND, "QnovoQNSCharge");
-=======
 		if(!charge_wakelock_inited)
 		{
 			wake_lock_init(&charge_wakelock, WAKE_LOCK_SUSPEND, "QnovoQNS");
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 			charge_wakelock_inited = true;
 		}
 
 		if (!ret)
 		{
-<<<<<<< HEAD
-			switch(val)
-			{
-			case CHARGE_WAKELOCK:
-				if(!charge_wakelock_held) {
-					wake_lock(&charge_wakelock);
-					charge_wakelock_held = true;
-				}
-				break;
-			case CHARGE_WAKELOCK_RELEASE:
-				if(charge_wakelock_held) {
-					wake_unlock(&charge_wakelock);
-					charge_wakelock_held = false;
-				}
-				break;
-			case HANDLED:
-				if(wakelock_held)
-					wake_unlock(&wakelock);
-
-				alarm_value = 0;
-				wakelock_held = false;
-				break;
-			case CANCEL:
-				if(alarm_inited)
-					alarm_cancel(&alarm);
-
-				alarm_value = 0;
-
-				if(wakelock_held)
-					wake_unlock(&wakelock);
-
-				wakelock_held = false;
-				break;
-			case IMMEDIATE:
-				if(!wakelock_held) {
-					wake_lock(&wakelock);
-					wakelock_held = true;
-				}
-				break;
-			default:
-				if(!alarm_inited) {
-=======
 			if(val == CHARGE_WAKELOCK)
 			{
 				if(!charge_wakelock_held)
@@ -635,7 +478,6 @@ static ssize_t qns_param_store(struct class *dev,
 			{
 				if(!alarm_inited)
 				{
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 					alarm_init(&alarm, ALARM_REALTIME, qns_alarm_handler);
 					alarm_inited = true;
 				}
@@ -644,14 +486,9 @@ static ssize_t qns_param_store(struct class *dev,
 				alarm_start_relative(&alarm, next_alarm);
 
 				if(wakelock_held)
-<<<<<<< HEAD
-					wake_unlock(&wakelock);
-
-=======
 				{
 					wake_unlock(&wakelock);
 				}
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 				alarm_value = 0;
 				wakelock_held = false;
 			}
@@ -677,14 +514,11 @@ static struct class qns_class =
 	.class_attrs = qns_attrs
 };
 
-<<<<<<< HEAD
-=======
 MODULE_AUTHOR("Miro Zmrzli <miro@qnovocorp.com>");
 MODULE_DESCRIPTION("QNS System Driver v2");
 MODULE_LICENSE("GPL v2");
 MODULE_ALIAS("QNS");
 
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 static int qnovo_qns_init(void)
 {
 	class_register(&qns_class);
@@ -697,11 +531,3 @@ static void qnovo_qns_exit(void)
 
 module_init(qnovo_qns_init);
 module_exit(qnovo_qns_exit);
-<<<<<<< HEAD
-
-MODULE_AUTHOR("Miro Zmrzli <miro@qnovocorp.com>");
-MODULE_DESCRIPTION("QNS System Driver v2");
-MODULE_LICENSE("GPL v2");
-MODULE_ALIAS("QNS");
-=======
->>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)

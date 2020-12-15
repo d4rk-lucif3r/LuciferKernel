@@ -8,7 +8,7 @@ menuconfig POWER_SUPPLY
 	  via sysfs and uevent (if available) and/or APM kernel interface
 	  (if selected below).
 
-if POWER_SUPPLY
+
 
 config POWER_SUPPLY_DEBUG
 	bool "Power supply debug"
@@ -647,12 +647,12 @@ config QNS_SYSTEM
 	  kernel driver for a battery charging.
 	  This adds sysfs interface which enables QNS daemon to access it.
 
-source "drivers/power/reset/Kconfig"
 
-endif # POWER_SUPPLY
+
 
 >>>>>>> 1e1f40e0d185 (power: Add Qnovo QNS wrapper latest driver)
 source "drivers/power/avs/Kconfig"
 source "drivers/power/reset/Kconfig"
 source "drivers/power/supply/Kconfig"
 source "drivers/power/qcom/Kconfig"
+

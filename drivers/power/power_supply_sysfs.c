@@ -268,10 +268,6 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(dp_dm),
 	POWER_SUPPLY_ATTR(input_current_limited),
 	POWER_SUPPLY_ATTR(input_current_now),
-<<<<<<< HEAD
-	POWER_SUPPLY_ATTR(charge_qnovo_enable),
-=======
->>>>>>> 78cb130c83f9 (power_supply: Add CURRENT_QNOVO and VOLTAGE_QNOVO properties)
 	POWER_SUPPLY_ATTR(current_qnovo),
 	POWER_SUPPLY_ATTR(voltage_qnovo),
 	POWER_SUPPLY_ATTR(rerun_aicl),
