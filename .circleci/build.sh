@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Cloning dependencies"
-git clone --depth=1  https://github.com/d4rk-lucif3r/LuciferKernel.git -b NonOC-reb
+git clone --depth=1  https://github.com/d4rk-lucif3r/LuciferKernel.git -b Test-NonOC
 cd LuciferKernel
 git clone --depth=1 -b master https://github.com/kdrag0n/proton-clang clang
 git clone https://github.com/d4rk-lucif3r/Anykernel3-Tissot.git  --depth=1 AnyKernel
