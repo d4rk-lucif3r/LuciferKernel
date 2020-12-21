@@ -101,7 +101,7 @@ static void fp_boost_main(struct work_struct *work)
 static void fp_unboost_main(struct work_struct *work)
 {
 	struct boost_policy *b = boost_policy_g;
-	pr_info("Unboosting\n");
+	printk("Unboosting\n");
 	touched = false;
 	/* This clears the wake-boost bit and unboosts everything */
 	unboost_all_cpus(b);
@@ -132,13 +132,13 @@ static int do_cpu_boost(struct notifier_block *nb,
 	if (state & FINGERPRINT_BOOST) {
 		if (curr_timeval.tv_sec>prev_timeval.tv_sec) {
 	                return NOTIFY_OK;
-				pr_info("Boosting\n");
+				printk("Boosting\n");
 				policy->cur = policy->max;
 				policy->min = policy->max;
 				return NOTIFY_OK;
 
 		} else {
-			pr_info("Boost avoided!\n");
+			printk("Boost avoided!\n");
 		}
 	}
 
@@ -163,7 +163,7 @@ static void cpu_fp_input_event(struct input_handle *handle, unsigned int type,
 	if (!(state & DRIVER_ENABLED) || touched)
 		return;
 
-	pr_info("Recieved input event\n");
+	printk("Recieved input event\n");
 	touched = true;
 	set_boost_bit(b, FINGERPRINT_BOOST);
 
