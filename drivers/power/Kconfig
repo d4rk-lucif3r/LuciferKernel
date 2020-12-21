@@ -648,7 +648,6 @@ config QNS_SYSTEM
 
 
 source "drivers/power/avs/Kconfig"
-=======
 source "drivers/power/reset/Kconfig"
 endif # POWER_SUPPLY
 source "drivers/power/avs/Kconfig"
