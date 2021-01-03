@@ -792,7 +792,6 @@ struct audproc_enable_param_t {
 	 * Specifies whether the Audio processing module is enabled.
 	 * This parameter is generic/common parameter to configure or
 	 * determine the state of any audio processing module.
-
 	 * @values 0 : Disable 1: Enable
 	 */
 	uint32_t                  enable;
@@ -10472,7 +10471,7 @@ struct afe_clk_set {
 	 * for enable and disable clock.
 	 *	"clk_freq_in_hz", "clk_attri", and "clk_root"
 	 *	are ignored in disable clock case.
-	 *	@values 
+	 *	@values 
 	 *	- 0 -- Disabled
 	 *	- 1 -- Enabled  @tablebulletend
 	 */
@@ -10907,7 +10906,6 @@ struct afe_param_id_group_device_tdm_cfg {
 	 * - #AFE_PORT_ID_PRIMARY_TDM_RX_5
 	 * - #AFE_PORT_ID_PRIMARY_TDM_RX_6
 	 * - #AFE_PORT_ID_PRIMARY_TDM_RX_7
-
 	 * - #AFE_PORT_ID_PRIMARY_TDM_TX
 	 * - #AFE_PORT_ID_PRIMARY_TDM_TX_1
 	 * - #AFE_PORT_ID_PRIMARY_TDM_TX_2
@@ -10916,7 +10914,6 @@ struct afe_param_id_group_device_tdm_cfg {
 	 * - #AFE_PORT_ID_PRIMARY_TDM_TX_5
 	 * - #AFE_PORT_ID_PRIMARY_TDM_TX_6
 	 * - #AFE_PORT_ID_PRIMARY_TDM_TX_7
-
 	 * - #AFE_PORT_ID_SECONDARY_TDM_RX
 	 * - #AFE_PORT_ID_SECONDARY_TDM_RX_1
 	 * - #AFE_PORT_ID_SECONDARY_TDM_RX_2
@@ -10925,7 +10922,6 @@ struct afe_param_id_group_device_tdm_cfg {
 	 * - #AFE_PORT_ID_SECONDARY_TDM_RX_5
 	 * - #AFE_PORT_ID_SECONDARY_TDM_RX_6
 	 * - #AFE_PORT_ID_SECONDARY_TDM_RX_7
-
 	 * - #AFE_PORT_ID_SECONDARY_TDM_TX
 	 * - #AFE_PORT_ID_SECONDARY_TDM_TX_1
 	 * - #AFE_PORT_ID_SECONDARY_TDM_TX_2
@@ -10934,7 +10930,6 @@ struct afe_param_id_group_device_tdm_cfg {
 	 * - #AFE_PORT_ID_SECONDARY_TDM_TX_5
 	 * - #AFE_PORT_ID_SECONDARY_TDM_TX_6
 	 * - #AFE_PORT_ID_SECONDARY_TDM_TX_7
-
 	 * - #AFE_PORT_ID_TERTIARY_TDM_RX
 	 * - #AFE_PORT_ID_TERTIARY_TDM_RX_1
 	 * - #AFE_PORT_ID_TERTIARY_TDM_RX_2
@@ -10943,7 +10938,6 @@ struct afe_param_id_group_device_tdm_cfg {
 	 * - #AFE_PORT_ID_TERTIARY_TDM_RX_5
 	 * - #AFE_PORT_ID_TERTIARY_TDM_RX_6
 	 * - #AFE_PORT_ID_TERTIARY_TDM_RX_7
-
 	 * - #AFE_PORT_ID_TERTIARY_TDM_TX
 	 * - #AFE_PORT_ID_TERTIARY_TDM_TX_1
 	 * - #AFE_PORT_ID_TERTIARY_TDM_TX_2
@@ -10952,7 +10946,6 @@ struct afe_param_id_group_device_tdm_cfg {
 	 * - #AFE_PORT_ID_TERTIARY_TDM_TX_5
 	 * - #AFE_PORT_ID_TERTIARY_TDM_TX_6
 	 * - #AFE_PORT_ID_TERTIARY_TDM_TX_7
-
 	 * - #AFE_PORT_ID_QUATERNARY_TDM_RX
 	 * - #AFE_PORT_ID_QUATERNARY_TDM_RX_1
 	 * - #AFE_PORT_ID_QUATERNARY_TDM_RX_2
@@ -10961,7 +10954,6 @@ struct afe_param_id_group_device_tdm_cfg {
 	 * - #AFE_PORT_ID_QUATERNARY_TDM_RX_5
 	 * - #AFE_PORT_ID_QUATERNARY_TDM_RX_6
 	 * - #AFE_PORT_ID_QUATERNARY_TDM_RX_7
-
 	 * - #AFE_PORT_ID_QUATERNARY_TDM_TX
 	 * - #AFE_PORT_ID_QUATERNARY_TDM_TX_1
 	 * - #AFE_PORT_ID_QUATERNARY_TDM_TX_2
@@ -11045,7 +11037,6 @@ struct afe_port_group_create {
  * Client can periodically query for the device time statistics to help adjust
  * the PLL based on the drift value. The get param command must be sent to
  * AFE port ID corresponding to device interface
-
  * This parameter ID supports following get param commands:
  * #AFE_PORT_CMD_GET_PARAM_V2 and
  * #AFE_PORT_CMD_GET_PARAM_V3.
@@ -11113,7 +11104,6 @@ struct afe_param_id_dev_timing_stats {
 
 	/* Lower 32 bits of the 64-bit absolute timestamp of reference
 	 * timer in microseconds.
-
 	 * This timestamp corresponds to the time when the drift values
 	 * are accumlated for every 100th ms.
 	 * @values Any valid uint32 number
