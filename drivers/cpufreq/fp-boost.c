@@ -32,7 +32,7 @@
 #include <linux/display_state.h>
 #include <linux/slab.h>
 #include <linux/time.h>
-#include/linux/display_state.h
+
 
 /* Available bits for boost_policy state */
 #define DRIVER_ENABLED        (1U << 0)
