@@ -132,15 +132,15 @@ static struct pll_clk apcs_hf_pll = {
 		.test_ctl_lo_val = 0x1C000000,
 	},
 	.base = &virt_bases[APCS_C0_PLL_BASE],
-	.max_rate = 3150400000UL,
-	.min_rate = 652800000UL,
+	.max_rate = 3066300000UL,
+	.min_rate = 480000000UL,
 	.src_rate =  19200000UL,
 	.c = {
 		.parent = &xo_a_clk.c,
 		.dbg_name = "apcs_hf_pll",
 		.ops = &clk_ops_variable_rate,
 		/* MX level of MSM is much higher than of PLL */
-		VDD_MX_HF_FMAX_MAP1(SVS, 4210800000UL),
+		VDD_MX_HF_FMAX_MAP1(SVS, 3066300000UL),
 		CLK_INIT(apcs_hf_pll.c),
 	},
 };
