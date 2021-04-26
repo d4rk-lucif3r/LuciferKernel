@@ -1,0 +1,270 @@
+/*
+ * Copyright (c) 2015-2017, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2019 XiaoMi, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/* msm8953 */
+/ {
+	firmware: firmware {
+		android {
+     	           	/delete-node/ vbmeta;
+			fstab {
+				system {
+                                	compatible = "android,system";
+                                	dev = "/dev/block/platform/soc/7824900.sdhci/by-name/system";
+                                	type = "ext4";
+                                	mnt_flags = "ro,barrier=1,discard";
+                                	fsmgr_flags = "wait";
+                                	status = "ok";
+                                };
+                        	vendor {
+                                	fsmgr_flags = "wait";
+                                };
+                        };
+                };
+	};
+	reserved-memory {
+		other_ext_mem: other_ext_region@0 {
+			reg = <0x0 0x84A00000 0x0 0x1E00000>;
+		};
+		adsp_fw_mem: adsp_fw_region@0 {
+			reg = <0x0 0x8d600000 0x0 0x1200000>;
+		};
+		wcnss_fw_mem: wcnss_fw_region@0 {
+			reg = <0x0 0x8e800000 0x0 0x700000>;
+		};
+		pstore_reserve_mem: pstore_reserve_mem@0x91400000 {
+			reg = <0x0 0x91400000  0x0 0x400000>;
+			label = "cont_splash_mem";
+		};
+	};
+	aliases {
+		spi3 = &spi_3;
+		spi5 = &spi_5;
+	};
+};
+
+&soc {
+      spi_3: spi@78b7000 { /* BLSP1 QUP3 */
+		compatible = "qcom,spi-qup-v2";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg-names = "spi_physical", "spi_bam_physical";
+		reg = <0x78b7000 0x600>,
+			<0x7884000 0x1f000>;
+		interrupt-names = "spi_irq", "spi_bam_irq";
+		interrupts = <0 97 0>, <0 238 0>;
+		spi-max-frequency = <19200000>;
+		pinctrl-names = "spi_default", "spi_sleep";
+		pinctrl-0 = <&spi3_default &spi3_cs0_active>;
+		pinctrl-1 = <&spi3_sleep &spi3_cs0_sleep>;
+		clocks = <&clock_gcc clk_gcc_blsp1_ahb_clk>,
+			<&clock_gcc clk_gcc_blsp1_qup3_spi_apps_clk>;
+		clock-names = "iface_clk", "core_clk";
+		qcom,infinite-mode = <0>;
+		qcom,use-bam;
+		qcom,use-pinctrl;
+		qcom,ver-reg-exists;
+		qcom,bam-consumer-pipe-index = <8>;
+		qcom,bam-producer-pipe-index = <9>;
+		qcom,master-id = <86>;
+		status = "disabled";
+	};
+	spi_5: spi@7af5000 { /* BLSP2 QUP1 */
+		compatible = "qcom,spi-qup-v2";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg-names = "spi_physical", "spi_bam_physical";
+		reg = <0x7af5000 0x600>,
+			<0x07AC4000 0x1f000>;
+		interrupt-names = "spi_irq", "spi_bam_irq";
+		interrupts = <0 299 0>, <0 239 0>;
+		spi-max-frequency = <19200000>;
+		pinctrl-names = "spi_default", "spi_sleep";
+		pinctrl-0 = <&spi5_default &spi5_cs0_active>;
+		pinctrl-1 = <&spi5_sleep &spi5_cs0_sleep>;
+		clocks = <&clock_gcc clk_gcc_blsp2_ahb_clk>,
+			<&clock_gcc clk_gcc_blsp2_qup1_spi_apps_clk>;
+		clock-names = "iface_clk", "core_clk";
+		qcom,infinite-mode = <0>;
+		qcom,use-bam;
+		qcom,use-pinctrl;
+		qcom,ver-reg-exists;
+		qcom,bam-consumer-pipe-index = <4>;
+		qcom,bam-producer-pipe-index = <5>;
+		qcom,master-id = <84>;
+	};
+	
+	i2c_5: i2c@7af5000 { /* BLSP2 QUP1 */
+		status = "disabled"; //diabale i2c-5 by henry.liu 2018.12.29
+		compatible = "qcom,i2c-msm-v2";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg-names = "qup_phys_addr";
+		reg = <0x7af5000 0x600>;
+		interrupt-names = "qup_irq";
+		interrupts = <0 299 0>;
+		qcom,clk-freq-out = <400000>;
+		qcom,clk-freq-in  = <19200000>;
+		clock-names = "iface_clk", "core_clk";
+		clocks = <&clock_gcc clk_gcc_blsp2_ahb_clk>,
+			<&clock_gcc clk_gcc_blsp2_qup1_i2c_apps_clk>;
+
+		pinctrl-names = "i2c_active", "i2c_sleep";
+		pinctrl-0 = <&i2c_5_active>;
+		pinctrl-1 = <&i2c_5_sleep>;
+		qcom,noise-rjct-scl = <0>;
+		qcom,noise-rjct-sda = <0>;
+		qcom,master-id = <84>;
+		dmas = <&dma_blsp2 4 64 0x20000020 0x20>,
+			<&dma_blsp2 5 32 0x20000020 0x20>;
+		dma-names = "tx", "rx";
+	};
+	
+	sn_fuse: snfuse@a4128 {
+		compatible = "qcom,sn-fuse";
+		reg = <0xA4128 0x4>,
+		      <0xA6034 0x4>;
+		reg-names = "sn-base","fuse-state";
+	};
+	
+	/delete-node/ qseecom@85b00000;
+	qcom_seecom: qseecom@84A00000 {
+		compatible = "qcom,qseecom";
+		reg = <0x84A00000 0x1900000>;
+		reg-names = "secapp-region";
+		qcom,hlos-num-ce-hw-instances = <1>;
+		qcom,hlos-ce-hw-instance = <0>;
+		qcom,qsee-ce-hw-instance = <0>;
+		qcom,disk-encrypt-pipe-pair = <2>;
+		qcom,support-fde;
+		qcom,msm-bus,name = "qseecom-noc";
+		qcom,msm-bus,num-cases = <4>;
+		qcom,msm-bus,num-paths = <1>;
+		qcom,support-bus-scaling;
+		qcom,msm-bus,vectors-KBps =
+			<55 512 0 0>,
+			<55 512 0 0>,
+			<55 512 120000 1200000>,
+			<55 512 393600 3936000>;
+		clocks = <&clock_gcc clk_crypto_clk_src>,
+			 <&clock_gcc clk_gcc_crypto_clk>,
+			 <&clock_gcc clk_gcc_crypto_ahb_clk>,
+			 <&clock_gcc clk_gcc_crypto_axi_clk>;
+		clock-names = "core_clk_src", "core_clk",
+				"iface_clk", "bus_clk";
+		qcom,ce-opp-freq = <100000000>;
+	};
+	
+	usb3: ssusb@7000000{
+	    qcom,usbin-vadc = <&pmi8940_vadc>;
+		qcom,detect-dpdm-floating;
+		extcon = <&qpnp_smbcharger>;
+	};	
+
+qusb_phy: qusb@79000 {
+   qcom,qusb-phy-init-seq = <0xF8 0x80
+					0x73 0x84
+					0x83 0x88
+					0xC5 0x8C
+					0x14 0x9C
+					0x30 0x08
+					0x79 0x0C
+					0x21 0x10
+					0x00 0x90
+					0x9F 0x1C
+					0x00 0x18>;
+	};				
+	
+	ant_check {
+		compatible = "ant_check";
+                pinctrl-names = "ant_check_irq_state";
+                pinctrl-0 = <&ant_check_irq_state>;
+                ant_check,irq_gpio = <&tlmm 9 0>;
+	};
+
+	fpc1020 {
+		status = "ok";
+		compatible = "fpc,fpc1020";
+		interrupt-parent = <&tlmm>;
+		interrupts = <48 0x0>;
+		fpc,gpio_rst = <&tlmm 140 0x0>;
+		fpc,gpio_irq = <&tlmm 48 0x0>;
+		fpc,gpio_ldo_en = <&tlmm 47 0x0>;
+
+		vcc_spi-supply = <&pm8953_l6>;
+		vdd_io-supply = <&pm8953_l6>;
+		vdd_ana-supply = <&pm8953_l6>;
+
+		pinctrl-names = "fpc1020_reset_reset",
+			"fpc1020_reset_active",
+			"fpc1020_irq_active",
+            "fpc1020_ldo_2v8_en";
+		pinctrl-0 = <&fp_reset_low>;
+		pinctrl-1 = <&fp_reset_high>;
+		pinctrl-2 = <&fp_irq_active>;
+		pinctrl-3 = <&fp_ldo_2v8_en>;
+	};
+
+    goodix_fp {
+		status = "ok";
+		compatible = "goodix,fingerprint";
+		interrupt-parent = <&tlmm>;
+		interrupts = <48 0x0>;
+		goodix,gpio_reset = <&tlmm 140 0x0>;
+		goodix,gpio_irq = <&tlmm 48 0x0>;
+		goodix,gpio_pwr = <&tlmm 47 0x0>;
+
+		vcc_spi-supply = <&pm8953_l6>;
+		vdd_io-supply = <&pm8953_l6>;
+		vdd_ana-supply = <&pm8953_l6>;
+		pinctrl-0 = <&goodix_reset_active &goodix_irq_active>;
+		pinctrl-1 = <&goodix_reset_sleep &goodix_irq_sleep>;
+		clock-names = "iface_clk", "core_clk";
+
+		clocks = <&clock_gcc clk_gcc_blsp1_ahb_clk>,
+		<&clock_gcc clk_gcc_blsp1_qup1_spi_apps_clk>;
+        
+	};
+};
+&spmi_bus {
+	qcom,pmi8940@3 {
+		labibb: qpnp-labibb-regulator {
+			status = "ok";
+			ibb_regulator: qcom,ibb@dc00 {
+				/delete-property/
+					qcom,qpnp-ibb-use-default-voltage;
+				qcom,qpnp-ibb-init-lcd-voltage = <5700000>;
+			};
+
+			lab_regulator: qcom,lab@de00 {
+				/delete-property/
+					qcom,qpnp-ibb-use-default-voltage;
+				qcom,qpnp-ibb-init-lcd-voltage = <5700000>;
+			};
+		};
+	};
+};
+
+&pm8953_vadc {
+chan@11 {
+		label = "case_therm";
+		reg = <0x11>;
+		qcom,decimation = <0>;
+		qcom,pre-div-channel-scaling = <0>;
+		qcom,calibration-type = "ratiometric";
+		qcom,scale-function = <2>;
+		qcom,hw-settle-time = <2>;
+		qcom,fast-avg-setup = <0>;
+		qcom,vadc-thermal-node;
+		};
+	};	

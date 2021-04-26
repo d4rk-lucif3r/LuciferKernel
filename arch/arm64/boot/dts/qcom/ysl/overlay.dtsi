@@ -1,0 +1,8 @@
+#include "ysl-general.dtsi"
+#include "ysl-pinctrl.dtsi"
+#include "ysl-pm.dtsi"
+#include "ysl-regulator.dtsi"
+#include "ysl-audio.dtsi"
+#include "ysl-mdss.dtsi"
+#include "ysl-mtp.dtsi"
+#include "ysl-camera.dtsi"
