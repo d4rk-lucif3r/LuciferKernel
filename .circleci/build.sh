@@ -51,10 +51,10 @@ function compile() {
 # Zipping
 function zipping() {
     cd $REPACK_DIR || exit 1
-    zip -r9 LuciferKernel_V4_OC.zip *
+    zip -r9 LuciferKernel_V4_OC_test.zip *
     cd $SEND_DIR   || exit 1
     echo "Changing Dir to Send FIle"
-    ./telegram -t $TELEGRAM_TOKEN -c $TELEGRAM_CHAT -f $REPACK_DIR/LuciferKernel_V4_OC.zip "Zip Sent through CircleCi"
+    ./telegram -t $TELEGRAM_TOKEN -c $TELEGRAM_CHAT -f $REPACK_DIR/LuciferKernel_V4_OC_test.zip "Zip Sent through CircleCi"
    #curl https://bashupload.com/LuciferKernel+V3.zip --data-binary @LuciferKernel+V3.zip
 }
 compile
