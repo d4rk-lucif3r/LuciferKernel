@@ -14,6 +14,10 @@ The luciferML is an Automated Machine Learning Python Library that works with ta
     - Resampling
 2. Trying many different machine learning models with hyperparameter tuning,
 
+## Installation
+    
+    pip install lucifer-ml
+
 
 ## Available Modelling Techniques: 
 
