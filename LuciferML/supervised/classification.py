@@ -193,9 +193,10 @@ class Classification:
             print('Model Train Failed with error: ', error, '\n')
 
         print('Model Training Done [', u'\u2713', ']\n')
-
+        print('Predicting Data [*]\n')
         try:
             y_pred = classifier.predict(X_val)
+            print('Data Prediction Done [', u'\u2713', ']\n')
         except Exception as error:
             print('Prediction Failed with error: ', error,  '\n')
         
