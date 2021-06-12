@@ -1,3 +1,3 @@
 # __version__ = "0.0.1"
 
-from lucifer.supervised.classification import Classification
+from luciferml.supervised.classification import Classification
