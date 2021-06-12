@@ -11,7 +11,6 @@ def confusionMatrix(y_pred, y_val):
         print('''Making Confusion Matrix [*]''')
         cm = confusion_matrix(y_val, y_pred)
         print(cm)
-        print('Confusion Matrix Done [', u'\u2713', ']\n')
         ax = plt.subplot()
         sns.heatmap(cm, annot=True, fmt='g', ax=ax)
         ax.set_xlabel('Predicted labels')
@@ -20,5 +19,6 @@ def confusionMatrix(y_pred, y_val):
         ax.xaxis.set_ticklabels(['0', '1'])
         ax.yaxis.set_ticklabels(['0', '1'])
         plt.show()
+        print('Confusion Matrix Done [', u'\u2713', ']\n')
     except Exception as error:
         print('Building Confusion Matrix Failed with error :', error, '\n')
