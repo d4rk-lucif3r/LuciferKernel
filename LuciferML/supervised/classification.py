@@ -120,20 +120,16 @@ class Classification:
                     Batch Size for ANN. Default = 32 
 
 
-        EX: 
-        For Logistic Regression
-                prediself.ctor
-                    (
-                        features = features, 
-                        labels = labels, 
-                        prediself.ctor = 'lr', 
-                        {'penalty': 'l1', 'solver': 'liblinear'}, 
-                        tune = True, 
-                        test_size = .25
-                    )
+        Example:
+
+            from luciferml.supervised import classification as cls
+            dataset = pd.read_csv('Social_Network_Ads.csv')
+            X = dataset.iloc[:, :-1]
+            y = dataset.iloc[:, -1]
+            cls.Classification(predictor = 'lr').predict(X, y)
 
         """
-        # super(Classification, self).__init__()
+        
 
 
         self.predictor = predictor
@@ -160,11 +156,12 @@ class Classification:
         self.batch_size = batch_size
         self.accuracy_scores = {}
 
-        # self.predict = self.predict()
+        
 
     def predict(self, features, labels):
         self.features = features
         self.labels = labels
+        
         # Time Function ---------------------------------------------------------------------
 
         start = time.time()
