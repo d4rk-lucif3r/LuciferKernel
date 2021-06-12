@@ -1,12 +1,20 @@
 from setuptools import setup, find_packages
 from codecs import open
 from os import path
+here = path.abspath(path.dirname(__file__))
+
+# Get the long description from the README file
+with open(path.join(here, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
+
 setup(
     name='lucifer-ml',         
     packages=['luciferml', 'luciferml.supervised'],
-    version='0.0.5',      
+    version='0.0.6',      
     license='MIT',
     description="Automated ML by d4rk-lucif3r",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author='Arsh Anwar',                   
     author_email="lucifer78908@gmail.com",    
     url="https://github.com/d4rk-lucif3r/LuciferML",
