@@ -2,9 +2,9 @@
 
 ## About
 
-The luciferML is a Semi-Automated Machine Learning Python Library that works with tabular data. It is designed to save time while doing data analysis. It will help you right from data preprocessing to Data Prediction.
+The LuciferML is a Semi-Automated Machine Learning Python Library that works with tabular data. It is designed to save time while doing data analysis. It will help you right from data preprocessing to Data Prediction.
 
-### The luciferml will help you with:
+### The LuciferML will help you with:
 
 1. Preprocessing Data:
     - Emcoding
