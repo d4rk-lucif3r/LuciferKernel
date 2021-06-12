@@ -1,6 +1,6 @@
 import time
 
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy
@@ -23,11 +23,9 @@ from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
 
 
-class Classification():
+class Classification:
 
     def __init__(self,
-                 features,
-                 labels,
                  predictor='lr',
                  params={},
                  tune=False,
@@ -83,8 +81,11 @@ class Classification():
                     Default is False
 
             test_size: float or int, default=.2
-                        If float, should be between 0.0 and 1.0 and represent the proportion of the dataset to 
-                        include in the test split. If int, represents the absolute number of test samples. 
+                        If float, should be between 0.0 and 1.0 and represent 
+                        the proportion of the dataset to include in 
+                        the test split.
+                        If int, represents the absolute number of test samples. 
+
             cv_folds : int
                     No. of cross validation folds. Default = 10
             pca : str
@@ -132,10 +133,9 @@ class Classification():
                     )
 
         """
-        super(Classification, self).__init__()
+        # super(Classification, self).__init__()
 
-        self.features = features
-        self.labels = labels
+
         self.predictor = predictor
         self.params = params
         self.tune = tune
@@ -147,22 +147,24 @@ class Classification():
         self.lda = lda
         self.pca = pca
         self.n_components_pca = n_components_pca
-        self.self.hidden_layers = hidden_layers
+        self.hidden_layers = hidden_layers
         self.output_units = output_units
         self.input_units = input_units
-        self.self.input_activation = input_activation
-        self.self.output_activation = output_activation
+        self.input_activation = input_activation
+        self.output_activation = output_activation
         self.optimizer = optimizer
         self.metrics = metrics
         self.loss = loss
         self.validation_split = validation_split
         self.epochs = epochs
         self.batch_size = batch_size
-
         self.accuracy_scores = {}
 
-    def predictor(self):
+        # self.predict = self.predict()
 
+    def predict(self, features, labels):
+        self.features = features
+        self.labels = labels
         # Time Function ---------------------------------------------------------------------
 
         start = time.time()
@@ -202,30 +204,33 @@ class Classification():
                 'Features and labels are not categorical [', u'\u2713', ']\n')
 
         # Sparse Check -------------------------------------------------------------
-        if scipy.sparse.issparse(features[()]):
-            print('Converting Sparse Features to array []\n')
-            features = features[()].toarray()
-            print(
-                'Conversion of Sparse Features to array Done [', u'\u2713', ']\n')
+        try:
+            if scipy.sparse.issparse(self.features[()]):
+                print('Converting Sparse Features to array []\n')
+                self.features = self.features[()].toarray()
+                print(
+                    'Conversion of Sparse Features to array Done [', u'\u2713', ']\n')
 
-        if scipy.sparse.issparse(labels[()]):
-            print('Converting Sparse Labels to array []\n')
-            labels = labels[()].toarray()
-            print(
-                'Conversion of Sparse Labels to array Done [', u'\u2713', ']\n')
-
+            if scipy.sparse.issparse(self.labels[()]):
+                print('Converting Sparse Labels to array []\n')
+                self.labels = self.labels[()].toarray()
+                print(
+                    'Conversion of Sparse Labels to array Done [', u'\u2713', ']\n')
+        except KeyError as error:
+            # print(error)
+            pass
         # SMOTE ---------------------------------------------------------------------
         print('Applying SMOTE [*]\n')
 
         sm = SMOTE(k_neighbors=4)
-        features, labels = sm.fit_resample(features, labels)
+        self.features, self.labels = sm.fit_resample(self.features, self.labels)
         print('SMOTE Done [', u'\u2713', ']\n')
 
         # Splitting ---------------------------------------------------------------------
         print('Splitting Data into Train and Validation Sets [*]\n')
 
         X_train, X_val, y_train, y_val = train_test_split(
-            features, labels, test_size=self.test_size, random_state=self.random_state)
+            self.features, self.labels, test_size=self.test_size, random_state=self.random_state)
         print('Splitting Done [', u'\u2713', ']\n')
 
         # Scaling ---------------------------------------------------------------------

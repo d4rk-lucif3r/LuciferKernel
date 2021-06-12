@@ -15,13 +15,16 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/d4rk-lucif3r/LuciferML",
-    author="lucif3r",
+    download_url= "https://github.com/d4rk-lucif3r/LuciferML/archive/v_01.tar.gz",
+    author="Arsh Anwar",
     author_email="lucifer78908@gmail.com",
     license="MIT",
-    packages=['lucifer',],
+    packages=find_packages(
+        exclude=["*.examples"]),
     install_requires=open("requirements.txt").readlines(),
     include_package_data=True,
     classifiers=[
+        "Development Status :: 3 - Alpha",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
