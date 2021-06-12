@@ -1,8 +1,10 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
+from codecs import open
+from os import path
 setup(
-    name='lucifer-ml',         
-    packages=['lucifer'],   
-    version='0.0.3c',      
+    name='LuciferML',         
+    packages=['lucifer'],
+    version='0.0.4',      
     
     license='MIT',
     
@@ -12,19 +14,19 @@ setup(
     
     url="https://github.com/d4rk-lucif3r/LuciferML",
     
-    download_url='https://github.com/d4rk-lucif3r/LuciferML/archive/refs/tags/v_0.0.2.tar.gz',
+    download_url='https://github.com/d4rk-lucif3r/LuciferML/archive/refs/tags/0.0.3.tar.gz',
     
     keywords=['SOME', 'MEANINGFULL', 'KEYWORDS'],
-    install_requires=[            
-            'numpy',
-            'pandas',
-            'scipy',
-            'seaborn',
-            'matplotlib',
-            'scikit-learn',
-            'imblearn',
-            'xgboost',
-            'tensorflow',
+    install_requires=[
+        "numpy",
+        "pandas",
+        "scipy",
+        "seaborn",
+        "matplotlib",
+        "scikit-learn",
+        "imblearn",
+        "xgboost",
+        "tensorflow",
     ],
     classifiers=[
         
