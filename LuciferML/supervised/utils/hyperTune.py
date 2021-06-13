@@ -1,12 +1,13 @@
 from sklearn.model_selection import GridSearchCV
+from luciferml.supervised import classification as cls
 
-
-def hyperTune(classifier, parameters, X_train, y_train, cv_folds):
+def hyperTune(classifier, parameters, X_train, y_train, cv_folds, tune_mode):
     """
     Takes classifier, tune-parameters, Training Data and no. of folds as input and Performs GridSearch Crossvalidation.
     """
     try:
-        print('Applying Grid Search Cross validation [*]')
+        print(
+            'Applying Grid Search Cross validation on Mode {} [*]'.format(tune_mode))
 
         grid_search = GridSearchCV(
             estimator=classifier,
@@ -22,5 +23,9 @@ def hyperTune(classifier, parameters, X_train, y_train, cv_folds):
         print("Best Accuracy: {:.2f} %".format(best_accuracy*100))
         print("Best Parameters:", best_parameters)
         print('Applying Grid Search Cross validation [', u'\u2713', ']\n')
+        if tune_mode == 3:
+            print('############################################### \n')
+            print('Re-running classifier with these params\n')
+        return best_parameters
     except Exception as error:
         print('HyperParam Tuning Failed with Error: ', error,'\n')

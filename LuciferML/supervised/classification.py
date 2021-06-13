@@ -41,15 +41,16 @@ class Classification:
                  validation_split=.20,
                  epochs=100,
                  batch_size=32,
+                 tune_mode = 1
                  ):
         """
-        Encode Categorical Data then Applies SMOTE , Splits the features and labels in training and validation sets with test_size = .2 , scales X_train, X_val using StandardScaler.
+        Encode Categorical Data then Applies SMOTE , Splits the features and labels in training and validation sets with test_size = .2 , scales self.X_train, X_val using StandardScaler.
         Fits every model on training set and predicts results find and plots Confusion Matrix,
         finds accuracy of model applies K-Fold Cross Validation
-        and stores accuracy in variable name accuracy and model name in classifier name and returns both as a tuple.
+        and stores accuracy in variable name accuracy and model name in self.classifier name and returns both as a tuple.
         Applies GridSearch Cross Validation and gives best self.params out from param list.
 
-        Parameters:
+        self.Parameters:
             features : array
                         features array
 
@@ -65,11 +66,11 @@ class Classification:
                                 knn - K-Nearest Neighbours
                                 dt - Decision Trees
                                 nb - GaussianNaive bayes
-                                rfc- Random Forest Classifier
-                                xgb- XGBoost Classifier
+                                rfc- Random Forest self.Classifier
+                                xgb- XGBoost self.Classifier
                                 ann - Artificial Neural Network
             self.params : dict
-                        contains parameters for model
+                        contains self.parameters for model
             tune : boolean
                     when True Applies GridSearch CrossValidation
                     Default is False
@@ -112,7 +113,12 @@ class Classification:
                     No. of epochs for ann. Default = 100
             batch_size :
                     Batch Size for ANN. Default = 32
-
+            tune_mode : int
+                    HyperParam tune modes. Default = 1
+                        Available Modes:
+                            1 : Basic Tune
+                            2 : Intermediate Tune
+                            3 : Extreme Tune (Can Take Much Time)
 
         Example:
 
@@ -146,6 +152,8 @@ class Classification:
         self.validation_split = validation_split
         self.epochs = epochs
         self.batch_size = batch_size
+        self.tune_mode = tune_mode
+
         self.accuracy_scores = {}
 
     def predict(self, features, labels):
@@ -172,30 +180,33 @@ class Classification:
         self.features, self.labels = sparseCheck(self.features, self.labels)
 
         # Preprocessing ---------------------------------------------------------------------
-        X_train, X_val, y_train, y_val = preprocess(
+        self.X_train, X_val, self.y_train, y_val = preprocess(
             self.features, self.labels, self.test_size, self.random_state)
 
         # Dimensionality Reduction---------------------------------------------------------------------
-        X_train, X_val = dimensionalityReduction(
-            self.lda, self.pca, X_train, X_val, y_train,
+        self.X_train, X_val = dimensionalityReduction(
+            self.lda, self.pca, self.X_train, X_val, self.y_train,
             self.n_components_lda, self.n_components_pca, self.pca_kernel, start)
 
         # Models ---------------------------------------------------------------------
-        parameters, classifier = classificationPredictor(
-            self.predictor, self.params, X_train, X_val, y_train, y_val, self.epochs, self.hidden_layers,
+
+        self.parameters, self.classifier = classificationPredictor(
+            self.predictor, self.params, self.X_train, X_val, self.y_train, y_val, self.epochs, self.hidden_layers,
             self.input_activation, self.output_activation, self.loss,
-            self.batch_size, self.metrics, self.validation_split, self.optimizer, self.output_units, self.input_units
+            self.batch_size, self.metrics, self.validation_split, self.optimizer, self.output_units, self.input_units,self.tune_mode
         )
+
         try:
+
             if not self.predictor == 'ann':
-                classifier.fit(X_train, y_train)
+                self.classifier.fit(self.X_train, self.y_train)
         except Exception as error:
             print('Model Train Failed with error: ', error, '\n')
 
         print('Model Training Done [', u'\u2713', ']\n')
         print('Predicting Data [*]\n')
         try:
-            y_pred = classifier.predict(X_val)
+            y_pred = self.classifier.predict(X_val)
             print('Data Prediction Done [', u'\u2713', ']\n')
         except Exception as error:
             print('Prediction Failed with error: ', error,  '\n')
@@ -216,10 +227,10 @@ class Classification:
 
 
         # K-Fold ---------------------------------------------------------------------
-        classifier_name, accuracy = kfold(
-            classifier,
+        self.classifier_name, accuracy = kfold( 
+            self.classifier,
             self.predictor, self.input_units, self.epochs,
-            self.batch_size, X_train, y_train, self.cv_folds,
+            self.batch_size, self.X_train, self.y_train, self.cv_folds,
             self.accuracy_scores,
             self.hidden_layers,
             self.input_activation, self.output_activation,
@@ -229,9 +240,19 @@ class Classification:
 
         # GridSearch ---------------------------------------------------------------------
         if not self.predictor == 'nb' and self.tune:
-            hyperTune(classifier, parameters, X_train, y_train, self.cv_folds)
+            self.tuner()
+
         
         print('Complete [', u'\u2713', ']\n')
         end = time.time()
         print('Time Elapsed : ', end - start, 'seconds \n')
-        return (classifier_name,accuracy)
+        return (self.classifier_name,accuracy)
+    
+    def tuner(self):
+        self.best_params = hyperTune(self.classifier, self.parameters, self.X_train, self.y_train, self.cv_folds, self.tune_mode)
+        if self.tune_mode == 3:
+            self.params =self.best_params
+            self.tune = False
+            self.predict(self.features, self.labels)
+            print(self.params)
+            print('Re-running Classifier with Best Params Done[', u'\u2713', ']\n')

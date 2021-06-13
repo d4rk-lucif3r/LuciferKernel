@@ -7,7 +7,7 @@ from xgboost import XGBClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 import tensorflow as tf
-
+from luciferml.supervised.utils.classification_params import *
 
 def build_ann_model(
     input_units, hidden_layers,
@@ -31,7 +31,7 @@ def build_ann_model(
 def classificationPredictor(
         predictor, params, X_train, X_val, y_train, y_val, epochs, hidden_layers,
         input_activation, output_activation, loss,
-        batch_size, metrics, validation_split, optimizer, output_units, input_units
+        batch_size, metrics, validation_split, optimizer, output_units, input_units,tune_mode
 ):
     """
     Takes Predictor string , parameters , Training and Validation set and Returns a classifier for the Choosen Predictor.
@@ -41,48 +41,48 @@ def classificationPredictor(
             print('Training Logistic Regression on Training Set [*]\n')
 
             classifier = LogisticRegression(**params)
-            parameters = [{
-                'penalty': ['l1', 'l2', 'elasticnet', 'none'],
-                'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
-                'C': np.logspace(-4, 4, 20),
-            }]
+            if tune_mode == 1:
+                parameters = parameters_lin_1
+            elif tune_mode == 2:
+                parameters = parameters_lin_2
+            elif tune_mode == 3:
+                parameters = parameters_lin_3
 
         elif predictor == 'svm':
             print('Training Support Vector Machine on Training Set [*]\n')
 
             classifier = SVC(**params)
-            parameters = [
-                {'kernel': ['rbf'], 'gamma': [1e-3, 1e-4, 0.1, 0.2, 0.3, 0.4,
-                                            0.5, 0.6, 0.7, 0.8, 0.9], 'C': np.logspace(-4, 4, 20)},
-                {'kernel': ['linear'], 'gamma': [1e-3, 1e-4, 0.1, 0.2, 0.3,
-                                                0.4, 0.5, 0.6, 0.7, 0.8, 0.9], 'C': np.logspace(-4, 4, 20)},
-                {'kernel': ['poly'], 'gamma': [1e-3, 1e-4, 0.1, 0.2, 0.3,
-                                            0.4, 0.5, 0.6, 0.7, 0.8, 0.9], 'C': np.logspace(-4, 4, 20)},
-                {'kernel': ['sigmoid'], 'gamma': [1e-3, 1e-4, 0.1, 0.2, 0.3,
-                                                0.4, 0.5, 0.6, 0.7, 0.8, 0.9], 'C': np.logspace(-4, 4, 20)},
-            ]
+            if tune_mode == 1:
+                parameters = parameters_svm_1
+            elif tune_mode == 2:
+                parameters = parameters_svm_2
+            elif tune_mode == 3:
+                parameters = parameters_svm_3
+
         elif predictor == 'knn':
             print('Training K-Nearest Neighbours on Training Set [*]\n')
 
             classifier = KNeighborsClassifier(**params)
-            parameters = [{
-                'n_neighbors': list(range(0, 31)),
-                'weights': ['uniform', 'distance'],
-                'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],
-                'n_jobs': [1, 0, None]
-            }]
+            if tune_mode == 1:
+                parameters = parameters_knn_1
+            elif tune_mode == 2:
+                parameters = parameters_knn_2
+            elif tune_mode == 3:
+                parameters = parameters_knn_3
+
 
         elif predictor == 'dt':
             print('Training Decision Tree Classifier on Training Set [*]\n')
 
             classifier = DecisionTreeClassifier(**params)
-            parameters = [{
-                'criterion': ['gini', 'entropy'],
-                'splitter': ['best', 'random'],
-                'max_features': [2, 3],
-                'max_depth': [4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20, 30, 40, 50, 70, 90, 120, 150],
 
-            }]
+            if tune_mode == 1:
+                parameters = parameters_dt_1
+            elif tune_mode == 2:
+                parameters = parameters_dt_2
+            elif tune_mode == 3:
+                parameters = parameters_dt_3
+
         elif predictor == 'nb':
             print('Training Naive Bayes Classifier on Training Set [*]\n')
 
@@ -93,19 +93,24 @@ def classificationPredictor(
             print('Training Random Forest Classifier on Training Set [*]\n')
 
             classifier = RandomForestClassifier(**params)
-            parameters = [{
-                'criterion': ['gini', 'entropy'],
-                'n_estimators': [50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000],
-                'bootstrap': [True, False],
-                'max_depth': [4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20, 30, 40, 50, 70, 90, 120, 150],
-                'max_features': [2, 3],
-                'min_samples_leaf': [3, 4, 5],
-                'min_samples_split': [8, 10, 12],
-            }]
+            if tune_mode == 1:
+                parameters = parameters_rfc_1
+            elif tune_mode == 2:
+                parameters = parameters_rfc_2
+            elif tune_mode == 3:
+                parameters = parameters_rfc_3
+
         elif predictor == 'xgb':
             print('Training XGBClassifier on Training Set [*]\n')
 
             classifier = XGBClassifier(**params)
+
+            if tune_mode == 1:
+                parameters = parameters_xgb_1
+            elif tune_mode == 2:
+                parameters = parameters_xgb_2
+            elif tune_mode == 3:
+                parameters = parameters_xgb_3
             parameters = {
                 'min_child_weight': [1, 5, 10],
                 'gamma': [1e-3, 1e-4, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
@@ -124,12 +129,14 @@ def classificationPredictor(
                 validation_data=(
                     X_val, y_val), epochs=epochs, batch_size=batch_size
             )
+            if tune_mode == 1:
+                parameters = parameters_ann_1
+            elif tune_mode == 2:
+                parameters = parameters_ann_2
+            elif tune_mode == 3:
+                parameters = parameters_ann_3
 
-            parameters = {'batch_size': [100, 20, 50, 25, 32],
-                        'nb_epoch': [200, 100, 300, 400],
-                        'input_units': [5, 6, 10, 11, 12, 15],
-
-                        }
         return (parameters, classifier)
+        
     except Exception as error:
         print('Model Build Failed with error :', error, '\n')
